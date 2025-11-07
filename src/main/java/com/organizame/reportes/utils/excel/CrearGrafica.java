@@ -11,6 +11,7 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
@@ -22,13 +23,13 @@ import java.io.IOException;
 @Slf4j
 public class CrearGrafica {
 
-    private final SXSSFWorkbook wb;
+    private final XSSFWorkbook wb;
 
-    public CrearGrafica(SXSSFWorkbook wb){
+    public CrearGrafica(XSSFWorkbook wb){
         this.wb = wb;
     }
 
-    public void insertarImagenBarras(SXSSFSheet hoja, int col, int row, DefaultCategoryDataset datos
+    public void insertarImagenBarras(XSSFSheet hoja, int col, int row, DefaultCategoryDataset datos
             , String titulo, String xAxis, String yAxis) throws GraficaException {
         JFreeChart chart = ChartFactory.createBarChart(
                 titulo,
@@ -40,7 +41,7 @@ public class CrearGrafica {
         this.insertarGrafica(hoja, col, row, chart, 1200, 800);
     }
 
-    public void insertarGrafica(SXSSFSheet hoja, int col, int row,
+    public void insertarGrafica(XSSFSheet hoja, int col, int row,
                                 JFreeChart chart, int width, int height) throws GraficaException {
         try (ByteArrayOutputStream chartOut = new ByteArrayOutputStream()) {
             ChartUtils.writeChartAsPNG(chartOut, chart, width, height);
@@ -52,7 +53,7 @@ public class CrearGrafica {
     }
 
 
-    public void insertarImagen(SXSSFSheet hoja, int col, int row, byte[] bytes ){
+    public void insertarImagen(XSSFSheet hoja, int col, int row, byte[] bytes ){
         log.info("Se insertara la imagen en la columna:{} y fila {}", col, row);
         // Agrega la imagen al libro (Devuelve el índice de la imagen)
 
@@ -60,7 +61,7 @@ public class CrearGrafica {
 
         // Crea el helper y el drawing patriarch (contenedor de imágenes/shapes)
         CreationHelper helper = wb.getCreationHelper();
-        SXSSFDrawing drawing = hoja.createDrawingPatriarch();
+        XSSFDrawing drawing = hoja.createDrawingPatriarch();
 
         // Define la posición de la imagen en la hoja
         ClientAnchor anchor = helper.createClientAnchor();

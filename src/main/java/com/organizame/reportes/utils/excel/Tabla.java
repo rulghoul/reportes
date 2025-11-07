@@ -6,6 +6,8 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
@@ -22,13 +24,13 @@ public class Tabla {
     @Value("${excel.table.init.row}")
     private Integer initRow;
 
-    private final SXSSFWorkbook wb;
+    private final XSSFWorkbook wb;
 
     private final List<EstiloCeldaExcel> estilos;
 
     private final XSSFCellStyle encabezado;
 
-    private final SXSSFSheet hoja;
+    private final XSSFSheet hoja;
 
     private final List<List<Object>> datos;
 
@@ -39,7 +41,7 @@ public class Tabla {
     private  Integer rownum;
 
 
-    public Tabla(SXSSFWorkbook wb, List<EstiloCeldaExcel> estilos, XSSFCellStyle encabezado, SXSSFSheet hoja, List<List<Object>> datos, Integer columna, Integer fila){
+    public Tabla(XSSFWorkbook wb, List<EstiloCeldaExcel> estilos, XSSFCellStyle encabezado, XSSFSheet hoja, List<List<Object>> datos, Integer columna, Integer fila){
         this.wb = wb;
         this.estilos = estilos;
         this.encabezado = encabezado;
@@ -64,22 +66,22 @@ public class Tabla {
 
 
 
-    public void escribeFila(SXSSFSheet sh, List<String> fila, int elemento) {
+    public void escribeFila(XSSFSheet sh, List<String> fila, int elemento) {
         escribeFila(sh, fila, "Estandar", elemento);
     }
 
-    public void escribeFila(SXSSFSheet sh, List<String> fila, String color, int elemento ) {
+    public void escribeFila(XSSFSheet sh, List<String> fila, String color, int elemento ) {
         List<Object> newFila = fila.stream().map(cel -> (Object) cel).collect(Collectors.toList());
         escribeFilaObject(sh, newFila, color, elemento);
     }
 
     //Este metodo obtiene una lista de Objetos de un dbf
-    public void escribeFilaObject(SXSSFSheet sh, List<Object> fila, int elemento) {
+    public void escribeFilaObject(XSSFSheet sh, List<Object> fila, int elemento) {
         escribeFilaObject(sh, fila, "Estandar", elemento);
     }
 
     //Este metodo obtiene una lista de Objetos de un dbf
-    public void escribeFilaObject(SXSSFSheet sh, List<Object> fila, String color, int elemento) {
+    public void escribeFilaObject(XSSFSheet sh, List<Object> fila, String color, int elemento) {
         Row row = sh.createRow(rownum);
         int cellnum = 0 + columna;
         Optional<EstiloCeldaExcel> temp = this.estilos.stream()

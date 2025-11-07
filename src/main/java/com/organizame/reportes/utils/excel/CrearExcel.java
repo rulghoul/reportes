@@ -11,6 +11,8 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import java.io.*;
@@ -25,7 +27,7 @@ import java.util.*;
 @Setter
 public class CrearExcel {
 
-    private final SXSSFWorkbook wb;
+    private final XSSFWorkbook wb;
     private final boolean cerrado;
 
 
@@ -36,14 +38,14 @@ public class CrearExcel {
 
 
     public CrearExcel() {
-        wb = new SXSSFWorkbook(100);
+        wb = new XSSFWorkbook();
         cerrado = false;
         estilos = new ArrayList<>();
         this.estiloEncabezado();
         this.graficas = new CrearGrafica(wb);
     }
 
-    public SXSSFSheet CrearHoja(String hoja){
+    public XSSFSheet CrearHoja(String hoja){
         if(cerrado){
             throw new ExcelException("El archivo ya se guardo, no se pueden agregar mas Hojas");
         }else{
@@ -52,7 +54,7 @@ public class CrearExcel {
     }
 
 
-    public Map<String, Integer> creaTabla(SXSSFSheet hoja, List<List<Object>> datos, Integer columna, Integer  fila){
+    public Map<String, Integer> creaTabla(XSSFSheet hoja, List<List<Object>> datos, Integer columna, Integer  fila){
         Tabla tabla = new Tabla(wb, estilos, encabezado, hoja, datos, columna, fila);
         var resultado = tabla.procesaTabla();
         return resultado;
@@ -95,7 +97,7 @@ public class CrearExcel {
         }
     }
 
-    public void TestGrafica(int col, int row, SXSSFSheet hoja) throws GraficaException {
+    public void TestGrafica(int col, int row, XSSFSheet hoja) throws GraficaException {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         dataset.addValue(23, "JFreeSVG", "Warm-up");
         dataset.addValue(11, "Batik", "Warm-up");
@@ -104,14 +106,14 @@ public class CrearExcel {
         this.agregarGrafica(col, row, "ejemplo", "x", "y", hoja, dataset);
     }
 
-    public void agregarGrafica(int col, int row, String titulo, String xAxis, String yAxis , SXSSFSheet hoja, DefaultCategoryDataset datos) throws GraficaException {
+    public void agregarGrafica(int col, int row, String titulo, String xAxis, String yAxis , XSSFSheet hoja, DefaultCategoryDataset datos) throws GraficaException {
         graficas.insertarImagenBarras(hoja, col, row, datos, titulo, xAxis, yAxis);
     }
 
     public ByteArrayInputStream guardaExcel() throws IOException {
         var out = new ByteArrayOutputStream();
         wb.write(out);
-        wb.dispose();
+        wb.close();
         return new ByteArrayInputStream(out.toByteArray());
     }
 

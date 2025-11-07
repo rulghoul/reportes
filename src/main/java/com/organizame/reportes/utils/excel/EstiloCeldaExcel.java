@@ -10,6 +10,7 @@ import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -38,7 +39,7 @@ public class EstiloCeldaExcel {
     @Autowired
     private Environment env;
 
-    public EstiloCeldaExcel(ColorExcel color, SXSSFWorkbook libro) {
+    public EstiloCeldaExcel(ColorExcel color, XSSFWorkbook libro) {
         Environment env = SpringContext.getContext().getEnvironment();
         this.fuenteNombre = env.getProperty("excel.font.name");
         this.fuenteSize = env.getProperty("excel.font.size");
@@ -51,7 +52,7 @@ public class EstiloCeldaExcel {
     }
 
 
-    private XSSFCellStyle CreaEstilo(SXSSFWorkbook libro, ColorExcel color, boolean odd, boolean fecha){
+    private XSSFCellStyle CreaEstilo(XSSFWorkbook libro, ColorExcel color, boolean odd, boolean fecha){
         BorderStyle borde;
         try {
             borde = BorderStyle.valueOf(borderType.toUpperCase().trim());
