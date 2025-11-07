@@ -1,14 +1,12 @@
 package com.organizame.reportes.utils.excel;
 
-import jakarta.annotation.PostConstruct;
+import com.organizame.reportes.utils.SpringContext;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -16,13 +14,6 @@ import java.util.stream.Collectors;
 
 
 public class Tabla {
-
-
-    @Value("${excel.table.init.col}")
-    private Integer initCol;
-
-    @Value("${excel.table.init.row}")
-    private Integer initRow;
 
     private final XSSFWorkbook wb;
 
@@ -49,6 +40,13 @@ public class Tabla {
         this.datos = datos;
         this.columna = columna;
         this.rownum = fila;
+
+        Environment env = SpringContext.getContext().getEnvironment();
+        Integer initCol = env.getProperty("excel.table.init.col", Integer.class);
+        Integer initRow = env.getProperty("excel.table.init.row", Integer.class);
+
+        this.columna =  columna < initCol ? initCol: columna;
+        this.rownum = rownum < initRow ? initRow : rownum;
     }
 
     public Map<String, Integer> procesaTabla(){
@@ -57,14 +55,6 @@ public class Tabla {
         }
         return Map.of("col",columnaEnd, "row", rownum);
     }
-
-    @PostConstruct
-    public void postContruct(){
-        this.columna =  columna < initCol ? initCol: columna;
-        this.rownum = rownum < initRow ? initRow : rownum;
-    }
-
-
 
     public void escribeFila(XSSFSheet sh, List<String> fila, int elemento) {
         escribeFila(sh, fila, "Estandar", elemento);

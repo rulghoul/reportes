@@ -4,11 +4,7 @@ import com.organizame.reportes.exceptions.GraficaException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Picture;
-import org.apache.poi.xssf.streaming.SXSSFDrawing;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -55,20 +51,18 @@ public class CrearGrafica {
 
     public void insertarImagen(XSSFSheet hoja, int col, int row, byte[] bytes ){
         log.info("Se insertara la imagen en la columna:{} y fila {}", col, row);
-        // Agrega la imagen al libro (Devuelve el índice de la imagen)
 
         int pictureIdx = wb.addPicture(bytes, wb.PICTURE_TYPE_PNG);
 
-        // Crea el helper y el drawing patriarch (contenedor de imágenes/shapes)
         CreationHelper helper = wb.getCreationHelper();
         XSSFDrawing drawing = hoja.createDrawingPatriarch();
 
-        // Define la posición de la imagen en la hoja
+
         ClientAnchor anchor = helper.createClientAnchor();
-        anchor.setCol1(col); // Columna inicial
-        anchor.setRow1(row); // Fila inicial
-        anchor.setCol2(col + 20); // Columna final (opcional)
-        anchor.setRow2(row + 60); // Fila final (opcional)
+        anchor.setCol1(col);
+        anchor.setRow1(row);
+        anchor.setCol2(col + 20);
+        anchor.setRow2(row + 60);
 
         // Inserta la imagen
         Picture pict = drawing.createPicture(anchor, pictureIdx);

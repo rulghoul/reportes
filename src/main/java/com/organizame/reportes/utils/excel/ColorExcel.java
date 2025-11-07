@@ -2,6 +2,9 @@ package com.organizame.reportes.utils.excel;
 
 
 import com.organizame.reportes.exceptions.ExcelException;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 
 import java.awt.*;
@@ -14,6 +17,9 @@ import java.util.regex.Pattern;
  *
  * @author raulperez
  */
+@Slf4j
+@Getter
+@EqualsAndHashCode
 public class ColorExcel {
 
     private final String nombre;
@@ -40,7 +46,7 @@ public class ColorExcel {
         this.odd = odd;
     }
 
-    private XSSFColor ConvierteRGB(String valor) throws ExcelException {
+    public XSSFColor ConvierteRGB(String valor) throws ExcelException {
         Matcher match = rgb.matcher(valor);
         while (match.find()) {
             int r = Integer.parseInt(match.group("r"), 16);
@@ -59,50 +65,6 @@ public class ColorExcel {
         }
     }
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public XSSFColor getNormal() {
-        return normal;
-    }
-
-    public XSSFColor getOdd() {
-        return odd;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 17 * hash + Objects.hashCode(this.nombre);
-        hash = 17 * hash + Objects.hashCode(this.normal);
-        hash = 17 * hash + Objects.hashCode(this.odd);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final ColorExcel other = (ColorExcel) obj;
-        if (!Objects.equals(this.nombre, other.nombre)) {
-            return false;
-        }
-        if (!Objects.equals(this.normal, other.normal)) {
-            return false;
-        }
-        if (!Objects.equals(this.odd, other.odd)) {
-            return false;
-        }
-        return true;
-    }
 
     @Override
     public String toString() {

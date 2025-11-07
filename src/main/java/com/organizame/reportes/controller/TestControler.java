@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.IntStream;
 
 @Slf4j
 @RestController
@@ -83,6 +84,10 @@ public class TestControler {
                     } catch (GraficaException e) {
                         log.error("Fallo al crear la grafica de ejemplo");
                     }
+                    IntStream.range(2,60).forEach(i ->
+                            sheet.autoSizeColumn(i)
+                    );
+
 
                 }
         );

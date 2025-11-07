@@ -3,6 +3,7 @@ package com.organizame.reportes.utils.excel;
 
 import com.organizame.reportes.exceptions.ExcelException;
 import com.organizame.reportes.exceptions.GraficaException;
+import com.organizame.reportes.utils.SpringContext;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.springframework.core.env.Environment;
 
 import java.io.*;
 import java.util.*;
@@ -62,15 +64,20 @@ public class CrearExcel {
 
 
     public void estiloEncabezado(){
+        Environment env = SpringContext.getContext().getEnvironment();
+        String fuenteNombre = env.getProperty("excel.font.name");
+        Integer fuenteSize = env.getProperty("excel.font.size", Integer.class);
         //colores
-        XSSFColor azulObscuro = new XSSFColor(new java.awt.Color(3, 33, 81), null);
-        XSSFColor grisclaro = new XSSFColor(new java.awt.Color(247, 246, 239), null);
-        XSSFColor blanco = new XSSFColor(new java.awt.Color(255, 255, 255), null);
+        ColorExcel estandar = new ColorExcel("Estandar", "#FEFEFE", "F5F5F5");
+        XSSFColor azulObscuro = estandar.ConvierteRGB("002B7F");
+        XSSFColor gris = estandar.ConvierteRGB("96938E");
 
         CreationHelper createHelper = wb.getCreationHelper();
 
         encabezado = (XSSFCellStyle) wb.createCellStyle();
         Font resaltar = wb.createFont();
+        resaltar.setFontName(fuenteNombre);
+        resaltar.setFontHeightInPoints(fuenteSize.shortValue());
         resaltar.setBold(true);
         resaltar.setColor(IndexedColors.WHITE.getIndex());
         encabezado.setFont(resaltar);
@@ -80,8 +87,6 @@ public class CrearExcel {
         encabezado.setBorderRight(BorderStyle.MEDIUM);
         encabezado.setFillForegroundColor(azulObscuro);
         encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-        ColorExcel estandar = new ColorExcel("Estandar", blanco, grisclaro);
 
         estilos.add(new EstiloCeldaExcel(estandar, wb));
     }

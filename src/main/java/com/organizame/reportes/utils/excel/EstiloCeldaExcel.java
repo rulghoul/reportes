@@ -8,6 +8,8 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -27,7 +29,7 @@ import org.springframework.stereotype.Component;
 public class EstiloCeldaExcel {
 
     private String fuenteNombre;
-    private String fuenteSize;
+    private Integer fuenteSize;
     private String borderType;
 
     private final String nombre;
@@ -36,13 +38,11 @@ public class EstiloCeldaExcel {
     private final XSSFCellStyle normalDate;
     private final XSSFCellStyle oddDate;
 
-    @Autowired
-    private Environment env;
 
     public EstiloCeldaExcel(ColorExcel color, XSSFWorkbook libro) {
         Environment env = SpringContext.getContext().getEnvironment();
         this.fuenteNombre = env.getProperty("excel.font.name");
-        this.fuenteSize = env.getProperty("excel.font.size");
+        this.fuenteSize = env.getProperty("excel.font.size", Integer.class);
         this.borderType = env.getProperty("excel.border.type");
         this.nombre = color.getNombre();
         this.normal = CreaEstilo(libro, color, false, false);
@@ -60,6 +60,11 @@ public class EstiloCeldaExcel {
             log.warn("Nombre de estilo de borde desconocido: '{}'. Usando valor por defecto: {}", borderType, BorderStyle.MEDIUM);
             borde = BorderStyle.MEDIUM;
         }
+
+        Font fuente = libro.createFont();
+        fuente.setFontName(fuenteNombre);
+        fuente.setFontHeightInPoints(fuenteSize.shortValue());
+
         XSSFCellStyle temp = (XSSFCellStyle) libro.createCellStyle();
         temp.setBorderTop(borde);
         temp.setBorderBottom(borde);
@@ -76,7 +81,7 @@ public class EstiloCeldaExcel {
             temp.setDataFormat(libro.getCreationHelper()
                     .createDataFormat().getFormat("dd/mm/yyyy"));
         }
-
+        temp.setFont(fuente);
         return temp;
     }
 
