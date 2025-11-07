@@ -34,6 +34,8 @@ public class Tabla {
 
     private  Integer columna;
 
+    private Integer columnaEnd;
+
     private  Integer rownum;
 
 
@@ -51,7 +53,7 @@ public class Tabla {
         for(int i = 0; this.datos.size() > i ; i++){
             this.escribeFilaObject(hoja,this.datos.get(i), i);
         }
-        return Map.of("col",columna, "row", rownum);
+        return Map.of("col",columnaEnd, "row", rownum);
     }
 
     @PostConstruct
@@ -79,7 +81,7 @@ public class Tabla {
     //Este metodo obtiene una lista de Objetos de un dbf
     public void escribeFilaObject(SXSSFSheet sh, List<Object> fila, String color, int elemento) {
         Row row = sh.createRow(rownum);
-        int cellnum = columna;
+        int cellnum = 0 + columna;
         Optional<EstiloCeldaExcel> temp = this.estilos.stream()
                 .filter(e -> e.getNombre().equalsIgnoreCase(color)).findFirst();
         EstiloCeldaExcel estilo = temp.isPresent() ? temp.get() : this.estilos.stream()
@@ -100,6 +102,7 @@ public class Tabla {
             this.trasnforma(cell, celda, ((elemento % 3) != 0), estilo);
             cellnum++;
         }
+        columnaEnd = cellnum;
         rownum++;
     }
 

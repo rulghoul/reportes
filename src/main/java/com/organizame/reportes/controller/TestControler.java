@@ -2,6 +2,7 @@ package com.organizame.reportes.controller;
 
 import com.organizame.reportes.dao.EstructuraExcel;
 import com.organizame.reportes.entity.VhcModeloperiodoindustria;
+import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.service.ModeloPeriodoService;
 import com.organizame.reportes.utils.excel.CrearExcel;
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,10 +69,21 @@ public class TestControler {
                     var sheet = excel.CrearHoja(hoja.getNombreHoja());
                     var col = 2;
                     var row = 2;
-                    for (var tabla : hoja.getTablas()){
-                        var resultado = excel.creaTabla(sheet,tabla.getDatos(), col, row);
-                        row = resultado.get("row") +2;
+                    Map<String, Integer> resultado = new HashMap<>();
+                    for (var tabla : hoja.getTablas()) {
+                        resultado = excel.creaTabla(sheet, tabla.getDatos(), col, row);
+                        row = resultado.get("row") + 2;
+                        //col = resultado.get("col") +2;
                     }
+
+                    try {
+                        excel.TestGrafica(resultado.get("col") + 2
+                                , resultado.get("row") - hoja.getTablas().get(hoja.getTablas().size()-1).getDatos().size()
+                                , sheet);
+                    } catch (GraficaException e) {
+                        log.error("Fallo al crear la grafica de ejemplo");
+                    }
+
                 }
         );
         ByteArrayInputStream resultado = excel.guardaExcel();

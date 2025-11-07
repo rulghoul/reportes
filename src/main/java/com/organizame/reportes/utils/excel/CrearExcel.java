@@ -2,6 +2,7 @@ package com.organizame.reportes.utils.excel;
 
 
 import com.organizame.reportes.exceptions.ExcelException;
+import com.organizame.reportes.exceptions.GraficaException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.jfree.data.category.DefaultCategoryDataset;
 
 import java.io.*;
 import java.util.*;
@@ -28,6 +30,7 @@ public class CrearExcel {
 
 
     private final List<EstiloCeldaExcel> estilos;
+    private final CrearGrafica graficas;
 
     private XSSFCellStyle encabezado;
 
@@ -37,6 +40,7 @@ public class CrearExcel {
         cerrado = false;
         estilos = new ArrayList<>();
         this.estiloEncabezado();
+        this.graficas = new CrearGrafica(wb);
     }
 
     public SXSSFSheet CrearHoja(String hoja){
@@ -89,6 +93,19 @@ public class CrearExcel {
         }else{
             this.estilos.add(new EstiloCeldaExcel(color, wb));
         }
+    }
+
+    public void TestGrafica(int col, int row, SXSSFSheet hoja) throws GraficaException {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        dataset.addValue(23, "JFreeSVG", "Warm-up");
+        dataset.addValue(11, "Batik", "Warm-up");
+        dataset.addValue(42, "JFreeSVG", "Test");
+        dataset.addValue(21, "Batik", "Test");
+        this.agregarGrafica(col, row, "ejemplo", "x", "y", hoja, dataset);
+    }
+
+    public void agregarGrafica(int col, int row, String titulo, String xAxis, String yAxis , SXSSFSheet hoja, DefaultCategoryDataset datos) throws GraficaException {
+        graficas.insertarImagenBarras(hoja, col, row, datos, titulo, xAxis, yAxis);
     }
 
     public ByteArrayInputStream guardaExcel() throws IOException {
