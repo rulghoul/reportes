@@ -5,23 +5,14 @@ import com.organizame.reportes.exceptions.ExcelException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
-import org.springframework.beans.factory.annotation.Value;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.io.*;
+import java.util.*;
 
 /**
  *
@@ -32,25 +23,20 @@ import java.util.stream.Collectors;
 @Setter
 public class CrearExcel {
 
-
-    @Value("${excel.table.init.col}")
-    private String initCol;
-
-    @Value("${excel.table.init.row}")
-    private String initRow;
-
-    private final Path salida;
     private final SXSSFWorkbook wb;
     private final boolean cerrado;
-    private Integer rownum = 0;
+
+
     private final List<EstiloCeldaExcel> estilos;
+
     private XSSFCellStyle encabezado;
 
-    public CrearExcel(Path archivo) {
+
+    public CrearExcel() {
         wb = new SXSSFWorkbook(100);
         cerrado = false;
-        salida = archivo;
         estilos = new ArrayList<>();
+        this.estiloEncabezado();
     }
 
     public SXSSFSheet CrearHoja(String hoja){
@@ -60,6 +46,14 @@ public class CrearExcel {
             return wb.createSheet(hoja);
         }
     }
+
+
+    public Map<String, Integer> creaTabla(SXSSFSheet hoja, List<List<Object>> datos, Integer columna, Integer  fila){
+        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja, datos, columna, fila);
+        var resultado = tabla.procesaTabla();
+        return resultado;
+    }
+
 
     public void estiloEncabezado(){
         //colores
@@ -87,7 +81,7 @@ public class CrearExcel {
     }
 
     public void agregaColor(ColorExcel color) throws ExcelException {
-        Optional<EstiloCeldaExcel> temp = this.estilos.stream()
+        var temp = this.estilos.stream()
                 .filter(e -> e.getNombre().equalsIgnoreCase(color.getNombre()))
                 .findFirst();
         if(temp.isPresent()){
@@ -97,102 +91,11 @@ public class CrearExcel {
         }
     }
 
-    public void escribeFila(SXSSFSheet sh, List<String> fila) {
-        escribeFila(sh, fila, "Estandar");
-    }
-
-    public void escribeFila(SXSSFSheet sh, List<String> fila, String color) {
-        List<Object> newFila = fila.stream().map(cel -> (Object) cel).collect(Collectors.toList());
-        escribeFilaObject(sh, newFila, color);
-    }
-
-    //Este metodo obtiene una lista de Objetos de un dbf
-    public void escribeFilaObject(SXSSFSheet sh, List<Object> fila) {
-        escribeFilaObject(sh, fila, "Estandar");
-    }
-
-    //Este metodo obtiene una lista de Objetos de un dbf
-    public void escribeFilaObject(SXSSFSheet sh, List<Object> fila, String color) {
-        Row row = sh.createRow(rownum);
-        int cellnum = 0;
-        Optional<EstiloCeldaExcel> temp = this.estilos.stream()
-                .filter(e -> e.getNombre().equalsIgnoreCase(color)).findFirst();
-        EstiloCeldaExcel estilo = temp.isPresent() ? temp.get() : this.estilos.stream()
-                .filter(e -> e.getNombre().equalsIgnoreCase("Estandar")).findFirst().get();
-        for (Object celda : fila) {
-            Cell cell = row.createCell(cellnum);
-            if (celda != null) {
-                if (rownum == 0) {
-                    cell.setCellStyle(encabezado);
-                } else {
-                    if ((rownum % 3) != 0) {
-                        cell.setCellStyle(estilo.getOdd());
-                    } else {
-                        cell.setCellStyle(estilo.getNormal());
-                    }
-                }
-            }
-            this.trasnforma(cell, celda, ((rownum % 3) != 0), estilo);
-            cellnum++;
-        }
-        rownum++;
-    }
-
-    private void trasnforma(Cell cell, Object valor, boolean par, EstiloCeldaExcel estilo) {
-
-        try {
-            String clase = valor.getClass().getTypeName();
-            switch (clase) {
-                case "java.lang.String":
-                    cell.setCellValue((String) valor);
-                    break;
-                case "java.lang.Double":
-                    cell.setCellValue((Double) valor);
-                    break;
-                case "java.util.Date":
-                    cell.setCellValue((Date) valor);
-                    if (par) {
-                        cell.setCellStyle(estilo.getOddDate());
-                    } else {
-                        cell.setCellStyle(estilo.getNormalDate());
-                    }
-                    break;
-                case "java.math.BigDecimal":
-                    cell.setCellValue(Double.parseDouble(valor.toString()));
-                    break;
-                case "java.lang.Integer":
-                    cell.setCellValue(Double.parseDouble(valor.toString()));
-                    break;
-                case "java.lang.Boolean":
-                    if (valor.equals(false)) {
-                        cell.setCellValue("FALSO");
-                    } else {
-                        cell.setCellValue("VERDADERO");
-                    }
-                    break;
-                //Para escribir links
-                case "java.util.Arrays$ArrayList":
-                    List<String> temp = (List<String>) valor;
-                    cell.setCellValue(temp.get(0));
-                    Hyperlink href = this.wb.getCreationHelper().createHyperlink(HyperlinkType.URL);
-                    href.setAddress(temp.get(1));
-                    cell.setHyperlink(href);
-                    break;
-                default:
-                    System.out.println("No ESTIPULADO");
-                    break;
-            }
-        } catch (Exception e) {
-            //si falla simplemente agrega una celda vacia
-            cell.setCellValue("");
-        }
-
-    }
-
-    public void guardaExcel() throws FileNotFoundException, IOException {
-        FileOutputStream out = new FileOutputStream(salida.toFile());
+    public ByteArrayInputStream guardaExcel() throws IOException {
+        var out = new ByteArrayOutputStream();
         wb.write(out);
         wb.dispose();
+        return new ByteArrayInputStream(out.toByteArray());
     }
 
 }

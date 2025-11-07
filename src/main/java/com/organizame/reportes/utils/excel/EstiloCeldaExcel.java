@@ -1,6 +1,8 @@
 package com.organizame.reportes.utils.excel;
 
 
+import com.organizame.reportes.utils.SpringContext;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +10,11 @@ import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
+import org.springframework.stereotype.Component;
 
 /**
  *
@@ -19,11 +25,8 @@ import org.springframework.beans.factory.annotation.Value;
 @Setter
 public class EstiloCeldaExcel {
 
-    @Value("${excel.font.name}")
     private String fuenteNombre;
-    @Value("${excel.font.size}")
     private String fuenteSize;
-    @Value("${excel.border.type}")
     private String borderType;
 
     private final String nombre;
@@ -32,13 +35,21 @@ public class EstiloCeldaExcel {
     private final XSSFCellStyle normalDate;
     private final XSSFCellStyle oddDate;
 
+    @Autowired
+    private Environment env;
+
     public EstiloCeldaExcel(ColorExcel color, SXSSFWorkbook libro) {
+        Environment env = SpringContext.getContext().getEnvironment();
+        this.fuenteNombre = env.getProperty("excel.font.name");
+        this.fuenteSize = env.getProperty("excel.font.size");
+        this.borderType = env.getProperty("excel.border.type");
         this.nombre = color.getNombre();
         this.normal = CreaEstilo(libro, color, false, false);
         this.odd = CreaEstilo(libro, color, true, false);
         this.normalDate = CreaEstilo(libro, color, false, true);
         this.oddDate = CreaEstilo(libro, color, true, true);
     }
+
 
     private XSSFCellStyle CreaEstilo(SXSSFWorkbook libro, ColorExcel color, boolean odd, boolean fecha){
         BorderStyle borde;

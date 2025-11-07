@@ -18,7 +18,8 @@ import jakarta.persistence.Table;
 )
 public class VhcModeloperiodoindustria  implements java.io.Serializable {
 
-
+    @Id
+    @Column(name="IDMODELOPERIODOINDUSTRIA", unique=true, nullable=false, columnDefinition = "BINARY(255)")
      private byte[] idmodeloperiodoindustria;
      private VhcModelo vhcModelo;
      private int periodoanio;
@@ -56,7 +57,7 @@ public class VhcModeloperiodoindustria  implements java.io.Serializable {
      @Id 
 
     
-    @Column(name="IDMODELOPERIODOINDUSTRIA", unique=true, nullable=false)
+    @Column(name="IDMODELOPERIODOINDUSTRIA", unique=true, nullable=false, columnDefinition = "BINARY(255)")
     public byte[] getIdmodeloperiodoindustria() {
         return this.idmodeloperiodoindustria;
     }

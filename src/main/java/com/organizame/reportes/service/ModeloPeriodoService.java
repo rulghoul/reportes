@@ -22,7 +22,7 @@ public class ModeloPeriodoService {
         return repository.findDistinctByOrderByOrigenarchivoAsc();
     }
 
-    public Set<VhcModeloperiodoindustria> recuperaOperacionesOrigen(){
-        return repository.findByOrigenarchivo("china");
+    public Set<VhcModeloperiodoindustria> recuperaOperacionesOrigen(String  pais){
+        return repository.findByOrigenarchivo(pais);
     }
 }
