@@ -1,8 +1,10 @@
 package com.organizame.reportes.controller;
 
+import com.organizame.reportes.dao.DaoResumenPeriodo;
 import com.organizame.reportes.dao.EstructuraExcel;
-import com.organizame.reportes.entity.VhcModeloperiodoindustria;
+import com.organizame.reportes.dao.request.RequestOrigen;
 import com.organizame.reportes.exceptions.GraficaException;
+import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.service.ModeloPeriodoService;
 import com.organizame.reportes.utils.excel.CrearExcel;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
@@ -21,8 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -44,9 +43,22 @@ public class TestControler {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
-    @PostMapping("/origenes")
+    @GetMapping("/origenes")
     public ResponseEntity<List<String>> recuperaOrigenes(){
         return ResponseEntity.ok(service.recuperaOrigenes());
+    }
+
+
+
+    @Operation(summary = "Recupera Segmentos")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
+    @GetMapping("/segmentos")
+    public ResponseEntity<List<String>> recuperaSegmentos(){
+        return ResponseEntity.ok(service.recuperaSegmento());
     }
 
     @Operation(summary = "Recupera Origenes")
@@ -55,9 +67,22 @@ public class TestControler {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
-    @PostMapping("/pais")
+    @GetMapping("/pais")
     public ResponseEntity<Set<VhcModeloperiodoindustria>> recuperaRegistros(){
         return ResponseEntity.ok(service.recuperaOperacionesOrigen("china"));
+    }
+
+    @Operation(summary = "Recupera Origenes")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
+    @PostMapping("/tablas/segmento")
+    public ResponseEntity<Collection<DaoResumenPeriodo>> tablaSegmento(@RequestBody RequestOrigen request){
+        List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenVeinticuatoMeses(request.getOrigen(), request.getMesReporte());
+        Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
+        return ResponseEntity.ok(filtrado);
     }
 
 
@@ -96,4 +121,6 @@ public class TestControler {
                 .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
                 .body(new InputStreamResource(resultado, request.getNombreExcel()));
     }
+
+
 }
