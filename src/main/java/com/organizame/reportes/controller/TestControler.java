@@ -99,6 +99,34 @@ public class TestControler {
         return ResponseEntity.ok(result);
     }
 
+    @Operation(summary = "Recupera tablas pivot Segmento")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
+    @PostMapping("/pivot/segmento")
+    public ResponseEntity<Map<String,List<List<Object>>>> tablaPivotSegmento(@RequestBody RequestOrigen request){
+        List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenVeinticuatoMeses(request.getOrigen(), request.getMesReporte());
+        Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
+        var result = service.generaDatosPivotPorSegmento(filtrado, request.getMesReporte());
+        return ResponseEntity.ok( result);
+    }
+
+    @Operation(summary = "Recupera tablas pivot Marca")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
+    @PostMapping("/pivot/marca")
+    public ResponseEntity<Map<String,List<List<Object>>>> tablaPivotMarca(@RequestBody RequestOrigen request){
+        List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenVeinticuatoMeses(request.getOrigen(), request.getMesReporte());
+        Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
+        var result = service.generaDatosPivotPorMarca(filtrado, request.getMesReporte());
+        return ResponseEntity.ok( result);
+    }
+
 
     @PostMapping("/excel")
     @ResponseBody

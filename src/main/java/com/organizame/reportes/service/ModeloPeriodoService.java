@@ -10,15 +10,19 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
 public class ModeloPeriodoService {
 
-    private VhcModeloperiodoindustriaRepository2 repository;
+    private final VhcModeloperiodoindustriaRepository2 repository;
 
-    DateTimeFormatter toIntegerFormater;
-    DateTimeFormatter mesAnioFormatter;
+    private final DateTimeFormatter toIntegerFormater;
+    private final DateTimeFormatter mesAnioFormatter;
+    private final static Pattern patternSegmento = Pattern.compile("(^(?<segmento1>.+?)\\s+([\\w-]{1,3})\\s.+$)|(^(?<segmento2>.+)$)");
+
     @Autowired
     public  ModeloPeriodoService(VhcModeloperiodoindustriaRepository2 repository){
         this.repository = repository;
@@ -38,11 +42,21 @@ public class ModeloPeriodoService {
     }
 
     public List<VhcModeloperiodoindustria> recuperaOrigenVeinticuatoMeses(String  pais, Integer meses){
-        LocalDate ahora = LocalDate.now().minusMonths(1);
-        LocalDate inicio = ahora.minusMonths(meses);
+        LocalDate fechaFinal = LocalDate.now().minusMonths(1);
+        LocalDate inicio = fechaFinal.minusMonths(meses);
 
-        int desde = Integer.parseInt(inicio.format(DateTimeFormatter.ofPattern("yyyyMM")));
-        int hasta = Integer.parseInt(ahora.format(DateTimeFormatter.ofPattern("yyyyMM")));
+        int desde = Integer.parseInt(inicio.format(toIntegerFormater));
+        int hasta = Integer.parseInt(fechaFinal.format(toIntegerFormater));
+
+        return repository.findUltimosMeses(pais, desde, hasta);
+    }
+
+    public List<VhcModeloperiodoindustria> recuperaOrigenFechaInicial(String  pais, Integer meses, LocalDate fechaFinal){
+        LocalDate finalFecha = fechaFinal;
+        LocalDate inicio = finalFecha.minusMonths(meses);
+
+        int desde = Integer.parseInt(inicio.format(toIntegerFormater));
+        int hasta = Integer.parseInt(finalFecha.format(toIntegerFormater));
 
         return repository.findUltimosMeses(pais, desde, hasta);
     }
@@ -56,8 +70,102 @@ public class ModeloPeriodoService {
                                 this.recuperaMesAnioLabel(dato.getPeriodoanio(), dato.getPeriodomes()),
                                 dato.getMarcaarchivo(),
                                 dato.getFabricantearchivo(),
-                                dato.getSegmentoarchivo()) )
+                                this.recuperaSegmento(dato.getSegmentoarchivo())) )
                 .collect(Collectors.toSet());
+    }
+
+    public Map<String, List<List<Object>>> generaDatosPivotPorSegmento(Collection<DaoResumenPeriodo> datos, Integer meses) {
+        LocalDate ahora = LocalDate.now().minusMonths(1);
+        LocalDate inicio = ahora.minusMonths(meses);
+        List<String> listaMeses = this.obtenerListaMeses(inicio, ahora);
+
+        return generaTablaPivot(datos, listaMeses,
+                DaoResumenPeriodo::getSegmento,
+                DaoResumenPeriodo::getModelo,
+                "Marca");
+    }
+
+    public Map<String, List<List<Object>>> generaDatosPivotPorMarca(Collection<DaoResumenPeriodo> datos, Integer meses) {
+        LocalDate ahora = LocalDate.now().minusMonths(1);
+        LocalDate inicio = ahora.minusMonths(meses);
+        List<String> listaMeses = this.obtenerListaMeses(inicio, ahora);
+
+        return generaTablaPivot(datos, listaMeses,
+                DaoResumenPeriodo::getMarca,
+                DaoResumenPeriodo::getModelo,
+                "Segmento");
+    }
+
+    private Map<String, List<List<Object>>> generaTablaPivot(
+            Collection<DaoResumenPeriodo> datos,
+            List<String> listaMeses,
+            java.util.function.Function<DaoResumenPeriodo, String> grupoPrincipalExtractor,
+            java.util.function.Function<DaoResumenPeriodo, String> subGrupoExtractor,
+            String subGrupoTitulo) {
+
+        // Agrupar por el campo principal (segmento o marca)
+        Map<String, List<DaoResumenPeriodo>> datosAgrupados = datos.stream()
+                .collect(Collectors.groupingBy(grupoPrincipalExtractor));
+
+        Map<String, List<List<Object>>> resultado = new HashMap<>();
+
+        for (Map.Entry<String, List<DaoResumenPeriodo>> entry : datosAgrupados.entrySet()) {
+            String grupoPrincipal = entry.getKey();
+            List<DaoResumenPeriodo> datosGrupo = entry.getValue();
+
+            List<List<Object>> tablaGrupo = generaTablaParaGrupo(datosGrupo, listaMeses, subGrupoExtractor, subGrupoTitulo);
+            resultado.put(grupoPrincipal, tablaGrupo);
+        }
+
+        return resultado;
+    }
+
+    private List<List<Object>> generaTablaParaGrupo(
+            List<DaoResumenPeriodo> datosGrupo,
+            List<String> listaMeses,
+            java.util.function.Function<DaoResumenPeriodo, String> subGrupoExtractor,
+            String subGrupoTitulo) {
+
+        List<List<Object>> respuesta = new ArrayList<>();
+
+        // Encabezados
+        List<Object> encabezados = new ArrayList<>();
+        encabezados.add(subGrupoTitulo);
+        encabezados.addAll(listaMeses);
+        encabezados.add("Total");
+        respuesta.add(encabezados);
+
+        // Agrupar por el subgrupo (marca o segmento)
+        Map<String, List<DaoResumenPeriodo>> datosPorSubGrupo = datosGrupo.stream()
+                .collect(Collectors.groupingBy(subGrupoExtractor));
+
+        for (Map.Entry<String, List<DaoResumenPeriodo>> subGrupoEntry : datosPorSubGrupo.entrySet()) {
+            String subGrupo = subGrupoEntry.getKey();
+            List<DaoResumenPeriodo> lista = subGrupoEntry.getValue();
+
+            // Agrupar por mes y sumar cantidades
+            Map<String, Double> porMes = lista.stream()
+                    .collect(Collectors.groupingBy(
+                            DaoResumenPeriodo::getMesAnio,
+                            Collectors.summingDouble(DaoResumenPeriodo::getCantidad)
+                    ));
+
+            // Crear fila
+            List<Object> fila = new ArrayList<>();
+            fila.add(subGrupo);
+
+            double total = 0.0;
+            for (String mes : listaMeses) {
+                double valor = porMes.getOrDefault(mes, 0.0);
+                fila.add(valor);
+                total += valor;
+            }
+
+            fila.add(total);
+            respuesta.add(fila);
+        }
+
+        return respuesta;
     }
 
     public List<List<Object>> generaDatosTablaSegmentoMarca(Collection<DaoResumenPeriodo> datos, Integer meses) {
@@ -130,5 +238,15 @@ public class ModeloPeriodoService {
             mesInicial = mesInicial.plusMonths(1);
         }
         return meses;
+    }
+
+    private String recuperaSegmento(String segmentoOriginal){
+        Matcher match = patternSegmento.matcher(segmentoOriginal);
+        if (match.matches()) {
+            return Objects.nonNull(match.group("segmento1")) ?
+                    match.group("segmento1").trim() :
+                    match.group("segmento2").trim();
+        }
+        return "NA";
     }
 }
