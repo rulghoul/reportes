@@ -30,7 +30,7 @@ import java.util.stream.IntStream;
 @RequestMapping("/test")
 public class TestControler {
 
-    private ModeloPeriodoService service;
+    private final ModeloPeriodoService service;
 
     @Autowired
     public TestControler(ModeloPeriodoService service){
@@ -49,7 +49,6 @@ public class TestControler {
     }
 
 
-
     @Operation(summary = "Recupera Segmentos")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
@@ -61,28 +60,43 @@ public class TestControler {
         return ResponseEntity.ok(service.recuperaSegmento());
     }
 
-    @Operation(summary = "Recupera Origenes")
+    @Operation(summary = "Recupera Base de dato de un pais")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
-    @GetMapping("/pais")
-    public ResponseEntity<Set<VhcModeloperiodoindustria>> recuperaRegistros(){
-        return ResponseEntity.ok(service.recuperaOperacionesOrigen("china"));
+    @GetMapping("/pais/{pais}")
+    public ResponseEntity<Set<VhcModeloperiodoindustria>> recuperaRegistros(@PathVariable String pais){
+        return ResponseEntity.ok(service.recuperaOperacionesOrigen(pais));
     }
 
-    @Operation(summary = "Recupera Origenes")
+    @Operation(summary = "Recupera resumen")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
+    @PostMapping("/tablas/resumen")
+    public ResponseEntity<Collection<DaoResumenPeriodo>> tablaSegmento(@RequestBody RequestOrigen request){
+        List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenVeinticuatoMeses(request.getOrigen(), request.getMesReporte());
+        Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
+        return ResponseEntity.ok(filtrado);
+    }
+
+
+    @Operation(summary = "Recupera tablas excel segmento")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
     @PostMapping("/tablas/segmento")
-    public ResponseEntity<Collection<DaoResumenPeriodo>> tablaSegmento(@RequestBody RequestOrigen request){
+    public ResponseEntity<List<List<Object>>> tablaExcelSegmento(@RequestBody RequestOrigen request){
         List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenVeinticuatoMeses(request.getOrigen(), request.getMesReporte());
         Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
-        return ResponseEntity.ok(filtrado);
+        var result = service.generaDatosTablaSegmentoMarca(filtrado, request.getMesReporte());
+        return ResponseEntity.ok(result);
     }
 
 
@@ -104,7 +118,7 @@ public class TestControler {
 
                     try {
                         excel.TestGrafica(resultado.get("col") + 2
-                                , resultado.get("row") - hoja.getTablas().get(hoja.getTablas().size()-1).getDatos().size()
+                                , resultado.get("row") - hoja.getTablas().getLast().getDatos().size()
                                 , sheet);
                     } catch (GraficaException e) {
                         log.error("Fallo al crear la grafica de ejemplo");
