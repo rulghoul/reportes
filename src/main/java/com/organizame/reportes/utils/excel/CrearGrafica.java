@@ -60,8 +60,8 @@ public class CrearGrafica {
         CreationHelper helper = wb.getCreationHelper();
         XSSFDrawing drawing = hoja.createDrawingPatriarch();
 
-        int colsOcupadas = Math.max(5, posicion.getAncho() / 100);
-        int rowsOcupadas = Math.max(15, posicion.getAlto() / 30);
+        int colsOcupadas = Math.max(5, posicion.getAncho() / 110);
+        int rowsOcupadas = Math.max(15, posicion.getAlto() / 35);
 
         ClientAnchor anchor = helper.createClientAnchor();
         anchor.setCol1(posicion.getCol());

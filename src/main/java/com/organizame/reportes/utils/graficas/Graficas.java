@@ -5,11 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
-import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.data.DefaultKeyedValues2D;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +18,7 @@ import java.util.List;
 @Service
 public class Graficas {
 
-    public static StandardChartTheme temaEstandar() {
+    private StandardChartTheme temaEstandar() {
         StandardChartTheme tema = new StandardChartTheme("TemaOrganizame");
 
         // 🎨 Colores generales
@@ -58,6 +55,7 @@ public class Graficas {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         datos.stream()
                 .filter(dato -> !dato.getModelo().equalsIgnoreCase("TOTAL"))
+                .filter(dato -> dato.getPorcentaje() > 2)
                 .forEach(dato ->
                 dataset.addValue(dato.getPorcentaje() , dato.getModelo(), "Participacion")
         );
@@ -72,6 +70,19 @@ public class Graficas {
                 yAxis,
                 datos
         );
+    }
+
+
+    public JFreeChart graficaLineasColor(String titulo, String xAxis, String yAxis, DefaultCategoryDataset datos){
+
+        var cart= ChartFactory.createLineChart(
+                titulo,
+                xAxis,
+                yAxis,
+                datos
+        );
+        this.temaEstandar().apply(cart);
+        return cart;
     }
 
 

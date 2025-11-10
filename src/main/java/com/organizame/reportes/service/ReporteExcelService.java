@@ -55,7 +55,8 @@ public class ReporteExcelService {
             var posGrafica = posicion.get("row") + 2;
             posicion = excel.creaTabla(hoja, resumen, 0, posicion.get("row") +2);
             var datosGrafica = graficas.generaDataset(segmentoResumen.get(segmento.getKey()));
-            var grafica =graficas.graficaBarras("Participacion " + segmento.getKey(), "Modelos" , "Participacion", datosGrafica);
+            var grafica =graficas.graficaBarras("Segmento de " + segmento.getKey() + " - Origen " + request.getOrigen() + "fechas",
+                    "Modelos" , "Participacion", datosGrafica);
             excel.InsertarGrafica(hoja, grafica, new PosicionGrafica(posicion.get("col") +2, posGrafica, 1200, 800));
         });
 
@@ -69,7 +70,8 @@ public class ReporteExcelService {
             var posGrafica = posicion.get("row") + 2;
             posicion = excel.creaTabla(hoja, resumen, 0, posicion.get("row") +2);
             var datosGrafica = graficas.generaDataset(fabricanteResumen.get(fabricante.getKey()));
-            var grafica = graficas.graficaBarrasColor("Participacion " + fabricante.getKey(), "Modelos" , "Participacion", datosGrafica);
+            var grafica = graficas.graficaBarrasColor("Volumen de ventas, origen " + request.getOrigen() + "fechas",
+                    "Modelos" , "Participacion", datosGrafica);
             excel.InsertarGrafica(hoja, grafica, new PosicionGrafica(posicion.get("col") + 2, posGrafica, 1200, 800));
         });
 
