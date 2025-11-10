@@ -102,17 +102,18 @@ public class CrearExcel {
         }
     }
 
-    public void TestGrafica(int col, int row, XSSFSheet hoja) throws GraficaException {
+    public void TestGrafica(PosicionGrafica posicion,  XSSFSheet hoja) throws GraficaException {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         dataset.addValue(23, "JFreeSVG", "Warm-up");
         dataset.addValue(11, "Batik", "Warm-up");
         dataset.addValue(42, "JFreeSVG", "Test");
         dataset.addValue(21, "Batik", "Test");
-        this.agregarGrafica(col, row, "ejemplo", "x", "y", hoja, dataset);
+
+        this.agregarGrafica(posicion, "ejemplo", "x", "y", hoja, dataset);
     }
 
-    public void agregarGrafica(int col, int row, String titulo, String xAxis, String yAxis , XSSFSheet hoja, DefaultCategoryDataset datos) throws GraficaException {
-        graficas.insertarImagenBarras(hoja, col, row, datos, titulo, xAxis, yAxis);
+    public void agregarGrafica(PosicionGrafica posicion, String titulo, String xAxis, String yAxis , XSSFSheet hoja, DefaultCategoryDataset datos) throws GraficaException {
+        graficas.insertarImagenBarras(hoja, posicion, datos, titulo, xAxis, yAxis );
     }
 
     public ByteArrayInputStream guardaExcel() throws IOException {

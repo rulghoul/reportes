@@ -7,6 +7,7 @@ import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.service.ModeloPeriodoService;
 import com.organizame.reportes.utils.excel.CrearExcel;
+import com.organizame.reportes.utils.excel.PosicionGrafica;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -79,7 +81,7 @@ public class TestControler {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
     @PostMapping("/tablas/resumen")
     public ResponseEntity<Collection<DaoResumenPeriodo>> tablaSegmento(@RequestBody RequestOrigen request){
-        List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenVeinticuatoMeses(request.getOrigen(), request.getMesReporte());
+        List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenFechaInicial(request.getOrigen(), request.getMesReporte(), request.getMesFinal());
         Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
         return ResponseEntity.ok(filtrado);
     }
@@ -93,9 +95,9 @@ public class TestControler {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
     @PostMapping("/tablas/segmento")
     public ResponseEntity<List<List<Object>>> tablaExcelSegmento(@RequestBody RequestOrigen request){
-        List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenVeinticuatoMeses(request.getOrigen(), request.getMesReporte());
+        List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenFechaInicial(request.getOrigen(), request.getMesReporte(), request.getMesFinal());
         Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
-        var result = service.generaDatosTablaSegmentoMarca(filtrado, request.getMesReporte());
+        var result = service.generaDatosTablaSegmentoMarca(filtrado);
         return ResponseEntity.ok(result);
     }
 
@@ -109,7 +111,7 @@ public class TestControler {
     public ResponseEntity<Map<String,List<List<Object>>>> tablaPivotSegmento(@RequestBody RequestOrigen request){
         List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenVeinticuatoMeses(request.getOrigen(), request.getMesReporte());
         Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
-        var result = service.generaDatosPivotPorSegmento(filtrado, request.getMesReporte());
+        var result = service.generaDatosPivotPorSegmento(filtrado);
         return ResponseEntity.ok( result);
     }
 
@@ -123,7 +125,50 @@ public class TestControler {
     public ResponseEntity<Map<String,List<List<Object>>>> tablaPivotMarca(@RequestBody RequestOrigen request){
         List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenVeinticuatoMeses(request.getOrigen(), request.getMesReporte());
         Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
-        var result = service.generaDatosPivotPorMarca(filtrado, request.getMesReporte());
+        var result = service.generaDatosPivotPorMarca(filtrado);
+        return ResponseEntity.ok( result);
+    }
+
+
+    @Operation(summary = "Recupera tablas pivot Segmento")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
+    @PostMapping("/inicial/segmento")
+    public ResponseEntity<Map<String,List<List<Object>>>> tablaInicialSegmento(@RequestBody RequestOrigen request){
+        List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenFechaInicial(request.getOrigen(), request.getMesReporte(), request.getMesFinal());
+        Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
+        var result = service.generaDatosPivotPorSegmento(filtrado);
+        return ResponseEntity.ok( result);
+    }
+
+    @Operation(summary = "Recupera tablas pivot Marca")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
+    @PostMapping("/inicial/marca")
+    public ResponseEntity<Map<String,List<List<Object>>>> tablaInicialMarca(@RequestBody RequestOrigen request){
+        List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenFechaInicial(request.getOrigen(), request.getMesReporte(), request.getMesFinal());
+        Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
+        var result = service.generaDatosPivotPorMarca(filtrado );
+        return ResponseEntity.ok( result);
+    }
+
+    @Operation(summary = "Recupera tablas pivot Fabricante")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
+    @PostMapping("/inicial/fabricante")
+    public ResponseEntity<Map<String,List<List<Object>>>> tablaInicialFabricante(@RequestBody RequestOrigen request){
+        List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenFechaInicial(request.getOrigen(), request.getMesReporte(), request.getMesFinal());
+        Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
+        var result = service.generaDatosPivotPorFabricante(filtrado );
         return ResponseEntity.ok( result);
     }
 
@@ -145,9 +190,9 @@ public class TestControler {
                     }
 
                     try {
-                        excel.TestGrafica(resultado.get("col") + 2
-                                , resultado.get("row") - hoja.getTablas().getLast().getDatos().size()
-                                , sheet);
+                        var pocicion = new PosicionGrafica(resultado.get("col") + 2,
+                                resultado.get("row") - hoja.getTablas().getLast().getDatos().size(), 1200, 800);
+                        excel.TestGrafica( pocicion, sheet);
                     } catch (GraficaException e) {
                         log.error("Fallo al crear la grafica de ejemplo");
                     }
@@ -160,6 +205,7 @@ public class TestControler {
         );
         ByteArrayInputStream resultado = excel.guardaExcel();
         return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + request.getNombreExcel() + ".xlsx")
                 .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
                 .body(new InputStreamResource(resultado, request.getNombreExcel()));
     }

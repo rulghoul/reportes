@@ -9,10 +9,11 @@ import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -25,7 +26,7 @@ public class CrearGrafica {
         this.wb = wb;
     }
 
-    public void insertarImagenBarras(XSSFSheet hoja, int col, int row, DefaultCategoryDataset datos
+    public void insertarImagenBarras(XSSFSheet hoja, PosicionGrafica posicion, DefaultCategoryDataset datos
             , String titulo, String xAxis, String yAxis) throws GraficaException {
         JFreeChart chart = ChartFactory.createBarChart(
                 titulo,
@@ -34,14 +35,16 @@ public class CrearGrafica {
                 datos
         );
 
-        this.insertarGrafica(hoja, col, row, chart, 1200, 800);
+        this.insertarGrafica(hoja, chart, posicion);// 1200, 800);
     }
 
-    public void insertarGrafica(XSSFSheet hoja, int col, int row,
-                                JFreeChart chart, int width, int height) throws GraficaException {
+    public void insertarGrafica(XSSFSheet hoja,
+                                JFreeChart chart, PosicionGrafica pocicion) throws GraficaException {
         try (ByteArrayOutputStream chartOut = new ByteArrayOutputStream()) {
-            ChartUtils.writeChartAsPNG(chartOut, chart, width, height);
-            this.insertarImagen(hoja, col, row, chartOut.toByteArray());
+            //ChartUtils.writeChartAsPNG(chartOut, chart, width, height);
+            BufferedImage image = chart.createBufferedImage(pocicion.getAncho(), pocicion.getAlto(), BufferedImage.TYPE_INT_ARGB, null);
+            ImageIO.write(image, "png", chartOut);
+            this.insertarImagen(hoja, pocicion, chartOut.toByteArray());
         } catch (IOException e) {
             log.error("Error al generar gráfica: {}", e.getMessage(), e);
             throw new GraficaException(e);
@@ -49,20 +52,22 @@ public class CrearGrafica {
     }
 
 
-    public void insertarImagen(XSSFSheet hoja, int col, int row, byte[] bytes ){
-        log.info("Se insertara la imagen en la columna:{} y fila {}", col, row);
+    public void insertarImagen(XSSFSheet hoja, PosicionGrafica posicion, byte[] bytes ){
+        log.info("Se insertara la imagen en la columna:{} y fila {}", posicion.getCol(), posicion.getRow());
 
         int pictureIdx = wb.addPicture(bytes, wb.PICTURE_TYPE_PNG);
 
         CreationHelper helper = wb.getCreationHelper();
         XSSFDrawing drawing = hoja.createDrawingPatriarch();
 
+        int colsOcupadas = Math.max(5, posicion.getAncho() / 50);
+        int rowsOcupadas = Math.max(15, posicion.getAlto() / 15);
 
         ClientAnchor anchor = helper.createClientAnchor();
-        anchor.setCol1(col);
-        anchor.setRow1(row);
-        anchor.setCol2(col + 20);
-        anchor.setRow2(row + 60);
+        anchor.setCol1(posicion.getCol());
+        anchor.setRow1(posicion.getRow());
+        anchor.setCol2(posicion.getCol() + colsOcupadas);
+        anchor.setRow2(posicion.getRow() + rowsOcupadas);
 
         // Inserta la imagen
         Picture pict = drawing.createPicture(anchor, pictureIdx);

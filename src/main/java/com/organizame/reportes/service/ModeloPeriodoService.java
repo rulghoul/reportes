@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -22,6 +23,10 @@ public class ModeloPeriodoService {
     private final DateTimeFormatter toIntegerFormater;
     private final DateTimeFormatter mesAnioFormatter;
     private final static Pattern patternSegmento = Pattern.compile("(^(?<segmento1>.+?)\\s+([\\w-]{1,3})\\s.+$)|(^(?<segmento2>.+)$)");
+
+    private LocalDate fechaFinal;
+    private LocalDate inicio;
+    private Integer mesesRevicion;
 
     @Autowired
     public  ModeloPeriodoService(VhcModeloperiodoindustriaRepository2 repository){
@@ -42,8 +47,9 @@ public class ModeloPeriodoService {
     }
 
     public List<VhcModeloperiodoindustria> recuperaOrigenVeinticuatoMeses(String  pais, Integer meses){
-        LocalDate fechaFinal = LocalDate.now().minusMonths(1);
-        LocalDate inicio = fechaFinal.minusMonths(meses);
+        this.fechaFinal = LocalDate.now().minusMonths(1);
+        this.mesesRevicion = meses;
+        this.inicio = fechaFinal.minusMonths(meses);
 
         int desde = Integer.parseInt(inicio.format(toIntegerFormater));
         int hasta = Integer.parseInt(fechaFinal.format(toIntegerFormater));
@@ -52,11 +58,12 @@ public class ModeloPeriodoService {
     }
 
     public List<VhcModeloperiodoindustria> recuperaOrigenFechaInicial(String  pais, Integer meses, LocalDate fechaFinal){
-        LocalDate finalFecha = fechaFinal;
-        LocalDate inicio = finalFecha.minusMonths(meses);
+        this.fechaFinal = fechaFinal;
+        this.mesesRevicion = meses;
+        this.inicio = fechaFinal.minusMonths(meses);
 
         int desde = Integer.parseInt(inicio.format(toIntegerFormater));
-        int hasta = Integer.parseInt(finalFecha.format(toIntegerFormater));
+        int hasta = Integer.parseInt(fechaFinal.format(toIntegerFormater));
 
         return repository.findUltimosMeses(pais, desde, hasta);
     }
@@ -74,33 +81,39 @@ public class ModeloPeriodoService {
                 .collect(Collectors.toSet());
     }
 
-    public Map<String, List<List<Object>>> generaDatosPivotPorSegmento(Collection<DaoResumenPeriodo> datos, Integer meses) {
-        LocalDate ahora = LocalDate.now().minusMonths(1);
-        LocalDate inicio = ahora.minusMonths(meses);
-        List<String> listaMeses = this.obtenerListaMeses(inicio, ahora);
+    public Map<String, List<List<Object>>> generaDatosPivotPorSegmento(Collection<DaoResumenPeriodo> datos) {
+        List<String> listaMeses = this.obtenerListaMeses(inicio, this.fechaFinal);
 
         return generaTablaPivot(datos, listaMeses,
                 DaoResumenPeriodo::getSegmento,
                 DaoResumenPeriodo::getModelo,
-                "Marca");
+                "Modelo");
     }
 
-    public Map<String, List<List<Object>>> generaDatosPivotPorMarca(Collection<DaoResumenPeriodo> datos, Integer meses) {
-        LocalDate ahora = LocalDate.now().minusMonths(1);
-        LocalDate inicio = ahora.minusMonths(meses);
-        List<String> listaMeses = this.obtenerListaMeses(inicio, ahora);
+    public Map<String, List<List<Object>>> generaDatosPivotPorFabricante(Collection<DaoResumenPeriodo> datos) {
+        List<String> listaMeses = this.obtenerListaMeses(inicio, this.fechaFinal);
+
+        return generaTablaPivot(datos, listaMeses,
+                DaoResumenPeriodo::getFabricante,
+                DaoResumenPeriodo::getModelo,
+                "Modelo");
+    }
+
+    public Map<String, List<List<Object>>> generaDatosPivotPorMarca(Collection<DaoResumenPeriodo> datos) {
+
+        List<String> listaMeses = this.obtenerListaMeses(this.inicio, this.fechaFinal);
 
         return generaTablaPivot(datos, listaMeses,
                 DaoResumenPeriodo::getMarca,
                 DaoResumenPeriodo::getModelo,
-                "Segmento");
+                "Modelo");
     }
 
     private Map<String, List<List<Object>>> generaTablaPivot(
             Collection<DaoResumenPeriodo> datos,
             List<String> listaMeses,
-            java.util.function.Function<DaoResumenPeriodo, String> grupoPrincipalExtractor,
-            java.util.function.Function<DaoResumenPeriodo, String> subGrupoExtractor,
+            Function<DaoResumenPeriodo, String> grupoPrincipalExtractor,
+            Function<DaoResumenPeriodo, String> subGrupoExtractor,
             String subGrupoTitulo) {
 
         // Agrupar por el campo principal (segmento o marca)
@@ -168,13 +181,11 @@ public class ModeloPeriodoService {
         return respuesta;
     }
 
-    public List<List<Object>> generaDatosTablaSegmentoMarca(Collection<DaoResumenPeriodo> datos, Integer meses) {
-        LocalDate ahora = LocalDate.now().minusMonths(1);
-        LocalDate inicio = ahora.minusMonths(meses);
-        List<List<Object>> respuesta = new ArrayList<>();
+    public List<List<Object>> generaDatosTablaSegmentoMarca(Collection<DaoResumenPeriodo> datos) {
 
+        List<List<Object>> respuesta = new ArrayList<>();
         // 🔹 1. Encabezados dinámicos
-        List<String> listaMeses = this.obtenerListaMeses(inicio, ahora);
+        List<String> listaMeses = this.obtenerListaMeses(this.inicio, this.fechaFinal);
         List<Object> encabezados = new ArrayList<>();
         encabezados.add("Segmento");
         encabezados.add("Marca");
