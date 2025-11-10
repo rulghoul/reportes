@@ -14,8 +14,11 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.util.*;
@@ -60,6 +63,15 @@ public class CrearExcel {
         Tabla tabla = new Tabla(wb, estilos, encabezado, hoja, datos, columna, fila);
         var resultado = tabla.procesaTabla();
         return resultado;
+    }
+
+    public void InsertarGrafica(XSSFSheet hoja,
+                                JFreeChart chart, PosicionGrafica pocicion){
+        try {
+            graficas.insertarGrafica(hoja, chart, pocicion);
+        } catch (GraficaException e) {
+            log.info("Fallo al generar la grafica");
+        }
     }
 
 
