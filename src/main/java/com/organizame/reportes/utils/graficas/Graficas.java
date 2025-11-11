@@ -5,10 +5,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.stereotype.Service;
+
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.renderer.category.*;
+import org.jfree.data.general.DefaultPieDataset;
 
 import java.awt.*;
 import java.util.*;
@@ -62,33 +69,158 @@ public class Graficas {
         return dataset;
     }
 
-    public JFreeChart graficaBarras(String titulo, String xAxis, String yAxis, DefaultCategoryDataset datos){
+    public DefaultCategoryDataset generaDataset2(List<DaoPeriodo> datos){
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        datos.stream()
+                .filter(dato -> !dato.getModelo().equalsIgnoreCase("TOTAL"))
+                .filter(dato -> dato.getPorcentaje() > 2)
+                .forEach(dato ->
+                        dataset.addValue(dato.getTotal() , dato.getModelo(), "Participacion")
+                );
+        return dataset;
+    }
 
-        return ChartFactory.createBarChart(
+    public DefaultPieDataset generaDataset3(List<DaoPeriodo> datos) {
+        DefaultPieDataset dataset = new DefaultPieDataset();
+
+        datos.stream()
+                .filter(dato -> !dato.getModelo().equalsIgnoreCase("TOTAL"))
+                .filter(dato -> dato.getPorcentaje() > 2)
+                .forEach(dato ->
+                        dataset.setValue(dato.getModelo(), dato.getPorcentaje())
+                );
+
+        return dataset;
+    }
+
+    // ========================================================================
+    // SECCIÓN 1: GRÁFICAS INDIVIDUALES
+    // ========================================================================
+
+    /**
+     * 1. GRÁFICA DE LÍNEAS
+     * Uso: Mostrar tendencias y evolución temporal
+     */
+    public JFreeChart graficaLineas(String titulo, String xAxis, String yAxis,
+                                    DefaultCategoryDataset datos) {
+        var chart = ChartFactory.createLineChart(
                 titulo,
                 xAxis,
                 yAxis,
-                datos
+                datos,
+                PlotOrientation.VERTICAL,
+                true,  // leyenda
+                true,  // tooltips
+                false  // urls
         );
+        this.temaEstandar().apply(chart);
+        // Configurar puntos visibles en la línea
+        CategoryPlot plot = chart.getCategoryPlot();
+        LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
+        renderer.setDefaultShapesVisible(true);
+        renderer.setDefaultShapesFilled(true);
+        renderer.setDefaultStroke(new BasicStroke(2.5f));
+        return chart;
     }
 
-
-    public JFreeChart graficaLineasColor(String titulo, String xAxis, String yAxis, DefaultCategoryDataset datos){
-
-        var cart= ChartFactory.createLineChart(
+    /**
+     * 2. GRÁFICA DE BARRAS VERTICALES
+     * Uso: Comparar valores entre diferentes categorías
+     */
+    public JFreeChart graficaBarras(String titulo, String xAxis, String yAxis,
+                                    DefaultCategoryDataset datos) {
+        var chart = ChartFactory.createBarChart(
                 titulo,
                 xAxis,
                 yAxis,
-                datos
+                datos,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false
         );
-        this.temaEstandar().apply(cart);
-        return cart;
+        this.temaEstandar().apply(chart);
+
+        // Configurar sombras en barras
+        CategoryPlot plot = chart.getCategoryPlot();
+        BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        renderer.setShadowVisible(false);
+        renderer.setItemMargin(0.1);
+
+        return chart;
     }
 
+    /**
+     * 5. GRÁFICA CIRCULAR 3D
+     * Uso: Pie chart con efecto tridimensional
+     */
+    public JFreeChart graficaCircular3D(String titulo, DefaultPieDataset datos) {
+        var chart = ChartFactory.createPieChart3D(
+                titulo,
+                datos,
+                true,
+                true,
+                false
+        );
 
+        org.jfree.chart.plot.PiePlot3D plot = (org.jfree.chart.plot.PiePlot3D) chart.getPlot();
+        plot.setDepthFactor(0.1);
+        plot.setCircular(true);
+
+        this.temaEstandar().apply(chart);
+        return chart;
+    }
+
+    // ========================================================================
+    // SECCIÓN 2: GRÁFICAS COMBINADAS
+    // ========================================================================
+
+    /**
+     * COMBINACIÓN 1: BARRAS + LÍNEA CON DOBLE EJE Y
+     * Uso: Métricas con escalas diferentes (ej: ventas en $ y % crecimiento)
+     */
+    public JFreeChart graficaBarrasLineaDobleEje(String titulo, String xAxis,
+                                                 String yAxisIzq, String yAxisDer,
+                                                 DefaultCategoryDataset datosBarras,
+                                                 DefaultCategoryDataset datosLinea) {
+        // Crear el plot
+        CategoryPlot plot = new CategoryPlot();
+        plot.setDataset(0, datosBarras);
+        plot.setDataset(1, datosLinea);
+
+        // Configurar renderer para barras
+        BarRenderer barRenderer = new BarRenderer();
+        barRenderer.setShadowVisible(false);
+        plot.setRenderer(0, barRenderer);
+
+        // Configurar renderer para línea
+        LineAndShapeRenderer lineRenderer = new LineAndShapeRenderer();
+        lineRenderer.setDefaultStroke(new BasicStroke(3.0f));
+        lineRenderer.setDefaultShapesVisible(true);
+        lineRenderer.setDefaultShapesFilled(true);
+        plot.setRenderer(1, lineRenderer);
+
+        // Eje Y izquierdo (barras)
+        NumberAxis leftAxis = new NumberAxis(yAxisIzq);
+        plot.setRangeAxis(0, leftAxis);
+        plot.mapDatasetToRangeAxis(0, 0);
+
+        // Eje Y derecho (línea)
+        NumberAxis rightAxis = new NumberAxis(yAxisDer);
+        plot.setRangeAxis(1, rightAxis);
+        plot.mapDatasetToRangeAxis(1, 1);
+
+        // Eje X
+        CategoryAxis domainAxis = new CategoryAxis(xAxis);
+        plot.setDomainAxis(domainAxis);
+
+        // Crear el chart
+        var chart = new JFreeChart(titulo, JFreeChart.DEFAULT_TITLE_FONT, plot, true);
+        this.temaEstandar().apply(chart);
+
+        return chart;
+    }
     public JFreeChart graficaBarrasColor(String titulo, String xAxis, String yAxis, DefaultCategoryDataset datos) {
-
-
         JFreeChart grafica = ChartFactory.createBarChart(
                 titulo,
                 xAxis,
@@ -99,9 +231,7 @@ public class Graficas {
                 true,
                 false
         );
-
         temaEstandar().apply(grafica);
-
         return grafica;
     }
 
@@ -114,4 +244,5 @@ public class Graficas {
                 datoGrafica
         );
     }
+
 }
