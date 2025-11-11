@@ -48,9 +48,9 @@ public class TestGraficas {
     public ResponseEntity<?> reporteExcel(){
         try {
             List<DaoPeriodo> listaDaoPeriodo = List.of(
-                    new DaoPeriodo("Modelo A", 50.0, 16.6),
-                    new DaoPeriodo("Modelo B", 100.0, 33.3),
-                    new DaoPeriodo("Modelo C", 150.0, 50.0)
+                    new DaoPeriodo("Modelo A", 50, 16.6),
+                    new DaoPeriodo("Modelo B", 100, 33.3),
+                    new DaoPeriodo("Modelo C", 150, 50.0)
             );
             var datos = graficas.generaDataset(listaDaoPeriodo);
             // Aqui se movera la grafica a utilizar

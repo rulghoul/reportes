@@ -5,8 +5,10 @@ import com.organizame.reportes.dto.DaoPeriodo;
 import com.organizame.reportes.dto.DaoResumenPeriodo;
 import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.dto.TablaContenido;
+import com.organizame.reportes.dto.auxiliar.ResumenHelp;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.repository.VhcModeloperiodoindustriaRepository2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ModeloPeriodoService {
 
@@ -271,8 +274,9 @@ public class ModeloPeriodoService {
     public Map<String, List<DaoPeriodo>> generaResumenSegmento(Collection<DaoResumenPeriodo> datos) {
         return generaResumenPorGrupo(
                 datos,
-                DaoResumenPeriodo::getSegmento,   // grupo principal
-                DaoResumenPeriodo::getModelo      // subgrupo (modelo)
+                DaoResumenPeriodo::getSegmento,
+                DaoResumenPeriodo::getModelo,
+                reg -> reg.equalsIgnoreCase("Stellantis")
         );
     }
 
@@ -280,7 +284,8 @@ public class ModeloPeriodoService {
         return generaResumenPorGrupo(
                 datos,
                 DaoResumenPeriodo::getFabricante,
-                DaoResumenPeriodo::getModelo
+                DaoResumenPeriodo::getModelo,
+                reg -> false
         );
     }
 
@@ -288,14 +293,16 @@ public class ModeloPeriodoService {
         return generaResumenPorGrupo(
                 datos,
                 DaoResumenPeriodo::getMarca,
-                DaoResumenPeriodo::getModelo
+                DaoResumenPeriodo::getModelo,
+                reg -> false
         );
     }
 
     private Map<String, List<DaoPeriodo>> generaResumenPorGrupo(
             Collection<DaoResumenPeriodo> datos,
             Function<DaoResumenPeriodo, String> grupoPrincipalExtractor,
-            Function<DaoResumenPeriodo, String> subGrupoExtractor
+            Function<DaoResumenPeriodo, String> subGrupoExtractor,
+            Predicate<String> buscador
     ) {
         Map<String, List<DaoResumenPeriodo>> agrupado = datos.stream()
                 .collect(Collectors.groupingBy(grupoPrincipalExtractor));
@@ -305,9 +312,8 @@ public class ModeloPeriodoService {
         for (Map.Entry<String, List<DaoResumenPeriodo>> entry : agrupado.entrySet()) {
             String grupo = entry.getKey();
             List<DaoResumenPeriodo> subset = entry.getValue();
-
             // Generar resumen interno (por subgrupo)
-            List<DaoPeriodo> resumen = generarResumen(subset, subGrupoExtractor);
+            List<DaoPeriodo> resumen = generarResumen(subset, subGrupoExtractor, buscador);
             resultado.put(grupo, resumen);
         }
 
@@ -317,32 +323,44 @@ public class ModeloPeriodoService {
 
     public List<DaoPeriodo> generarResumen(
             Collection<DaoResumenPeriodo> datos,
-            Function<DaoResumenPeriodo, String> grupoExtractor
+            Function<DaoResumenPeriodo, String> grupoExtractor,
+            Predicate<String> buscador
     ) {
         // Agrupar y sumar cantidades
-        Map<String, Double> totales = datos.stream()
+        Map<String, ResumenHelp> totales = datos.stream()
                 .collect(Collectors.groupingBy(
                         grupoExtractor,
-                        Collectors.summingDouble(DaoResumenPeriodo::getCantidad)
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                list ->{
+                                    Integer total = list.stream().mapToInt(DaoResumenPeriodo::getCantidad).sum();
+                                    var fabricante = list.getFirst().getFabricante();
+                                    return new ResumenHelp(total, fabricante);
+                                }
+                        )
                 ));
 
-        double totalGlobal = totales.values().stream()
-                .mapToDouble(Double::doubleValue)
+        Integer totalGlobal = totales.values().stream()
+                .mapToInt(res -> res.getCantidad())
                 .sum();
 
         List<DaoPeriodo> tabla = new ArrayList<>();
 
+
         totales.entrySet().stream()
-                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .sorted(Map.Entry.<String, ResumenHelp>comparingByValue(
+                        Comparator.comparingDouble(ResumenHelp::getCantidad).reversed()
+                ))
                 .forEach(entry -> {
                     String nombre = entry.getKey();
-                    double total = entry.getValue();
-                    double porcentaje = totalGlobal > 0 ? (total / totalGlobal) * 100 : 0.0;
-                    tabla.add(new DaoPeriodo(nombre, total, porcentaje));
+                    Integer total = entry.getValue().getCantidad();
+                    double porcentaje = totalGlobal > 0 ? (total.doubleValue() / totalGlobal.doubleValue()) * 100 : 0.0;
+                    String estilo = buscador.test(entry.getValue().getFabricante()) ? "Stellantis" : "Estandar";
+                    tabla.add(new DaoPeriodo(nombre, total, porcentaje, estilo));
                 });
 
         // Fila total
-        tabla.add(new DaoPeriodo("TOTAL", totalGlobal, 100.0));
+        tabla.add(new DaoPeriodo("TOTAL", totalGlobal, 100.0, "Total"));
 
 
         return tabla;

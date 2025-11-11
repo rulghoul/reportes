@@ -2,6 +2,7 @@ package com.organizame.reportes.service;
 
 import com.organizame.reportes.dto.DaoPeriodo;
 import com.organizame.reportes.dto.DaoResumenPeriodo;
+import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.dto.request.RequestOrigen;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.utils.excel.CrearExcel;
@@ -21,9 +22,9 @@ public class ReporteExcelService {
 
     private final DateTimeFormatter fechaSmall;
 
-    private ModeloPeriodoService service;
+    private final ModeloPeriodoService service;
 
-    private Graficas graficas;
+    private final Graficas graficas;
 
     @Autowired
     public ReporteExcelService(ModeloPeriodoService service, Graficas graficas){
@@ -49,11 +50,13 @@ public class ReporteExcelService {
 
         segmentos.forEach(segmento -> {
             var hoja = excel.CrearHoja(segmento.getNombreTabla());
+            //Tabla principal
             var posicion = excel.creaTablaEstilo(hoja, segmento.getDatos(), 0, 0);
             var resumen = this.creaResumen(segmentoResumen.get(segmento.getNombreTabla()), fecha);
             posicion.setRow(posicion.getRow()+2);
             var posGrafica = new PosicionGrafica(posicion,1200, 800);
-            posicion = excel.creaTabla(hoja, resumen, 0, posicion.getRow());
+            //Tabla resumen
+            posicion = excel.creaTablaEstilo(hoja, resumen, 0, posicion.getRow());
             var datosGrafica = graficas.generaDataset(segmentoResumen.get(segmento.getNombreTabla()));
             var grafica =graficas.graficaBarras("Segmento de " + segmento.getNombreTabla() + " - Origen " + request.getOrigen() + "fechas",
                     "Modelos" , "Participacion", datosGrafica);
@@ -66,11 +69,13 @@ public class ReporteExcelService {
 
         fabricantes.forEach(fabricante -> {
             var hoja = excel.CrearHoja(fabricante.getNombreTabla());
+            //Tabla princial
             var posicion = excel.creaTablaEstilo(hoja, fabricante.getDatos(), 0, 0);
             var resumen = this.creaResumen(fabricanteResumen.get(fabricante.getNombreTabla()), fecha);
             posicion.setRow(posicion.getRow()+2);
             var posGrafica = new PosicionGrafica(posicion,1200, 800);
-            posicion = excel.creaTabla(hoja, resumen, 0, posicion.getRow());
+            //Tabla resumen
+            posicion = excel.creaTablaEstilo(hoja, resumen, 0, posicion.getRow());
             var datosGrafica = graficas.generaDataset(fabricanteResumen.get(fabricante.getNombreTabla()));
             var grafica = graficas.graficaBarrasColor("Volumen de ventas, origen " + request.getOrigen() + "fechas",
                     "Modelos" , "Participacion", datosGrafica);
@@ -81,11 +86,11 @@ public class ReporteExcelService {
         return excel.guardaExcel();
     }
 
-    private List<List<Object>> creaResumen(List<DaoPeriodo> resumen, String fecha){
-        List<List<Object>> resultado = new ArrayList<>();
-        resultado.add(List.of("Modelo", fecha, "Part."));
+    private List<FilaTabla> creaResumen(List<DaoPeriodo> resumen, String fecha){
+        List<FilaTabla> resultado = new ArrayList<>();
+        resultado.add(new FilaTabla("Estandar",List.of("Modelo", fecha, "Part.")));
         resultado.addAll(
-                resumen.stream().map(r -> r.toListObject())
+                resumen.stream().map(DaoPeriodo::toFilas)
                         .toList()
         );
         return resultado;
