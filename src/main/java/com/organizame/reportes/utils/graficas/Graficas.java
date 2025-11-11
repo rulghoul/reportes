@@ -1,6 +1,7 @@
 package com.organizame.reportes.utils.graficas;
 
 import com.organizame.reportes.dao.DaoPeriodo;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -18,8 +19,25 @@ import org.jfree.chart.renderer.category.*;
 import org.jfree.data.general.DefaultPieDataset;
 
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.DatasetRenderingOrder;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.ui.RectangleEdge;
+
+import java.awt.*;
+import java.text.DecimalFormat;
 
 @Slf4j
 @Service
@@ -80,7 +98,7 @@ public class Graficas {
         return dataset;
     }
 
-    public DefaultPieDataset generaDataset3(List<DaoPeriodo> datos) {
+    public DefaultPieDataset generaDataset3(@NonNull List<DaoPeriodo> datos) {
         DefaultPieDataset dataset = new DefaultPieDataset();
 
         datos.stream()
@@ -176,63 +194,86 @@ public class Graficas {
     // ========================================================================
 
     /**
-     * COMBINACIÓN 1: BARRAS + LÍNEA CON DOBLE EJE Y
-     * Uso: Métricas con escalas diferentes (ej: ventas en $ y % crecimiento)
+     * Genera un gráfico combinado de Barras y Línea con Doble Eje Y,
+     * diseñado para el reporte de Ventas vs. Participación.
+     *
+     * @param titulo Título de la gráfica.
+     * @param dataset ÚNICO dataset con las 3 series (Ventas Industria, Ventas Brasil, % Part.).
+     * @return El objeto JFreeChart configurado.
      */
-    public JFreeChart graficaBarrasLineaDobleEje(String titulo, String xAxis,
-                                                 String yAxisIzq, String yAxisDer,
-                                                 DefaultCategoryDataset datosBarras,
-                                                 DefaultCategoryDataset datosLinea) {
-        // Crear el plot
-        CategoryPlot plot = new CategoryPlot();
-        plot.setDataset(0, datosBarras);
-        plot.setDataset(1, datosLinea);
+    public JFreeChart graficaReporteCombinada(String titulo, DefaultCategoryDataset dataset) {
 
-        // Configurar renderer para barras
+        // 1. Crear el chart base usando un gráfico de barras simple
+        JFreeChart chart = ChartFactory.createBarChart(
+                titulo,
+                "Periodo", // Eje X
+                "Volumen", // Eje Y Principal
+                dataset,
+                PlotOrientation.VERTICAL,
+                true, // Leyenda
+                true, // Tooltips
+                false // URLs
+        );
+
+        CategoryPlot plot = chart.getCategoryPlot();
+
+        // 2. CONFIGURACIÓN DEL EJE Y SECUNDARIO (Derecho - Porcentaje)
+        NumberAxis rightAxis = new NumberAxis("Porcentaje");
+        DecimalFormat percentFormat = new DecimalFormat("0.0%");
+        rightAxis.setNumberFormatOverride(percentFormat);
+
+        // Se recomienda ajustar el rango para que la línea se vea bien.
+        // Ejemplo: Si el max % es 15%, ajuste el rango a 0.15.
+        // rightAxis.setRange(0, 0.15);
+
+        plot.setRangeAxis(1, rightAxis); // Añadir el Eje Y secundario al plot
+
+        // 3. CONFIGURACIÓN DE RENDERERS Y ASIGNACIÓN DE SERIES
+
+        // El dataset tiene 3 series (asumiendo: 0=Ventas Ind., 1=Ventas Brasil, 2=% Part.)
+
+        // Renderer 0: BarRenderer para todas las series de volumen
         BarRenderer barRenderer = new BarRenderer();
         barRenderer.setShadowVisible(false);
+        barRenderer.setSeriesPaint(0, Color.BLACK); // Venta Industria (fondo)
+        barRenderer.setSeriesPaint(1, Color.BLUE);  // Venta Brasil (frente)
+
+        // *** IMPORTANTE: MOSTRAR VALORES SOBRE LAS BARRAS ***
+        barRenderer.setBaseItemLabelsVisible(true);
+        barRenderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+
+        // Asignar el renderer a las series 0 y 1 (volumen)
         plot.setRenderer(0, barRenderer);
+        plot.mapDatasetToRangeAxis(0, 0); // Mapear series de volumen al Eje Y 0 (Izquierda)
+        plot.mapDatasetToRangeAxis(1, 0); // Mapear series de volumen al Eje Y 0 (Izquierda)
 
-        // Configurar renderer para línea
+        // Renderer 1: LineAndShapeRenderer para la serie de porcentaje (índice 2)
         LineAndShapeRenderer lineRenderer = new LineAndShapeRenderer();
+        lineRenderer.setSeriesPaint(2, Color.RED); // Línea roja para porcentaje
         lineRenderer.setDefaultStroke(new BasicStroke(3.0f));
-        lineRenderer.setDefaultShapesVisible(true);
-        lineRenderer.setDefaultShapesFilled(true);
+        lineRenderer.setBaseShapesVisible(true);
+
+        // *** IMPORTANTE: MOSTRAR VALORES SOBRE LA LÍNEA (en formato %) ***
+        lineRenderer.setBaseItemLabelsVisible(true);
+        lineRenderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator(
+                "{2}", new DecimalFormat("0.0%")
+        ));
+
+        // Asignar el renderer y el eje a la serie 2 (porcentaje)
         plot.setRenderer(1, lineRenderer);
+        plot.mapDatasetToRangeAxis(2, 1); // Mapear la serie de % al Eje Y 1 (Derecha)
+        plot.mapDatasetToRenderer(2, 1); // Asignar la serie de % al Renderer 1
 
-        // Eje Y izquierdo (barras)
-        NumberAxis leftAxis = new NumberAxis(yAxisIzq);
-        plot.setRangeAxis(0, leftAxis);
-        plot.mapDatasetToRangeAxis(0, 0);
+        // 4. CONFIGURACIONES ADICIONALES
+        plot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD); // Asegura que se dibuje en orden
 
-        // Eje Y derecho (línea)
-        NumberAxis rightAxis = new NumberAxis(yAxisDer);
-        plot.setRangeAxis(1, rightAxis);
-        plot.mapDatasetToRangeAxis(1, 1);
+        // Posicionar Leyenda
+        chart.getLegend().setPosition(RectangleEdge.TOP);
 
-        // Eje X
-        CategoryAxis domainAxis = new CategoryAxis(xAxis);
-        plot.setDomainAxis(domainAxis);
-
-        // Crear el chart
-        var chart = new JFreeChart(titulo, JFreeChart.DEFAULT_TITLE_FONT, plot, true);
-        this.temaEstandar().apply(chart);
+        // Opcional: Aplicar un tema (asumiendo que temaEstandar() existe)
+        // this.temaEstandar().apply(chart);
 
         return chart;
-    }
-    public JFreeChart graficaBarrasColor(String titulo, String xAxis, String yAxis, DefaultCategoryDataset datos) {
-        JFreeChart grafica = ChartFactory.createBarChart(
-                titulo,
-                xAxis,
-                yAxis,
-                datos,
-                PlotOrientation.VERTICAL,
-                true,
-                true,
-                false
-        );
-        temaEstandar().apply(grafica);
-        return grafica;
     }
 
     public JFreeChart graficaLineas(String titulo, String xAxis, String yAxis, Collection datos){
