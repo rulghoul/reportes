@@ -13,7 +13,7 @@ public class TablaContenido {
 
     private String nombreTabla;
     private List<FilaTabla> datos;
-    private Double total;
-    private Double totalStellantis;
+    private Integer total;
+    private Integer totalStellantis;
 
 }
