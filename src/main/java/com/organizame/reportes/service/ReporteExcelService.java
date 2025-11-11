@@ -29,34 +29,33 @@ public class ReporteExcelService {
     public ReporteExcelService(ModeloPeriodoService service, Graficas graficas){
         this.service = service;
         this.graficas = graficas;
-        this.fechaSmall = DateTimeFormatter.ofPattern("MMyy");
+        this.fechaSmall = DateTimeFormatter.ofPattern("MMMuu");
     }
 
     public ByteArrayInputStream CrearExcelOrigen(RequestOrigen request) throws IOException {
         List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenFechaInicial(request.getOrigen(), request.getMesReporte(), request.getMesFinal());
         Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
-        var fabricantes = service.generaDatosPivotPorFabricante(filtrado);
+        var fabricantes = service.generaDatosContenidoPorFabricante(filtrado);
         var fabricanteResumen = service.generaResumenFabricante(filtrado);
-        var segmentos = service.generaDatosPivotPorSegmento(filtrado);
+        var segmentos = service.generaDatosContenidoPorSegmento(filtrado);
         var segmentoResumen = service.generaResumenSegmento(filtrado);
 
         CrearExcel excel = new CrearExcel();
-
         LocalDate fechaInicial = request.getMesFinal().minusMonths(request.getMesReporte());
         String fecha = fechaSmall.format(fechaInicial) + "-" + fechaSmall.format(request.getMesFinal());
         // Genera portada
 
         // Genera hojas segmento
 
-        segmentos.entrySet().forEach(segmento -> {
-            var hoja = excel.CrearHoja(segmento.getKey());
-            var posicion = excel.creaTabla(hoja, segmento.getValue(), 0, 0);
-            var resumen = this.creaResumen(segmentoResumen.get(segmento.getKey()), fecha);
+        segmentos.forEach(segmento -> {
+            var hoja = excel.CrearHoja(segmento.getNombreTabla());
+            var posicion = excel.creaTablaEstilo(hoja, segmento.getDatos(), 0, 0);
+            var resumen = this.creaResumen(segmentoResumen.get(segmento.getNombreTabla()), fecha);
             posicion.setRow(posicion.getRow()+2);
             var posGrafica = new PosicionGrafica(posicion,1200, 800);
             posicion = excel.creaTabla(hoja, resumen, 0, posicion.getRow());
-            var datosGrafica = graficas.generaDataset(segmentoResumen.get(segmento.getKey()));
-            var grafica =graficas.graficaBarras("Segmento de " + segmento.getKey() + " - Origen " + request.getOrigen() + "fechas",
+            var datosGrafica = graficas.generaDataset(segmentoResumen.get(segmento.getNombreTabla()));
+            var grafica =graficas.graficaBarras("Segmento de " + segmento.getNombreTabla() + " - Origen " + request.getOrigen() + "fechas",
                     "Modelos" , "Participacion", datosGrafica);
             posGrafica.setCol(posicion.getCol() + 2);
             excel.InsertarGrafica(hoja, grafica, posGrafica);
@@ -65,14 +64,14 @@ public class ReporteExcelService {
 
         // Genera hojas fabricantes
 
-        fabricantes.entrySet().forEach(fabricante -> {
-            var hoja = excel.CrearHoja(fabricante.getKey());
-            var posicion = excel.creaTabla(hoja, fabricante.getValue(), 0, 0);
-            var resumen = this.creaResumen(fabricanteResumen.get(fabricante.getKey()), fecha);
+        fabricantes.forEach(fabricante -> {
+            var hoja = excel.CrearHoja(fabricante.getNombreTabla());
+            var posicion = excel.creaTablaEstilo(hoja, fabricante.getDatos(), 0, 0);
+            var resumen = this.creaResumen(fabricanteResumen.get(fabricante.getNombreTabla()), fecha);
             posicion.setRow(posicion.getRow()+2);
             var posGrafica = new PosicionGrafica(posicion,1200, 800);
             posicion = excel.creaTabla(hoja, resumen, 0, posicion.getRow());
-            var datosGrafica = graficas.generaDataset(fabricanteResumen.get(fabricante.getKey()));
+            var datosGrafica = graficas.generaDataset(fabricanteResumen.get(fabricante.getNombreTabla()));
             var grafica = graficas.graficaBarrasColor("Volumen de ventas, origen " + request.getOrigen() + "fechas",
                     "Modelos" , "Participacion", datosGrafica);
             posGrafica.setCol(posicion.getCol() + 2);

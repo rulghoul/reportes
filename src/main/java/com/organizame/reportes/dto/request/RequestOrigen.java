@@ -8,9 +8,7 @@ import java.time.LocalDate;
 public class RequestOrigen {
 
     private String origen;
-    private String segmento;
     private LocalDate mesFinal;
     private Integer mesReporte;
-    private String resultado; // json, excel ,pptx
 
 }

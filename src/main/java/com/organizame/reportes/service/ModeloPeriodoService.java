@@ -31,7 +31,6 @@ public class ModeloPeriodoService {
 
     private LocalDate fechaFinal;
     private LocalDate inicio;
-    private Integer mesesRevicion;
 
     @Autowired
     public  ModeloPeriodoService(VhcModeloperiodoindustriaRepository2 repository){
@@ -50,7 +49,6 @@ public class ModeloPeriodoService {
 
     public List<VhcModeloperiodoindustria> recuperaOrigenFechaInicial(String  pais, Integer meses, LocalDate fechaFinal){
         this.fechaFinal = fechaFinal;
-        this.mesesRevicion = meses;
         this.inicio = fechaFinal.minusMonths(meses);
 
         int desde = Integer.parseInt(inicio.format(toIntegerFormater));
@@ -97,6 +95,15 @@ public class ModeloPeriodoService {
         return generaTablaContenido(datos,
                 DaoResumenPeriodo::getSegmento,
                 DaoResumenPeriodo::getModelo,
+                reg -> reg.getFabricante().equalsIgnoreCase("Stellantis"),
+                "Modelo");
+    }
+
+    public List<TablaContenido> generaDatosContenidoPorFabricante(Collection<DaoResumenPeriodo> datos) {
+        return generaTablaContenido(datos,
+                DaoResumenPeriodo::getFabricante,
+                DaoResumenPeriodo::getModelo,
+                reg -> false,
                 "Modelo");
     }
 
@@ -104,13 +111,12 @@ public class ModeloPeriodoService {
             Collection<DaoResumenPeriodo> datos,
             Function<DaoResumenPeriodo, String> grupoPrincipalExtractor,
             Function<DaoResumenPeriodo, String> subGrupoExtractor,
+            Predicate<DaoResumenPeriodo> buscador,
             String subGrupoTitulo) {
         List<String> listaMeses = this.obtenerListaMeses(inicio, this.fechaFinal);
         // Agrupar por el campo principal (segmento o marca)
         Map<String, List<DaoResumenPeriodo>> datosAgrupados = datos.stream()
                 .collect(Collectors.groupingBy(grupoPrincipalExtractor));
-
-        Predicate<DaoResumenPeriodo> frabricaStellantis = reg -> reg.getFabricante().equalsIgnoreCase("Stellantis");
 
         List<TablaContenido> resultado = new ArrayList<>();
         for (Map.Entry<String, List<DaoResumenPeriodo>> entry : datosAgrupados.entrySet()) {
@@ -120,10 +126,10 @@ public class ModeloPeriodoService {
             //Total
             var totalGlobal = datosGrupo.stream().mapToInt(DaoResumenPeriodo::getCantidad).sum();
             var totalStellantis = datosGrupo.stream()
-                    .filter(frabricaStellantis)
+                    .filter(buscador)
                     .mapToInt(DaoResumenPeriodo::getCantidad).sum();
 
-            var tablaGrupo = generaTablaParaGrupo(datosGrupo, listaMeses, subGrupoExtractor, frabricaStellantis, subGrupoTitulo);
+            var tablaGrupo = generaTablaParaGrupo(datosGrupo, listaMeses, subGrupoExtractor, buscador, subGrupoTitulo);
 
             resultado.add(new TablaContenido(grupoPrincipal, tablaGrupo, totalGlobal, totalStellantis));
         }
@@ -232,7 +238,7 @@ public class ModeloPeriodoService {
             String subGrupo = subGrupoEntry.getKey();
             List<DaoResumenPeriodo> lista = subGrupoEntry.getValue();
 
-            String estilo = busqueda.test(lista.get(0)) ? "STELLANTIS" :"ESTANDAR";
+            String estilo = busqueda.test(lista.getFirst()) ? "STELLANTIS" :"ESTANDAR";
             // Agrupar por mes y sumar cantidades
             Map<String, Double> porMes = lista.stream()
                     .collect(Collectors.groupingBy(
