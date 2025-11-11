@@ -1,9 +1,7 @@
-package com.organizame.reportes.dao;
+package com.organizame.reportes.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor

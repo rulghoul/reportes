@@ -4,6 +4,8 @@ package com.organizame.reportes.utils.excel;
 import com.organizame.reportes.exceptions.ExcelException;
 import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.utils.SpringContext;
+import com.organizame.reportes.utils.excel.dto.Posicion;
+import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -55,9 +57,15 @@ public class CrearExcel {
     }
 
 
-    public Map<String, Integer> creaTabla(XSSFSheet hoja, List<List<Object>> datos, Integer columna, Integer  fila){
+    public Posicion creaTabla(XSSFSheet hoja, List<List<Object>> datos, Integer columna, Integer  fila){
         Tabla tabla = new Tabla(wb, estilos, encabezado, hoja, datos, columna, fila);
         var resultado = tabla.procesaTabla();
+        return resultado;
+    }
+
+    public Posicion creaTablaEstilo(XSSFSheet hoja, List<List<Object>> datos, Integer columna, Integer  fila){
+        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja, datos, columna, fila);
+        var resultado = tabla.procesaTablaEstilo();
         return resultado;
     }
 

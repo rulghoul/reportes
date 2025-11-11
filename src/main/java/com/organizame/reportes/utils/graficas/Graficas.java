@@ -1,6 +1,6 @@
 package com.organizame.reportes.utils.graficas;
 
-import com.organizame.reportes.dao.DaoPeriodo;
+import com.organizame.reportes.dto.DaoPeriodo;
 import lombok.extern.slf4j.Slf4j;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;

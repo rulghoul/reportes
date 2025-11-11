@@ -1,14 +1,13 @@
 package com.organizame.reportes.service;
 
 
-import com.organizame.reportes.dao.DaoPeriodo;
-import com.organizame.reportes.dao.DaoResumenPeriodo;
+import com.organizame.reportes.dto.DaoPeriodo;
+import com.organizame.reportes.dto.DaoResumenPeriodo;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.repository.VhcModeloperiodoindustriaRepository2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -45,20 +44,6 @@ public class ModeloPeriodoService {
         return repository.findDistinctByOrderBySegmentoarchivoAsc();
     }
 
-    public Set<VhcModeloperiodoindustria> recuperaOperacionesOrigen(String  pais){
-        return repository.findByOrigenarchivo(pais);
-    }
-
-    public List<VhcModeloperiodoindustria> recuperaOrigenVeinticuatoMeses(String  pais){
-        this.fechaFinal = LocalDate.now().minusMonths(1);
-        this.mesesRevicion = 24;
-        this.inicio = fechaFinal.minusMonths(this.mesesRevicion);
-
-        int desde = Integer.parseInt(inicio.format(toIntegerFormater));
-        int hasta = Integer.parseInt(fechaFinal.format(toIntegerFormater));
-
-        return repository.findUltimosMeses(pais, desde, hasta);
-    }
 
     public List<VhcModeloperiodoindustria> recuperaOrigenFechaInicial(String  pais, Integer meses, LocalDate fechaFinal){
         this.fechaFinal = fechaFinal;
@@ -104,9 +89,6 @@ public class ModeloPeriodoService {
                 DaoResumenPeriodo::getModelo,
                 "Modelo");
     }
-
-
-
 
 
     private Map<String, List<List<Object>>> generaTablaPivot(
@@ -177,7 +159,11 @@ public class ModeloPeriodoService {
             fila.add(total);
             respuesta.add(fila);
         }
-
+        respuesta.subList(1, respuesta.size()).sort((fila1, fila2) -> {
+            Double totalFila1 = (Double) fila1.getLast();
+            Double totalFila2 = (Double) fila2.getLast();
+            return totalFila2.compareTo(totalFila1);
+        });
         return respuesta;
     }
 
@@ -246,7 +232,7 @@ public class ModeloPeriodoService {
         List<DaoPeriodo> tabla = new ArrayList<>();
 
         totales.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
+                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
                 .forEach(entry -> {
                     String nombre = entry.getKey();
                     double total = entry.getValue();
@@ -257,66 +243,10 @@ public class ModeloPeriodoService {
         // Fila total
         tabla.add(new DaoPeriodo("TOTAL", totalGlobal, 100.0));
 
+
         return tabla;
     }
 
-
-
-
-    public List<List<Object>> generaDatosTablaSegmentoMarca(Collection<DaoResumenPeriodo> datos) {
-
-        List<List<Object>> respuesta = new ArrayList<>();
-        // 🔹 1. Encabezados dinámicos
-        List<String> listaMeses = this.obtenerListaMeses(this.inicio, this.fechaFinal);
-        List<Object> encabezados = new ArrayList<>();
-        encabezados.add("Segmento");
-        encabezados.add("Marca");
-        encabezados.addAll(listaMeses);
-        encabezados.add("Total");
-        respuesta.add(encabezados);
-
-        // 🔹 2. Agrupar los datos por segmento, y dentro de cada segmento por marca
-        Map<String, Map<String, List<DaoResumenPeriodo>>> agrupado = datos.stream()
-                .collect(Collectors.groupingBy(
-                        DaoResumenPeriodo::getSegmento,
-                        Collectors.groupingBy(DaoResumenPeriodo::getMarca)
-                ));
-
-        // 🔹 3. Construir filas: una por marca dentro de cada segmento
-        for (var segmentoEntry : agrupado.entrySet()) {
-            String segmento = segmentoEntry.getKey();
-            var marcas = segmentoEntry.getValue();
-
-            for (var marcaEntry : marcas.entrySet()) {
-                String marca = marcaEntry.getKey();
-                List<DaoResumenPeriodo> lista = marcaEntry.getValue();
-
-                // Agrupar los registros por mes y sumar cantidades
-                Map<String, Double> porMes = lista.stream()
-                        .collect(Collectors.groupingBy(
-                                DaoResumenPeriodo::getMesAnio,
-                                Collectors.summingDouble(DaoResumenPeriodo::getCantidad)
-                        ));
-
-                // Crear fila
-                List<Object> fila = new ArrayList<>();
-                fila.add(segmento);
-                fila.add(marca);
-
-                double total = 0.0;
-                for (String mes : listaMeses) {
-                    double valor = porMes.getOrDefault(mes, 0.0);
-                    fila.add(valor);
-                    total += valor;
-                }
-
-                fila.add(total);
-                respuesta.add(fila);
-            }
-        }
-
-        return respuesta;
-    }
 
 
     public String recuperaMesAnioLabel(Integer anio, Integer mes){

@@ -1,15 +1,12 @@
-package com.organizame.reportes.utils.excel;
+package com.organizame.reportes.utils.excel.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
 @Data
 @AllArgsConstructor
-public class PosicionGrafica {
-
+public class Posicion {
     private int col;
     private int row;
-    private int ancho;
-    private int alto;
 }
-

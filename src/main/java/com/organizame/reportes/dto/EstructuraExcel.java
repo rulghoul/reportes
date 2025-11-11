@@ -1,4 +1,4 @@
-package com.organizame.reportes.dao;
+package com.organizame.reportes.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

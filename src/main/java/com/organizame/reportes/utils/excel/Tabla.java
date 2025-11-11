@@ -1,6 +1,8 @@
 package com.organizame.reportes.utils.excel;
 
+import com.organizame.reportes.dto.TablaContenido;
 import com.organizame.reportes.utils.SpringContext;
+import com.organizame.reportes.utils.excel.dto.Posicion;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -23,7 +25,9 @@ public class Tabla {
 
     private final XSSFSheet hoja;
 
-    private final List<List<Object>> datos;
+    private  List<List<Object>> datos;
+
+    private  TablaContenido tabla;
 
     private  Integer columna;
 
@@ -49,12 +53,41 @@ public class Tabla {
         this.rownum = rownum < initRow ? initRow : rownum;
     }
 
-    public Map<String, Integer> procesaTabla(){
+    public Tabla(XSSFWorkbook wb, List<EstiloCeldaExcel> estilos, XSSFCellStyle encabezado, XSSFSheet hoja, TablaContenido tabla, Integer columna, Integer fila){
+        this.wb = wb;
+        this.estilos = estilos;
+        this.encabezado = encabezado;
+        this.hoja = hoja;
+        this.tabla = tabla;
+        this.columna = columna;
+        this.rownum = fila;
+
+        Environment env = SpringContext.getContext().getEnvironment();
+        Integer initCol = env.getProperty("excel.table.init.col", Integer.class);
+        Integer initRow = env.getProperty("excel.table.init.row", Integer.class);
+
+        this.columna =  columna < initCol ? initCol: columna;
+        this.rownum = rownum < initRow ? initRow : rownum;
+    }
+
+
+
+    public Posicion procesaTabla(){
         for(int i = 0; this.datos.size() > i ; i++){
             this.escribeFilaObject(hoja,this.datos.get(i), i);
         }
-        return Map.of("col",columnaEnd, "row", rownum);
+        return new Posicion(columnaEnd,rownum);
     }
+
+    public Posicion procesaTablaEstilo() {
+
+        for(int i = 0; this.tabla.getDatos().size() > i ; i++){
+            this.escribeFilaObjectconEstilo(hoja,this.tabla.getDatos().get(i).getFila(), i, this.tabla.getDatos().get(i).getNombreEstilo());
+        }
+        return new Posicion(columnaEnd,rownum);
+    }
+
+
 
     public void escribeFila(XSSFSheet sh, List<String> fila, int elemento) {
         escribeFila(sh, fila, "Estandar", elemento);
@@ -68,6 +101,16 @@ public class Tabla {
     //Este metodo obtiene una lista de Objetos de un dbf
     public void escribeFilaObject(XSSFSheet sh, List<Object> fila, int elemento) {
         escribeFilaObject(sh, fila, "Estandar", elemento);
+    }
+
+    public void escribeFilaObjectconEstilo(XSSFSheet sh, List<Object> fila, int elemento, String estilo) {
+        if (
+                this.estilos.stream().filter(e -> e.getNombre()
+                        .equalsIgnoreCase(estilo)).findFirst().isPresent()){
+            escribeFilaObject(sh, fila, estilo, elemento);
+        }else{
+            escribeFilaObject(sh, fila, "Estandar", elemento);
+        }
     }
 
     //Este metodo obtiene una lista de Objetos de un dbf
@@ -129,4 +172,6 @@ public class Tabla {
             cell.setHyperlink(href);
         }
     }
+
+
 }

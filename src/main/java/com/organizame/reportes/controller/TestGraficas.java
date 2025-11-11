@@ -1,7 +1,6 @@
 package com.organizame.reportes.controller;
 
-import com.organizame.reportes.dao.DaoPeriodo;
-import com.organizame.reportes.dao.request.RequestOrigen;
+import com.organizame.reportes.dto.DaoPeriodo;
 import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.utils.graficas.Graficas;
 import io.swagger.v3.oas.annotations.Operation;

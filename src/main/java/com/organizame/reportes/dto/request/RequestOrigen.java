@@ -1,4 +1,4 @@
-package com.organizame.reportes.dao.request;
+package com.organizame.reportes.dto.request;
 
 import lombok.Data;
 
