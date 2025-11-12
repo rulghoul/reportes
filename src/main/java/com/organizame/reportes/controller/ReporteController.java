@@ -1,6 +1,6 @@
 package com.organizame.reportes.controller;
 
-import com.organizame.reportes.dao.request.RequestOrigen;
+import com.organizame.reportes.dto.request.RequestOrigen;
 import com.organizame.reportes.service.ReporteExcelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

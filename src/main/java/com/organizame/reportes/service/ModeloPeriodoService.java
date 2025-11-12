@@ -1,22 +1,27 @@
 package com.organizame.reportes.service;
 
 
-import com.organizame.reportes.dao.DaoPeriodo;
-import com.organizame.reportes.dao.DaoResumenPeriodo;
+import com.organizame.reportes.dto.DaoPeriodo;
+import com.organizame.reportes.dto.DaoResumenPeriodo;
+import com.organizame.reportes.dto.FilaTabla;
+import com.organizame.reportes.dto.TablaContenido;
+import com.organizame.reportes.dto.auxiliar.ResumenHelp;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.repository.VhcModeloperiodoindustriaRepository2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ModeloPeriodoService {
 
@@ -29,7 +34,6 @@ public class ModeloPeriodoService {
 
     private LocalDate fechaFinal;
     private LocalDate inicio;
-    private Integer mesesRevicion;
 
     @Autowired
     public  ModeloPeriodoService(VhcModeloperiodoindustriaRepository2 repository){
@@ -45,24 +49,9 @@ public class ModeloPeriodoService {
         return repository.findDistinctByOrderBySegmentoarchivoAsc();
     }
 
-    public Set<VhcModeloperiodoindustria> recuperaOperacionesOrigen(String  pais){
-        return repository.findByOrigenarchivo(pais);
-    }
-
-    public List<VhcModeloperiodoindustria> recuperaOrigenVeinticuatoMeses(String  pais){
-        this.fechaFinal = LocalDate.now().minusMonths(1);
-        this.mesesRevicion = 24;
-        this.inicio = fechaFinal.minusMonths(this.mesesRevicion);
-
-        int desde = Integer.parseInt(inicio.format(toIntegerFormater));
-        int hasta = Integer.parseInt(fechaFinal.format(toIntegerFormater));
-
-        return repository.findUltimosMeses(pais, desde, hasta);
-    }
 
     public List<VhcModeloperiodoindustria> recuperaOrigenFechaInicial(String  pais, Integer meses, LocalDate fechaFinal){
         this.fechaFinal = fechaFinal;
-        this.mesesRevicion = meses;
         this.inicio = fechaFinal.minusMonths(meses);
 
         int desde = Integer.parseInt(inicio.format(toIntegerFormater));
@@ -105,8 +94,51 @@ public class ModeloPeriodoService {
                 "Modelo");
     }
 
+    public List<TablaContenido> generaDatosContenidoPorSegmento(Collection<DaoResumenPeriodo> datos) {
+        return generaTablaContenido(datos,
+                DaoResumenPeriodo::getSegmento,
+                DaoResumenPeriodo::getModelo,
+                reg -> reg.getFabricante().equalsIgnoreCase("Stellantis"),
+                "Modelo");
+    }
 
+    public List<TablaContenido> generaDatosContenidoPorFabricante(Collection<DaoResumenPeriodo> datos) {
+        return generaTablaContenido(datos,
+                DaoResumenPeriodo::getFabricante,
+                DaoResumenPeriodo::getModelo,
+                reg -> false,
+                "Modelo");
+    }
 
+    private List<TablaContenido> generaTablaContenido(
+            Collection<DaoResumenPeriodo> datos,
+            Function<DaoResumenPeriodo, String> grupoPrincipalExtractor,
+            Function<DaoResumenPeriodo, String> subGrupoExtractor,
+            Predicate<DaoResumenPeriodo> buscador,
+            String subGrupoTitulo) {
+        List<String> listaMeses = this.obtenerListaMeses(inicio, this.fechaFinal);
+        // Agrupar por el campo principal (segmento o marca)
+        Map<String, List<DaoResumenPeriodo>> datosAgrupados = datos.stream()
+                .collect(Collectors.groupingBy(grupoPrincipalExtractor));
+
+        List<TablaContenido> resultado = new ArrayList<>();
+        for (Map.Entry<String, List<DaoResumenPeriodo>> entry : datosAgrupados.entrySet()) {
+            String grupoPrincipal = entry.getKey();
+            List<DaoResumenPeriodo> datosGrupo = entry.getValue();
+
+            //Total
+            var totalGlobal = datosGrupo.stream().mapToInt(DaoResumenPeriodo::getCantidad).sum();
+            var totalStellantis = datosGrupo.stream()
+                    .filter(buscador)
+                    .mapToInt(DaoResumenPeriodo::getCantidad).sum();
+
+            var tablaGrupo = generaTablaParaGrupo(datosGrupo, listaMeses, subGrupoExtractor, buscador, subGrupoTitulo);
+
+            resultado.add(new TablaContenido(grupoPrincipal, tablaGrupo, totalGlobal, totalStellantis));
+        }
+
+        return resultado;
+    }
 
 
     private Map<String, List<List<Object>>> generaTablaPivot(
@@ -177,15 +209,74 @@ public class ModeloPeriodoService {
             fila.add(total);
             respuesta.add(fila);
         }
+        respuesta.subList(1, respuesta.size()).sort((fila1, fila2) -> {
+            Double totalFila1 = (Double) fila1.getLast();
+            Double totalFila2 = (Double) fila2.getLast();
+            return totalFila2.compareTo(totalFila1);
+        });
+        return respuesta;
+    }
 
+    private List<FilaTabla> generaTablaParaGrupo(
+            List<DaoResumenPeriodo> datosGrupo,
+            List<String> listaMeses,
+            Function<DaoResumenPeriodo, String> subGrupoExtractor,
+            Predicate<DaoResumenPeriodo> busqueda,
+            String subGrupoTitulo) {
+
+        List<FilaTabla> respuesta = new ArrayList<>();
+
+        // Encabezados
+        List<Object> encabezados = new ArrayList<>();
+        encabezados.add(subGrupoTitulo);
+        encabezados.addAll(listaMeses);
+        encabezados.add("Total");
+        respuesta.add(new FilaTabla("Encanbezado", encabezados));
+
+        // Agrupar por el subgrupo (marca o segmento)
+        Map<String, List<DaoResumenPeriodo>> datosPorSubGrupo = datosGrupo.stream()
+                .collect(Collectors.groupingBy(subGrupoExtractor));
+
+        for (Map.Entry<String, List<DaoResumenPeriodo>> subGrupoEntry : datosPorSubGrupo.entrySet()) {
+            String subGrupo = subGrupoEntry.getKey();
+            List<DaoResumenPeriodo> lista = subGrupoEntry.getValue();
+
+            String estilo = busqueda.test(lista.getFirst()) ? "STELLANTIS" :"ESTANDAR";
+            // Agrupar por mes y sumar cantidades
+            Map<String, Double> porMes = lista.stream()
+                    .collect(Collectors.groupingBy(
+                            DaoResumenPeriodo::getMesAnio,
+                            Collectors.summingDouble(DaoResumenPeriodo::getCantidad)
+                    ));
+
+            // Crear fila
+            List<Object> fila = new ArrayList<>();
+            fila.add(subGrupo);
+
+            double total = 0.0;
+            for (String mes : listaMeses) {
+                double valor = porMes.getOrDefault(mes, 0.0);
+                fila.add(valor);
+                total += valor;
+            }
+
+            fila.add(total);
+            respuesta.add(new FilaTabla(estilo,fila));
+        }
+        respuesta.subList(1, respuesta.size()).sort((fila1, fila2) -> {
+            Double totalFila1 = (Double) fila1.getFila().getLast();
+            Double totalFila2 = (Double) fila2.getFila().getLast();
+            return totalFila2.compareTo(totalFila1);
+        });
         return respuesta;
     }
 
     public Map<String, List<DaoPeriodo>> generaResumenSegmento(Collection<DaoResumenPeriodo> datos) {
         return generaResumenPorGrupo(
                 datos,
-                DaoResumenPeriodo::getSegmento,   // grupo principal
-                DaoResumenPeriodo::getModelo      // subgrupo (modelo)
+                DaoResumenPeriodo::getSegmento,
+                DaoResumenPeriodo::getModelo,
+                reg -> reg.equalsIgnoreCase("Stellantis")
         );
     }
 
@@ -193,7 +284,8 @@ public class ModeloPeriodoService {
         return generaResumenPorGrupo(
                 datos,
                 DaoResumenPeriodo::getFabricante,
-                DaoResumenPeriodo::getModelo
+                DaoResumenPeriodo::getModelo,
+                reg -> false
         );
     }
 
@@ -201,14 +293,16 @@ public class ModeloPeriodoService {
         return generaResumenPorGrupo(
                 datos,
                 DaoResumenPeriodo::getMarca,
-                DaoResumenPeriodo::getModelo
+                DaoResumenPeriodo::getModelo,
+                reg -> false
         );
     }
 
     private Map<String, List<DaoPeriodo>> generaResumenPorGrupo(
             Collection<DaoResumenPeriodo> datos,
             Function<DaoResumenPeriodo, String> grupoPrincipalExtractor,
-            Function<DaoResumenPeriodo, String> subGrupoExtractor
+            Function<DaoResumenPeriodo, String> subGrupoExtractor,
+            Predicate<String> buscador
     ) {
         Map<String, List<DaoResumenPeriodo>> agrupado = datos.stream()
                 .collect(Collectors.groupingBy(grupoPrincipalExtractor));
@@ -218,9 +312,8 @@ public class ModeloPeriodoService {
         for (Map.Entry<String, List<DaoResumenPeriodo>> entry : agrupado.entrySet()) {
             String grupo = entry.getKey();
             List<DaoResumenPeriodo> subset = entry.getValue();
-
             // Generar resumen interno (por subgrupo)
-            List<DaoPeriodo> resumen = generarResumen(subset, subGrupoExtractor);
+            List<DaoPeriodo> resumen = generarResumen(subset, subGrupoExtractor, buscador);
             resultado.put(grupo, resumen);
         }
 
@@ -230,93 +323,49 @@ public class ModeloPeriodoService {
 
     public List<DaoPeriodo> generarResumen(
             Collection<DaoResumenPeriodo> datos,
-            Function<DaoResumenPeriodo, String> grupoExtractor
+            Function<DaoResumenPeriodo, String> grupoExtractor,
+            Predicate<String> buscador
     ) {
         // Agrupar y sumar cantidades
-        Map<String, Double> totales = datos.stream()
+        Map<String, ResumenHelp> totales = datos.stream()
                 .collect(Collectors.groupingBy(
                         grupoExtractor,
-                        Collectors.summingDouble(DaoResumenPeriodo::getCantidad)
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                list ->{
+                                    Integer total = list.stream().mapToInt(DaoResumenPeriodo::getCantidad).sum();
+                                    var fabricante = list.getFirst().getFabricante();
+                                    return new ResumenHelp(total, fabricante);
+                                }
+                        )
                 ));
 
-        double totalGlobal = totales.values().stream()
-                .mapToDouble(Double::doubleValue)
+        Integer totalGlobal = totales.values().stream()
+                .mapToInt(res -> res.getCantidad())
                 .sum();
 
         List<DaoPeriodo> tabla = new ArrayList<>();
 
+
         totales.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
+                .sorted(Map.Entry.<String, ResumenHelp>comparingByValue(
+                        Comparator.comparingDouble(ResumenHelp::getCantidad).reversed()
+                ))
                 .forEach(entry -> {
                     String nombre = entry.getKey();
-                    double total = entry.getValue();
-                    double porcentaje = totalGlobal > 0 ? (total / totalGlobal) * 100 : 0.0;
-                    tabla.add(new DaoPeriodo(nombre, total, porcentaje));
+                    Integer total = entry.getValue().getCantidad();
+                    double porcentaje = totalGlobal > 0 ? (total.doubleValue() / totalGlobal.doubleValue()) * 100 : 0.0;
+                    String estilo = buscador.test(entry.getValue().getFabricante()) ? "Stellantis" : "Estandar";
+                    tabla.add(new DaoPeriodo(nombre, total, porcentaje, estilo));
                 });
 
         // Fila total
-        tabla.add(new DaoPeriodo("TOTAL", totalGlobal, 100.0));
+        tabla.add(new DaoPeriodo("TOTAL", totalGlobal, 100.0, "Total"));
+
 
         return tabla;
     }
 
-
-
-
-    public List<List<Object>> generaDatosTablaSegmentoMarca(Collection<DaoResumenPeriodo> datos) {
-
-        List<List<Object>> respuesta = new ArrayList<>();
-        // 🔹 1. Encabezados dinámicos
-        List<String> listaMeses = this.obtenerListaMeses(this.inicio, this.fechaFinal);
-        List<Object> encabezados = new ArrayList<>();
-        encabezados.add("Segmento");
-        encabezados.add("Marca");
-        encabezados.addAll(listaMeses);
-        encabezados.add("Total");
-        respuesta.add(encabezados);
-
-        // 🔹 2. Agrupar los datos por segmento, y dentro de cada segmento por marca
-        Map<String, Map<String, List<DaoResumenPeriodo>>> agrupado = datos.stream()
-                .collect(Collectors.groupingBy(
-                        DaoResumenPeriodo::getSegmento,
-                        Collectors.groupingBy(DaoResumenPeriodo::getMarca)
-                ));
-
-        // 🔹 3. Construir filas: una por marca dentro de cada segmento
-        for (var segmentoEntry : agrupado.entrySet()) {
-            String segmento = segmentoEntry.getKey();
-            var marcas = segmentoEntry.getValue();
-
-            for (var marcaEntry : marcas.entrySet()) {
-                String marca = marcaEntry.getKey();
-                List<DaoResumenPeriodo> lista = marcaEntry.getValue();
-
-                // Agrupar los registros por mes y sumar cantidades
-                Map<String, Double> porMes = lista.stream()
-                        .collect(Collectors.groupingBy(
-                                DaoResumenPeriodo::getMesAnio,
-                                Collectors.summingDouble(DaoResumenPeriodo::getCantidad)
-                        ));
-
-                // Crear fila
-                List<Object> fila = new ArrayList<>();
-                fila.add(segmento);
-                fila.add(marca);
-
-                double total = 0.0;
-                for (String mes : listaMeses) {
-                    double valor = porMes.getOrDefault(mes, 0.0);
-                    fila.add(valor);
-                    total += valor;
-                }
-
-                fila.add(total);
-                respuesta.add(fila);
-            }
-        }
-
-        return respuesta;
-    }
 
 
     public String recuperaMesAnioLabel(Integer anio, Integer mes){

@@ -1,9 +1,12 @@
 package com.organizame.reportes.utils.excel;
 
 
+import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.exceptions.ExcelException;
 import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.utils.SpringContext;
+import com.organizame.reportes.utils.excel.dto.Posicion;
+import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -55,9 +58,15 @@ public class CrearExcel {
     }
 
 
-    public Map<String, Integer> creaTabla(XSSFSheet hoja, List<List<Object>> datos, Integer columna, Integer  fila){
-        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja, datos, columna, fila);
+    public Posicion creaTabla(XSSFSheet hoja, List<List<Object>> datos, Integer columna, Integer  fila){
+        Tabla tabla = Tabla.fromList(wb, estilos, encabezado, hoja, datos, columna, fila);
         var resultado = tabla.procesaTabla();
+        return resultado;
+    }
+
+    public Posicion creaTablaEstilo(XSSFSheet hoja, List<FilaTabla> datos, Integer columna, Integer  fila){
+        Tabla tabla = Tabla.fromFila(wb, estilos, encabezado, hoja, datos, columna, fila);
+        var resultado = tabla.procesaTablaEstilo();
         return resultado;
     }
 
@@ -97,6 +106,12 @@ public class CrearExcel {
         encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         estilos.add(new EstiloCeldaExcel(estandar, wb));
+        //Estilo Stellantis
+        var colorEstellantis = new ColorExcel("Stellantis", "96938E" ,"#C7C5C2");
+        var estiloEstellantis = new EstiloCeldaExcel(colorEstellantis, wb);
+        //estiloEstellantis.getOdd().setFont(resaltar);
+        estilos.add(estiloEstellantis);
+
     }
 
     public void agregaColor(ColorExcel color) throws ExcelException {

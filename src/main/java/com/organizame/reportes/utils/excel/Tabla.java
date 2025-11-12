@@ -1,6 +1,9 @@
 package com.organizame.reportes.utils.excel;
 
+import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.utils.SpringContext;
+import com.organizame.reportes.utils.excel.dto.Posicion;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -10,9 +13,9 @@ import org.springframework.core.env.Environment;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
 
-
+@Slf4j
 public class Tabla {
 
     private final XSSFWorkbook wb;
@@ -23,7 +26,9 @@ public class Tabla {
 
     private final XSSFSheet hoja;
 
-    private final List<List<Object>> datos;
+    private  List<List<Object>> datos;
+
+    private  List<FilaTabla>  tabla;
 
     private  Integer columna;
 
@@ -32,12 +37,13 @@ public class Tabla {
     private  Integer rownum;
 
 
-    public Tabla(XSSFWorkbook wb, List<EstiloCeldaExcel> estilos, XSSFCellStyle encabezado, XSSFSheet hoja, List<List<Object>> datos, Integer columna, Integer fila){
+    private  Tabla(XSSFWorkbook wb, List<EstiloCeldaExcel> estilos, XSSFCellStyle encabezado, XSSFSheet hoja, List<List<Object>> datos, List<FilaTabla>  tabla, Integer columna, Integer fila){
         this.wb = wb;
         this.estilos = estilos;
         this.encabezado = encabezado;
         this.hoja = hoja;
         this.datos = datos;
+        this.tabla = tabla;
         this.columna = columna;
         this.rownum = fila;
 
@@ -49,39 +55,71 @@ public class Tabla {
         this.rownum = rownum < initRow ? initRow : rownum;
     }
 
-    public Map<String, Integer> procesaTabla(){
-        for(int i = 0; this.datos.size() > i ; i++){
-            this.escribeFilaObject(hoja,this.datos.get(i), i);
-        }
-        return Map.of("col",columnaEnd, "row", rownum);
+
+    public static Tabla fromList(XSSFWorkbook wb, List<EstiloCeldaExcel> estilos,
+                                    XSSFCellStyle encabezado, XSSFSheet hoja,
+                                    List<List<Object>> datos, Integer columna, Integer fila) {
+        return new Tabla(wb, estilos, encabezado, hoja, datos, null, columna, fila);
     }
 
-    public void escribeFila(XSSFSheet sh, List<String> fila, int elemento) {
-        escribeFila(sh, fila, "Estandar", elemento);
+    // Método factoría para crear Tabla con datos estructurados
+    public static Tabla fromFila(XSSFWorkbook wb, List<EstiloCeldaExcel> estilos,
+                                           XSSFCellStyle encabezado, XSSFSheet hoja,
+                                           List<FilaTabla> tabla, Integer columna, Integer fila) {
+        return new Tabla(wb, estilos, encabezado, hoja, null, tabla, columna, fila);
     }
 
-    public void escribeFila(XSSFSheet sh, List<String> fila, String color, int elemento ) {
-        List<Object> newFila = fila.stream().map(cel -> (Object) cel).collect(Collectors.toList());
-        escribeFilaObject(sh, newFila, color, elemento);
+
+    public Posicion procesaTabla(){
+        var primero = this.datos.getFirst();
+        var ultimo = this.datos.getLast();
+        AtomicInteger contador = new AtomicInteger(0);
+        this.datos.forEach(dato -> {
+            var isPrimero = primero.equals(dato);
+            var isUltimo = ultimo.equals(dato);
+            this.escribeFilaObject(hoja,dato, isPrimero, isUltimo,contador.getAndIncrement());
+        });
+        return new Posicion(columnaEnd,rownum);
+    }
+
+    public Posicion procesaTablaEstilo() {
+        var primero = this.tabla.getFirst();
+        var ultimo = this.tabla.getLast();
+        AtomicInteger contador = new AtomicInteger(0);
+        this.tabla.forEach(fila -> {
+            boolean isPrimero = primero.equals(fila);
+            boolean isUltimo = ultimo.equals(fila);
+            this.escribeFilaObjectconEstilo(hoja,fila.getFila(), fila.getNombreEstilo(), isPrimero, isUltimo, contador.getAndIncrement());
+        });
+
+        return new Posicion(columnaEnd,rownum);
+    }
+
+
+    //Este metodo obtiene una lista de Objetos de un dbf
+    public void escribeFilaObject(XSSFSheet sh, List<Object> fila, boolean primero, boolean ultimo, int elemento) {
+        escribeFilaObject(sh, fila, "Estandar", primero, ultimo, elemento);
+    }
+
+    public void escribeFilaObjectconEstilo(XSSFSheet sh, List<Object> fila, String estilo, boolean primero, boolean ultimo, int elemento) {
+            escribeFilaObject(sh, fila, estilo, primero, ultimo, elemento);
     }
 
     //Este metodo obtiene una lista de Objetos de un dbf
-    public void escribeFilaObject(XSSFSheet sh, List<Object> fila, int elemento) {
-        escribeFilaObject(sh, fila, "Estandar", elemento);
-    }
-
-    //Este metodo obtiene una lista de Objetos de un dbf
-    public void escribeFilaObject(XSSFSheet sh, List<Object> fila, String color, int elemento) {
+    public void escribeFilaObject(XSSFSheet sh, List<Object> fila, String color, boolean primero, boolean ultimo, int elemento) {
+        log.debug("Se procesa fila {} con el estilo {}", fila.getFirst(), color);
+        log.debug("Los estilos disponibles son {}", this.estilos.stream().map(EstiloCeldaExcel::getNombre).toList());
         Row row = sh.createRow(rownum);
-        int cellnum = 0 + columna;
+        int cellnum = columna;
         Optional<EstiloCeldaExcel> temp = this.estilos.stream()
                 .filter(e -> e.getNombre().equalsIgnoreCase(color)).findFirst();
-        EstiloCeldaExcel estilo = temp.isPresent() ? temp.get() : this.estilos.stream()
-                .filter(e -> e.getNombre().equalsIgnoreCase("Estandar")).findFirst().get();
+        EstiloCeldaExcel estilo = temp.orElseGet(() -> this.estilos.stream()
+                .filter(e -> e.getNombre().equalsIgnoreCase("Estandar")).findFirst().get());
+        log.debug("Se recupero el estilo **{}** para la peticion de estilo {}", estilo.getNombre(), color);
         for (Object celda : fila) {
             Cell cell = row.createCell(cellnum);
             if (celda != null) {
-                if (elemento == 0) {
+                if (primero) {
                     cell.setCellStyle(encabezado);
                 } else {
                     if ((elemento % 3) != 0) {
@@ -94,6 +132,14 @@ public class Tabla {
             this.trasnforma(cell, celda, ((elemento % 3) != 0), estilo);
             cellnum++;
         }
+
+        //aplicar el autosize
+        if(ultimo) {
+            for (int i = 0; row.getLastCellNum() + 2 > i; i++) {
+                sh.autoSizeColumn(i);
+            }
+        }
+
         columnaEnd = cellnum;
         rownum++;
     }
@@ -129,4 +175,6 @@ public class Tabla {
             cell.setHyperlink(href);
         }
     }
+
+
 }

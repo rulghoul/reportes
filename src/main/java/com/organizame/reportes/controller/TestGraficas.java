@@ -1,7 +1,6 @@
 package com.organizame.reportes.controller;
 
-import com.organizame.reportes.dao.DaoPeriodo;
-import com.organizame.reportes.dao.request.RequestOrigen;
+import com.organizame.reportes.dto.DaoPeriodo;
 import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.utils.graficas.Graficas;
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,9 +48,9 @@ public class TestGraficas {
     public ResponseEntity<?> reporteExcel(){
         try {
             List<DaoPeriodo> listaDaoPeriodo = List.of(
-                    new DaoPeriodo("Modelo A", 50.0, 16.6),
-                    new DaoPeriodo("Modelo B", 100.0, 33.3),
-                    new DaoPeriodo("Modelo C", 150.0, 50.0)
+                    new DaoPeriodo("Modelo A", 50, 16.6),
+                    new DaoPeriodo("Modelo B", 100, 33.3),
+                    new DaoPeriodo("Modelo C", 150, 50.0)
             );
             var datos = graficas.generaDataset(listaDaoPeriodo);
             var datos2 = graficas.generaDataset2(listaDaoPeriodo);
