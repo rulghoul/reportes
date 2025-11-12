@@ -3,19 +3,17 @@ package com.organizame.reportes.utils.graficas;
 import com.organizame.reportes.dao.DaoPeriodo;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.StandardChartTheme;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.DefaultDrawingSupplier;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.chart.*;
+import org.jfree.chart.plot.*;
+import org.jfree.chart.renderer.category.*;
+import org.jfree.chart.ui.*;
+import org.jfree.chart.axis.*;
 import org.jfree.data.category.DefaultCategoryDataset;
+
+import org.jfree.chart.labels.*;
+import org.jfree.chart.plot.*;
 import org.springframework.stereotype.Service;
 
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.renderer.category.*;
 import org.jfree.data.general.DefaultPieDataset;
 
 import java.awt.*;
@@ -23,21 +21,9 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.DatasetRenderingOrder;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.chart.renderer.category.LineAndShapeRenderer;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.ui.RectangleEdge;
+
 
 import java.awt.*;
-import java.text.DecimalFormat;
 
 @Slf4j
 @Service
@@ -239,8 +225,8 @@ public class Graficas {
         barRenderer.setSeriesPaint(1, Color.BLUE);  // Venta Brasil (frente)
 
         // *** IMPORTANTE: MOSTRAR VALORES SOBRE LAS BARRAS ***
-        barRenderer.setBaseItemLabelsVisible(true);
-        barRenderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+        barRenderer.setDefaultItemLabelsVisible(true);
+        barRenderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
 
         // Asignar el renderer a las series 0 y 1 (volumen)
         plot.setRenderer(0, barRenderer);
@@ -251,18 +237,18 @@ public class Graficas {
         LineAndShapeRenderer lineRenderer = new LineAndShapeRenderer();
         lineRenderer.setSeriesPaint(2, Color.RED); // Línea roja para porcentaje
         lineRenderer.setDefaultStroke(new BasicStroke(3.0f));
-        lineRenderer.setBaseShapesVisible(true);
+        lineRenderer.setDefaultShapesVisible(true);
 
         // *** IMPORTANTE: MOSTRAR VALORES SOBRE LA LÍNEA (en formato %) ***
-        lineRenderer.setBaseItemLabelsVisible(true);
-        lineRenderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator(
+        lineRenderer.setDefaultItemLabelsVisible(true);
+        lineRenderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator(
                 "{2}", new DecimalFormat("0.0%")
         ));
 
         // Asignar el renderer y el eje a la serie 2 (porcentaje)
         plot.setRenderer(1, lineRenderer);
         plot.mapDatasetToRangeAxis(2, 1); // Mapear la serie de % al Eje Y 1 (Derecha)
-        plot.mapDatasetToRenderer(2, 1); // Asignar la serie de % al Renderer 1
+        //plot.mapDatasetToRenderer(2, 1); // Asignar la serie de % al Renderer 1
 
         // 4. CONFIGURACIONES ADICIONALES
         plot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD); // Asegura que se dibuje en orden

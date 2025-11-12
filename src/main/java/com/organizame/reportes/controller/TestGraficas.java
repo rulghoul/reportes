@@ -57,8 +57,8 @@ public class TestGraficas {
             var datos2 = graficas.generaDataset2(listaDaoPeriodo);
             var datos3 = graficas.generaDataset3(listaDaoPeriodo);
             // Aqui se movera la grafica a utilizar
-//            JFreeChart grafica = graficas.graficaCircular3D("Participación por Modelo", datos3);//            JFreeChart grafica = graficas.graficaBarrasLineaDobleEje("test", "x", "xAxis2", "y", datos, datos2);
-            JFreeChart grafica = graficas.graficaBarrasLineaDobleEje("Participación por Modelo", "","","", datos, datos2);//            JFreeChart grafica = graficas.graficaBarrasLineaDobleEje("test", "x", "xAxis2", "y", datos, datos2);
+            JFreeChart grafica = graficas.graficaCircular3D("Participación por Modelo", datos3);//            JFreeChart grafica = graficas.graficaBarrasLineaDobleEje("test", "x", "xAxis2", "y", datos, datos2);
+//            JFreeChart grafica = graficas.graficaBarrasLineaDobleEje("Participación por Modelo", "","","", datos, datos2);//            JFreeChart grafica = graficas.graficaBarrasLineaDobleEje("test", "x", "xAxis2", "y", datos, datos2);
 
             // ya se cambio la grafica
             ByteArrayOutputStream resultado = this.GeneraArchivoGrafica(grafica);

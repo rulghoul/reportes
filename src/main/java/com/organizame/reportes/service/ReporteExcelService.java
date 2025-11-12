@@ -70,7 +70,7 @@ public class ReporteExcelService {
             var posGrafica = posicion.get("row") + 2;
             posicion = excel.creaTabla(hoja, resumen, 0, posicion.get("row") +2);
             var datosGrafica = graficas.generaDataset(fabricanteResumen.get(fabricante.getKey()));
-            var grafica = graficas.graficaBarrasColor("Volumen de ventas, origen " + request.getOrigen() + "fechas",
+            var grafica = graficas.graficaBarras("Volumen de ventas, origen " + request.getOrigen() + "fechas",
                     "Modelos" , "Participacion", datosGrafica);
             excel.InsertarGrafica(hoja, grafica, new PosicionGrafica(posicion.get("col") + 2, posGrafica, 1200, 800));
         });
