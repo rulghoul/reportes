@@ -5,7 +5,10 @@ import com.organizame.reportes.dto.DaoPeriodo;
 import com.organizame.reportes.dto.DaoResumenPeriodo;
 import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.dto.TablaContenido;
+import com.organizame.reportes.dto.auxiliar.Acumulado;
+import com.organizame.reportes.dto.auxiliar.PortadaTotales;
 import com.organizame.reportes.dto.auxiliar.ResumenHelp;
+import com.organizame.reportes.dto.request.RequestOrigen;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.repository.VhcModeloperiodoindustriaRepository2;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +32,7 @@ public class ModeloPeriodoService {
 
     private final DateTimeFormatter toIntegerFormater;
     private final DateTimeFormatter mesAnioFormatter;
-    private final static Pattern patternSegmento = Pattern.compile("((.+?)\\s(?<segmento1>[\\w]{1,3})\\s.+)|((?<segmento2>.+))");
+    private final static Pattern patternSegmento = Pattern.compile("((.+?)\\s(?<segmento1>[\\w]{1,3})\\s.+)|(?<segmento2>.+)");
 
 
     private LocalDate fechaFinal;
@@ -54,8 +57,8 @@ public class ModeloPeriodoService {
         this.fechaFinal = fechaFinal;
         this.inicio = fechaFinal.minusMonths(meses);
 
-        int desde = Integer.parseInt(inicio.format(toIntegerFormater));
-        int hasta = Integer.parseInt(fechaFinal.format(toIntegerFormater));
+        int desde = Integer.parseInt(this.inicio.format(toIntegerFormater));
+        int hasta = Integer.parseInt(this.fechaFinal.format(toIntegerFormater));
 
         return repository.findUltimosMeses(pais, desde, hasta);
     }
@@ -67,6 +70,7 @@ public class ModeloPeriodoService {
                                 dato.getModeloarchivo(),
                                 dato.getCantidad(),
                                 this.recuperaMesAnioLabel(dato.getPeriodoanio(), dato.getPeriodomes()),
+                                this.recuperaMesAnioDate(dato.getPeriodoanio(), dato.getPeriodomes()),
                                 dato.getMarcaarchivo(),
                                 dato.getFabricantearchivo(),
                                 this.recuperaSegmento(dato.getSegmentoarchivo())) )
@@ -372,6 +376,10 @@ public class ModeloPeriodoService {
         return LocalDate.of(anio, mes, 1).format(mesAnioFormatter);
     }
 
+    public LocalDate recuperaMesAnioDate(Integer anio, Integer mes){
+        return LocalDate.of(anio, mes, 1);
+    }
+
     private List<String> obtenerListaMeses(LocalDate inicio, LocalDate fin) {
         List<String> meses = new ArrayList<>();
         LocalDate mesInicial = inicio.withDayOfMonth(1);
@@ -391,4 +399,78 @@ public class ModeloPeriodoService {
         }
         return "NA";
     }
+
+
+
+    // Datos portada
+
+    public Optional<Integer> getTotalIntustria() {
+        int desde = Integer.parseInt(this.inicio.format(toIntegerFormater));
+        int hasta = Integer.parseInt(this.fechaFinal.format(toIntegerFormater));
+        return  repository.findSumaTotalCantidadGlobalPorFechas(desde, hasta);
+    }
+
+    public Optional<Integer> getTotalOrigen(RequestOrigen request) {
+        int desde = Integer.parseInt(this.inicio.format(toIntegerFormater));
+        int hasta = Integer.parseInt(this.fechaFinal.format(toIntegerFormater));
+        return repository.findSumaTotalCantidadPorFiltros(request.getOrigen(), desde, hasta);
+    }
+
+    public List<Acumulado> getPortadaMesesResumen(Set<DaoResumenPeriodo> filtrado, Integer totalIndustria, Integer totalOrigen) {
+        // Se dividen en dubgrupos divididos por fabricante
+        Map<String, List<DaoResumenPeriodo>> portadaMarcas = filtrado.stream()
+                .collect(Collectors.groupingBy(DaoResumenPeriodo::getFabricante));
+
+        // Se generan los registros para acumulados
+        var acumulados = portadaMarcas.entrySet().stream().map(grupo -> {
+            String fabricante = grupo.getKey();
+            Integer lineas = grupo.getValue().stream()
+                    .map(reg -> reg.getModelo())
+                    .collect(Collectors.toSet()).size();
+            Integer volumen = grupo.getValue().stream()
+                    .mapToInt(reg -> reg.getCantidad())
+                    .sum();
+            var peso = volumen.doubleValue() / totalOrigen.doubleValue() * 100;
+            var porcentaje = volumen.doubleValue() / totalIndustria.doubleValue() * 100;
+            return new Acumulado(fabricante, lineas, volumen, peso, porcentaje);
+        }).sorted(Comparator.comparing(Acumulado::getVolumen).reversed())
+                .toList();
+        //Se agrega linea de totales
+        var lineas = filtrado.stream().map(reg -> reg.getModelo())
+                .collect(Collectors.toSet()).size();
+        var porcentaje = totalOrigen.doubleValue() / totalIndustria.doubleValue() * 100;
+        acumulados.add(new Acumulado("Total", lineas, totalOrigen, 100.0, porcentaje));
+
+        return acumulados;
+    }
+
+    public List<PortadaTotales> getPortadaTotales(Set<DaoResumenPeriodo> filtrado) {
+
+        int desde = Integer.parseInt(this.inicio.format(toIntegerFormater));
+        int hasta = Integer.parseInt(this.fechaFinal.format(toIntegerFormater));
+        List<Object[]> totalesIndustria = repository.findSumaCantidadPorAnioMesGlobal(desde, hasta);
+
+        // Convertir a mapa usando tu método existente para formatear la cadena
+        Map<String, Integer> totalIndustria = totalesIndustria.stream()
+                .collect(Collectors.toMap(
+                        row -> this.recuperaMesAnioLabel(((Number) row[0]).intValue(), ((Number) row[1]).intValue()), // Tu método existente
+                        row -> ((Number) row[2]).intValue()
+                ));
+
+        Map<String, Integer> porMes = filtrado.stream()
+                .collect(Collectors.groupingBy(
+                        DaoResumenPeriodo::getMesAnio,
+                        Collectors.summingInt(DaoResumenPeriodo::getCantidad)
+                ));
+        return porMes.entrySet().stream().map(mes -> {
+            var totalMes = totalIndustria.get(mes.getKey());
+            var porcentaje = mes.getValue().doubleValue() / totalMes.doubleValue();
+            return new PortadaTotales(mes.getKey(), mes.getValue(), totalMes, porcentaje );
+        }).toList();
+    }
+
+    public Object getVolumenMarca(Set<DaoResumenPeriodo> filtrado){
+        return null;
+    }
+
 }

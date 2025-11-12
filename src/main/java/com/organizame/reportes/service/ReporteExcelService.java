@@ -34,12 +34,23 @@ public class ReporteExcelService {
     }
 
     public ByteArrayInputStream CrearExcelOrigen(RequestOrigen request) throws IOException {
+        //datos brutos
         List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenFechaInicial(request.getOrigen(), request.getMesReporte(), request.getMesFinal());
+        //Datos resumidos
         Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
+        var totalIndustria = service.getTotalIntustria();
+        var totalOrigen = service.getTotalOrigen(request);
+        // Datos para portada y contra portada
+        var portadaMeses = service.getPortadaMesesResumen(filtrado, totalIndustria.orElse(0), totalOrigen.orElse(0));
+        var portadaTotales = service.getPortadaTotales(filtrado);
+        var contraPortada = service.getVolumenMarca(filtrado);
+        //Datos para hojas
         var fabricantes = service.generaDatosContenidoPorFabricante(filtrado);
         var fabricanteResumen = service.generaResumenFabricante(filtrado);
         var segmentos = service.generaDatosContenidoPorSegmento(filtrado);
         var segmentoResumen = service.generaResumenSegmento(filtrado);
+
+
 
         CrearExcel excel = new CrearExcel();
         LocalDate fechaInicial = request.getMesFinal().minusMonths(request.getMesReporte());

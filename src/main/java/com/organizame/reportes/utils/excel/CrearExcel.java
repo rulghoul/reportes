@@ -70,6 +70,7 @@ public class CrearExcel {
         return resultado;
     }
 
+
     public void InsertarGrafica(XSSFSheet hoja,
                                 JFreeChart chart, PosicionGrafica pocicion){
         try {
