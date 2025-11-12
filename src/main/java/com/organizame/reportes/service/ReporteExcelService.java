@@ -3,9 +3,12 @@ package com.organizame.reportes.service;
 import com.organizame.reportes.dto.DaoPeriodo;
 import com.organizame.reportes.dto.DaoResumenPeriodo;
 import com.organizame.reportes.dto.FilaTabla;
+import com.organizame.reportes.dto.auxiliar.Acumulado;
+import com.organizame.reportes.dto.auxiliar.PortadaTotales;
 import com.organizame.reportes.dto.request.RequestOrigen;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.utils.excel.CrearExcel;
+import com.organizame.reportes.utils.excel.dto.Posicion;
 import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
 import com.organizame.reportes.utils.graficas.Graficas;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +44,7 @@ public class ReporteExcelService {
         var totalIndustria = service.getTotalIntustria();
         var totalOrigen = service.getTotalOrigen(request);
         // Datos para portada y contra portada
-        var portadaMeses = service.getPortadaMesesResumen(filtrado, totalIndustria.orElse(0), totalOrigen.orElse(0));
+        var portadaAcumulados = service.getPortadaAcumulados(filtrado, totalIndustria.orElse(0), totalOrigen.orElse(0));
         var portadaTotales = service.getPortadaTotales(filtrado);
         var contraPortada = service.getVolumenMarca(filtrado);
         //Datos para hojas
@@ -56,6 +59,30 @@ public class ReporteExcelService {
         LocalDate fechaInicial = request.getMesFinal().minusMonths(request.getMesReporte());
         String fecha = fechaSmall.format(fechaInicial) + "-" + fechaSmall.format(request.getMesFinal());
         // Genera portada
+
+        var portada = excel.CrearHoja("Portada");
+        var portPos = new Posicion(2,2);
+        portPos = excel.creaTexto(portada, "Acumulado " + fecha, portPos, 5);
+        portPos.setCol(2);
+        var portHeader = new FilaTabla("Encabezado", List.of("Marcas", "Número de lineas", "Volumen", "Peso", "% MS Industria total"));
+
+        portPos = excel.creaTablaEstilo(portada, List.of(portHeader), portPos );
+        portPos.setCol(2);
+
+        portPos = excel.creaTablaEstilo(portada, portadaAcumulados.stream().map(Acumulado::getFilaTabla).toList(), portPos);
+        portPos.setCol(2);
+
+        portPos = excel.creaTexto(portada, "Total Industria " + fecha, portPos, 5);
+        portPos.setCol(2);
+        var portResHeader = new FilaTabla("Encabezado",
+                List.of("Periodo", "Ventas modelos de origen " + request.getOrigen(), "Ventas totales de la Industria",
+                        "% de Market share"));
+        portPos = excel.creaTablaEstilo(portada, List.of(portResHeader), portPos );
+        portPos.setCol(2);
+
+        excel.creaTablaEstilo(portada, portadaTotales.stream().map(PortadaTotales::getFilaTabla).toList(), portPos);
+
+
 
         // Genera hojas segmento
 

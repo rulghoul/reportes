@@ -416,13 +416,13 @@ public class ModeloPeriodoService {
         return repository.findSumaTotalCantidadPorFiltros(request.getOrigen(), desde, hasta);
     }
 
-    public List<Acumulado> getPortadaMesesResumen(Set<DaoResumenPeriodo> filtrado, Integer totalIndustria, Integer totalOrigen) {
+    public List<Acumulado> getPortadaAcumulados(Set<DaoResumenPeriodo> filtrado, Integer totalIndustria, Integer totalOrigen) {
         // Se dividen en dubgrupos divididos por fabricante
         Map<String, List<DaoResumenPeriodo>> portadaMarcas = filtrado.stream()
                 .collect(Collectors.groupingBy(DaoResumenPeriodo::getFabricante));
 
         // Se generan los registros para acumulados
-        var acumulados = portadaMarcas.entrySet().stream().map(grupo -> {
+        List<Acumulado> acumulados = portadaMarcas.entrySet().stream().map(grupo -> {
             String fabricante = grupo.getKey();
             Integer lineas = grupo.getValue().stream()
                     .map(reg -> reg.getModelo())
@@ -434,11 +434,10 @@ public class ModeloPeriodoService {
             var porcentaje = volumen.doubleValue() / totalIndustria.doubleValue() * 100;
             return new Acumulado(fabricante, lineas, volumen, peso, porcentaje);
         }).sorted(Comparator.comparing(Acumulado::getVolumen).reversed())
-                .toList();
+                .collect(Collectors.toCollection(LinkedList::new));
         //Se agrega linea de totales
-        var lineas = filtrado.stream().map(reg -> reg.getModelo())
-                .collect(Collectors.toSet()).size();
-        var porcentaje = totalOrigen.doubleValue() / totalIndustria.doubleValue() * 100;
+        Integer lineas = acumulados.stream().mapToInt(Acumulado::getLineas).sum();
+        double porcentaje = totalOrigen.doubleValue() / totalIndustria.doubleValue() * 100;
         acumulados.add(new Acumulado("Total", lineas, totalOrigen, 100.0, porcentaje));
 
         return acumulados;
@@ -461,6 +460,7 @@ public class ModeloPeriodoService {
                 .sorted(Comparator.comparing(DaoResumenPeriodo::getMesDate).reversed())
                 .collect(Collectors.groupingBy(
                         DaoResumenPeriodo::getMesAnio,
+                        LinkedHashMap::new,
                         Collectors.summingInt(DaoResumenPeriodo::getCantidad)
                 ));
         return porMes.entrySet().stream()

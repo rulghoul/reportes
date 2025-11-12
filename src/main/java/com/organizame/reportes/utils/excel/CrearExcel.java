@@ -59,15 +59,35 @@ public class CrearExcel {
 
 
     public Posicion creaTabla(XSSFSheet hoja, List<List<Object>> datos, Integer columna, Integer  fila){
-        Tabla tabla = Tabla.fromList(wb, estilos, encabezado, hoja, datos, columna, fila);
+        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
+        tabla.tablaFromList(datos, columna, fila);
         var resultado = tabla.procesaTabla();
         return resultado;
     }
 
     public Posicion creaTablaEstilo(XSSFSheet hoja, List<FilaTabla> datos, Integer columna, Integer  fila){
-        Tabla tabla = Tabla.fromFila(wb, estilos, encabezado, hoja, datos, columna, fila);
+        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
+        tabla.tablaFromFila(datos, columna, fila);
         var resultado = tabla.procesaTablaEstilo();
         return resultado;
+    }
+
+    public Posicion creaTablaEstilo(XSSFSheet hoja, List<FilaTabla> datos, Posicion posicion){
+        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
+        tabla.tablaFromFila(datos, posicion.getCol(), posicion.getRow());
+        return tabla.procesaTablaEstilo();
+    }
+
+    public Posicion creaFila(XSSFSheet hoja, FilaTabla filaDatos, Posicion posicion, int ancho){
+        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
+        return posicion;
+    }
+
+    public Posicion creaTexto(XSSFSheet hoja, String valor, Posicion posicion, int ancho){
+        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
+        tabla.dibujaCeldaUnida(valor,"Encabezado", posicion, ancho);
+        posicion.addRows(1);
+        return posicion;
     }
 
 
