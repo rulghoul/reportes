@@ -458,11 +458,13 @@ public class ModeloPeriodoService {
                 ));
 
         Map<String, Integer> porMes = filtrado.stream()
+                .sorted(Comparator.comparing(DaoResumenPeriodo::getMesDate).reversed())
                 .collect(Collectors.groupingBy(
                         DaoResumenPeriodo::getMesAnio,
                         Collectors.summingInt(DaoResumenPeriodo::getCantidad)
                 ));
-        return porMes.entrySet().stream().map(mes -> {
+        return porMes.entrySet().stream()
+                .map(mes -> {
             var totalMes = totalIndustria.get(mes.getKey());
             var porcentaje = mes.getValue().doubleValue() / totalMes.doubleValue();
             return new PortadaTotales(mes.getKey(), mes.getValue(), totalMes, porcentaje );
@@ -470,7 +472,62 @@ public class ModeloPeriodoService {
     }
 
     public Object getVolumenMarca(Set<DaoResumenPeriodo> filtrado){
-        return null;
+        List<String> listaMeses = this.obtenerListaMeses(inicio, this.fechaFinal);
+        return this.generaTablaPivotePorFabricante(filtrado, listaMeses);
+    }
+
+    public List<List<Object>> generaTablaPivotePorFabricante(
+            Collection<DaoResumenPeriodo> datos,
+            List<String> listaMeses) {
+
+        List<List<Object>> respuesta = new ArrayList<>();
+
+        // Encabezados
+        List<Object> encabezados = new ArrayList<>();
+        encabezados.add("Fabricante");
+        encabezados.addAll(listaMeses);
+        encabezados.add("Total");
+        respuesta.add(encabezados);
+
+        // Agrupar por fabricante y luego por mes
+        Map<String, Map<String, Double>> datosAgrupados = datos.stream()
+                .collect(Collectors.groupingBy(
+                        DaoResumenPeriodo::getFabricante,
+                        Collectors.groupingBy(
+                                DaoResumenPeriodo::getMesAnio,
+                                Collectors.summingDouble(DaoResumenPeriodo::getCantidad)
+                        )
+                ));
+
+        // Crear una fila por cada fabricante
+        for (Map.Entry<String, Map<String, Double>> fabricanteEntry : datosAgrupados.entrySet()) {
+            String fabricante = fabricanteEntry.getKey();
+            Map<String, Double> porMes = fabricanteEntry.getValue();
+
+            List<Object> fila = new ArrayList<>();
+            fila.add(fabricante);
+
+            double totalFabricante = 0.0;
+            for (String mes : listaMeses) {
+                double valor = porMes.getOrDefault(mes, 0.0);
+                fila.add(valor);
+                totalFabricante += valor;
+            }
+
+            fila.add(totalFabricante);
+            respuesta.add(fila);
+        }
+
+        // Ordenar por total descendente (excepto encabezados)
+        if (respuesta.size() > 1) {
+            respuesta.subList(1, respuesta.size()).sort((fila1, fila2) -> {
+                Double totalFila1 = (Double) fila1.get(fila1.size() - 1);
+                Double totalFila2 = (Double) fila2.get(fila2.size() - 1);
+                return totalFila2.compareTo(totalFila1);
+            });
+        }
+
+        return respuesta;
     }
 
 }
