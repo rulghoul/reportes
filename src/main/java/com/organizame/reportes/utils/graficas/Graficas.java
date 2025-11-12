@@ -154,6 +154,29 @@ public class Graficas {
         return chart;
     }
 
+    public JFreeChart graficaBarrasColor(String titulo, String xAxis, String yAxis,
+                                    DefaultCategoryDataset datos) {
+        var chart = ChartFactory.createBarChart(
+                titulo,
+                xAxis,
+                yAxis,
+                datos,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false
+        );
+        this.temaEstandar().apply(chart);
+
+        // Configurar sombras en barras
+        CategoryPlot plot = chart.getCategoryPlot();
+        BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        renderer.setShadowVisible(false);
+        renderer.setItemMargin(0.1);
+        this.temaEstandar().apply(chart);
+        return   chart;
+    }
+
     /**
      * 5. GRÁFICA CIRCULAR 3D
      * Uso: Pie chart con efecto tridimensional
