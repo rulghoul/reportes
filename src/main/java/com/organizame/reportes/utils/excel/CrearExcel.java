@@ -53,7 +53,11 @@ public class CrearExcel {
         if(cerrado){
             throw new ExcelException("El archivo ya se guardo, no se pueden agregar mas Hojas");
         }else{
-            return wb.createSheet(hoja);
+            if(hoja.trim().length()==0){
+                return wb.createSheet("Nombre vacio");
+            }
+            String nombreHoja = hoja.trim().length() < 30 ? hoja.trim() : hoja.substring(0,30).trim();
+            return wb.createSheet(nombreHoja);
         }
     }
 

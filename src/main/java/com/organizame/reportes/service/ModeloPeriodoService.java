@@ -457,7 +457,7 @@ public class ModeloPeriodoService {
                 ));
 
         Map<String, Integer> porMes = filtrado.stream()
-                .sorted(Comparator.comparing(DaoResumenPeriodo::getMesDate).reversed())
+                .sorted(Comparator.comparing(DaoResumenPeriodo::getMesDate))
                 .collect(Collectors.groupingBy(
                         DaoResumenPeriodo::getMesAnio,
                         LinkedHashMap::new,

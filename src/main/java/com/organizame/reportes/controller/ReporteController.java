@@ -1,6 +1,7 @@
 package com.organizame.reportes.controller;
 
 import com.organizame.reportes.dto.request.RequestOrigen;
+import com.organizame.reportes.exceptions.SinDatos;
 import com.organizame.reportes.service.ReporteExcelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -41,8 +42,9 @@ public class ReporteController {
     public ResponseEntity<?>  reporteExcel(@RequestBody RequestOrigen request){
         try {
             ByteArrayInputStream resultado = service.CrearExcelOrigen(request);
+            var archivo = service.getNombreArchivo();
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "reporte" + ".xlsx")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + archivo + ".xlsx")
                     .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
                     .body(new InputStreamResource(resultado, "reporte"));
         } catch (IOException e) {
@@ -56,6 +58,8 @@ public class ReporteController {
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(error);
+        }catch (SinDatos e){
+            return ResponseEntity.badRequest().body("Error en la petición: " + e.getMessage());
         }
     }
 }

@@ -6,6 +6,8 @@ import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.dto.auxiliar.Acumulado;
 import com.organizame.reportes.dto.auxiliar.PortadaTotales;
 import com.organizame.reportes.dto.request.RequestOrigen;
+import com.organizame.reportes.exceptions.ExcelException;
+import com.organizame.reportes.exceptions.SinDatos;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.utils.excel.CrearExcel;
 import com.organizame.reportes.utils.excel.dto.Posicion;
@@ -13,6 +15,7 @@ import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
 import com.organizame.reportes.utils.graficas.Graficas;
 import com.organizame.reportes.utils.graficas.graficas2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -30,6 +33,8 @@ public class ReporteExcelService {
 
     private final graficas2 graficas;
 
+    private String nombreArchivo;
+
     @Autowired
     public ReporteExcelService(ModeloPeriodoService service, graficas2 graficas){
         this.service = service;
@@ -40,6 +45,11 @@ public class ReporteExcelService {
     public ByteArrayInputStream CrearExcelOrigen(RequestOrigen request) throws IOException {
         //datos brutos
         List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenFechaInicial(request.getOrigen(), request.getMesReporte(), request.getMesFinal());
+        if(resultado.isEmpty()){
+            throw new SinDatos("No se encontraron datos para el origen " +
+                    request.getOrigen() + " en " + request.getMesReporte() + " meses antes de " + request.getMesFinal() );
+        }
+        this.nombreArchivo = "Ventas origen_" + request.getOrigen() + " " + request.getMesFinal().format(DateTimeFormatter.ofPattern("LLLL yyyy"));
         //Datos resumidos
         Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
         var totalIndustria = service.getTotalIntustria();
@@ -88,6 +98,14 @@ public class ReporteExcelService {
         vasmensuales.addAll(portadaTotales.stream().map(PortadaTotales::getFilaTabla).toList());
 
         excel.creaTablaEstilo(portada, vasmensuales, portPos);
+
+
+
+        portPos.setRow(2);
+        portPos.setCol(8);
+
+        var tituloGrafica = "Ventas por Origen Brasil, Industria y Market Share";
+        excel.InsertarGrafica(portada, graficas.createComboChart(tituloGrafica, portadaTotales, request.getOrigen()), new PosicionGrafica(portPos, 1600, 1000));
 
         // Contra portada
 
@@ -146,5 +164,9 @@ public class ReporteExcelService {
                         .toList()
         );
         return resultado;
+    }
+
+    public String getNombreArchivo() {
+        return nombreArchivo;
     }
 }

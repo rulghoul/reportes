@@ -2,19 +2,25 @@ package com.organizame.reportes.utils.graficas;
 
 import com.organizame.reportes.dto.DaoPeriodo;
 import com.organizame.reportes.dto.FilaTabla;
+import com.organizame.reportes.dto.auxiliar.PortadaTotales;
 import jakarta.validation.OverridesAttribute;
 import lombok.extern.slf4j.Slf4j;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
-import java.util.Arrays;
-import java.util.Collection;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 import java.util.List;
 
 @Slf4j
@@ -78,7 +84,8 @@ public class graficas2 {
         );
         chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(
                 org.jfree.chart.axis.CategoryLabelPositions.UP_45
-        ); // Rotar etiquetas para que no se solapen
+        );
+
         this.temaEstandar().apply(chart);
         return chart;
     }
@@ -168,4 +175,74 @@ public class graficas2 {
                 datoGrafica
         );
     }
+
+    public  JFreeChart createComboChart(String titulo, List<PortadaTotales> datos, String origen) {
+        // Crear datasets separados
+        DefaultCategoryDataset datasetBar = createBarDataset(datos, origen );
+        DefaultCategoryDataset datasetLine = createLineDataset( datos );
+
+        // Crear gráfico base con barras
+        JFreeChart chart = ChartFactory.createBarChart(
+                titulo,
+                "Periodo",
+                "Ventas",
+                datasetBar, // solo las barras aquí
+                PlotOrientation.VERTICAL,
+                true, true, false
+        );
+        temaEstandar().apply(chart);
+        CategoryPlot plot = (CategoryPlot) chart.getPlot();
+
+        // --- Eje secundario para %
+        NumberAxis rangeAxis2 = new NumberAxis("% Market Share");
+        rangeAxis2.setNumberFormatOverride(new DecimalFormat("0.00%", DecimalFormatSymbols.getInstance(Locale.US)));
+        plot.setRangeAxis(1, rangeAxis2);
+
+        // Asignar el dataset del % al segundo rango
+        plot.setDataset(1, datasetLine);
+        plot.mapDatasetToRangeAxis(1, 1);
+
+        // --- Renderer de barras (usa dataset 0)
+        BarRenderer barRenderer = (BarRenderer) plot.getRenderer();
+        barRenderer.setSeriesPaint(0, Color.BLUE);   // Origen
+        barRenderer.setSeriesPaint(1, Color.BLACK);  // Industria
+        barRenderer.setItemMargin(0.05);
+
+        // --- Renderer de línea (usa dataset 1)
+        LineAndShapeRenderer lineRenderer = new LineAndShapeRenderer();
+        lineRenderer.setSeriesPaint(0, Color.RED);
+        lineRenderer.setSeriesStroke(0, new BasicStroke(2.5f));
+        lineRenderer.setDefaultShapesVisible(true);
+        lineRenderer.setDefaultShapesFilled(true);
+        plot.setRenderer(1, lineRenderer);
+
+        // Rotar etiquetas
+        plot.getDomainAxis().setCategoryLabelPositions(
+                org.jfree.chart.axis.CategoryLabelPositions.UP_45);
+
+        //chart.getLegend().setItemFont(new Font("SansSerif", Font.BOLD, 12));
+
+        return chart;
+    }
+
+    private  DefaultCategoryDataset createBarDataset(List<PortadaTotales> datos, String origen) {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        datos.forEach(dato -> {
+                    dataset.addValue(dato.getVolumen(), "Ventas origen " + origen, dato.getMes());
+                    dataset.addValue(dato.getTotales(), "Ventas Industria", dato.getMes());
+                });
+        return dataset;
+    }
+
+    private  DefaultCategoryDataset createLineDataset(List<PortadaTotales> datos) {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        datos.forEach(dato ->
+                dataset.addValue(dato.getPorcentaje(), "% Part. Ventas origen Brasil", dato.getMes())
+        );
+
+        return dataset;
+    }
+
 }
