@@ -3,6 +3,7 @@ package com.organizame.reportes.utils.excel;
 
 import com.organizame.reportes.utils.SpringContext;
 import jakarta.annotation.PostConstruct;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +25,7 @@ import org.springframework.stereotype.Component;
  * @author raulperez
  */
 @Slf4j
-@Getter
-@Setter
+@Data
 public class EstiloCeldaExcel {
 
     private String fuenteNombre;
@@ -33,7 +33,7 @@ public class EstiloCeldaExcel {
     private String borderType;
 
     private final String nombre;
-    private final XSSFCellStyle normal;
+    private XSSFCellStyle normal;
     private final XSSFCellStyle odd;
     private final XSSFCellStyle normalDate;
     private final XSSFCellStyle oddDate;

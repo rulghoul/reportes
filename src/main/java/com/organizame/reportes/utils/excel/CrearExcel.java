@@ -108,11 +108,8 @@ public class CrearExcel {
         //colores
         ColorExcel estandar = new ColorExcel("Estandar", "#FEFEFE", "F5F5F5");
         XSSFColor azulObscuro = estandar.ConvierteRGB("002B7F");
-        XSSFColor gris = estandar.ConvierteRGB("96938E");
 
-        CreationHelper createHelper = wb.getCreationHelper();
-
-        encabezado = (XSSFCellStyle) wb.createCellStyle();
+        encabezado = wb.createCellStyle();
         Font resaltar = wb.createFont();
         resaltar.setFontName(fuenteNombre);
         resaltar.setFontHeightInPoints(fuenteSize.shortValue());
@@ -130,8 +127,16 @@ public class CrearExcel {
         //Estilo Stellantis
         var colorEstellantis = new ColorExcel("Stellantis", "96938E" ,"#C7C5C2");
         var estiloEstellantis = new EstiloCeldaExcel(colorEstellantis, wb);
+
         //estiloEstellantis.getOdd().setFont(resaltar);
         estilos.add(estiloEstellantis);
+        var colorEncabezado = new ColorExcel("Encabezado", "002B7F" ,"#002B7F");
+        var estiloEncabezado = new EstiloCeldaExcel(colorEncabezado,wb);
+        estiloEncabezado.setNormal(encabezado);
+        estilos.add(estiloEncabezado);
+        var colorTotal = new ColorExcel("Total", "00B050" ,"#00B050");
+        var estiloTotal = new EstiloCeldaExcel(colorTotal,wb);
+        estilos.add(estiloTotal);
 
     }
 

@@ -96,8 +96,8 @@ public class Tabla {
     //Crear el celda unida con ancho y alto y luego solo invocar con alto 0;
     public Posicion dibujaCeldaUnida(String valor, String color, Posicion posicion, int ancho){
         CellRangeAddress region = new CellRangeAddress(posicion.getRow(), posicion.getRow(), posicion.getCol(), posicion.getCol() + ancho);
-        Row row = hoja.createRow(0);
-        Cell cell = row.createCell(0);
+        Row row = hoja.createRow(posicion.getRow());
+        Cell cell = row.createCell(posicion.getCol());
         cell.setCellValue(valor);
         Optional<EstiloCeldaExcel> temp = this.estilos.stream()
                 .filter(e -> e.getNombre().equalsIgnoreCase(color)).findFirst();

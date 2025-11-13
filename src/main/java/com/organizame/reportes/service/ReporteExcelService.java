@@ -62,25 +62,31 @@ public class ReporteExcelService {
 
         var portada = excel.CrearHoja("Portada");
         var portPos = new Posicion(2,2);
-        portPos = excel.creaTexto(portada, "Acumulado " + fecha, portPos, 5);
+        portPos = excel.creaTexto(portada, "Acumulado " + fecha, portPos, 4);
         portPos.setCol(2);
+        portPos.addRows(-1);
+
         var portHeader = new FilaTabla("Encabezado", List.of("Marcas", "Número de lineas", "Volumen", "Peso", "% MS Industria total"));
+        List<FilaTabla> acumuladosTabla = new ArrayList<>();
+        acumuladosTabla.add(portHeader);
+        acumuladosTabla.addAll(portadaAcumulados.stream().map(Acumulado::getFilaTabla).toList());
 
-        portPos = excel.creaTablaEstilo(portada, List.of(portHeader), portPos );
+        portPos = excel.creaTablaEstilo(portada, acumuladosTabla, portPos);
         portPos.setCol(2);
+        portPos.addRows(2);
 
-        portPos = excel.creaTablaEstilo(portada, portadaAcumulados.stream().map(Acumulado::getFilaTabla).toList(), portPos);
-        portPos.setCol(2);
+        portPos = excel.creaTexto(portada, "Total Industria " + fecha, portPos, 3);
+        portPos.addRows(1);
 
-        portPos = excel.creaTexto(portada, "Total Industria " + fecha, portPos, 5);
         portPos.setCol(2);
         var portResHeader = new FilaTabla("Encabezado",
                 List.of("Periodo", "Ventas modelos de origen " + request.getOrigen(), "Ventas totales de la Industria",
                         "% de Market share"));
-        portPos = excel.creaTablaEstilo(portada, List.of(portResHeader), portPos );
-        portPos.setCol(2);
+        List<FilaTabla> vasmensuales = new ArrayList<>();
+        vasmensuales.add(portResHeader);
+        vasmensuales.addAll(portadaTotales.stream().map(PortadaTotales::getFilaTabla).toList());
 
-        excel.creaTablaEstilo(portada, portadaTotales.stream().map(PortadaTotales::getFilaTabla).toList(), portPos);
+        excel.creaTablaEstilo(portada, vasmensuales, portPos);
 
 
 

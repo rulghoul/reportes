@@ -466,7 +466,7 @@ public class ModeloPeriodoService {
         return porMes.entrySet().stream()
                 .map(mes -> {
             var totalMes = totalIndustria.get(mes.getKey());
-            var porcentaje = mes.getValue().doubleValue() / totalMes.doubleValue();
+            var porcentaje = mes.getValue().doubleValue() / totalMes.doubleValue() * 100;
             return new PortadaTotales(mes.getKey(), mes.getValue(), totalMes, porcentaje );
         }).toList();
     }
