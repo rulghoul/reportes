@@ -128,19 +128,35 @@ public class ReporteExcelService {
     }
 
     private void crearTopLineas(Set<DaoResumenPeriodo> filtrado, CrearExcel excel, RequestOrigen request, String fecha){
-        var resumenDatos = service.generarResumen(filtrado,  DaoResumenPeriodo::getModelo, s -> s.equalsIgnoreCase("Stellantis"));
+        List<DaoPeriodo> resumenDatos = service.generarResumen(filtrado, DaoResumenPeriodo::getModelo, s -> s.equalsIgnoreCase("Stellantis"));
 
         var top = service.getVolumenTop(filtrado);
 
         var hoja = excel.CrearHoja("Top Líneas");
         //Tabla principal
         var posicion = excel.creaTablaEstilo(hoja, top, 0, 0);
-        var resumen = this.creaResumen(resumenDatos, fecha);
+
+        //Recuoerar solo los 10 modelos topo
+        var totalOrigen =resumenDatos.getLast();
+        var cuerpo = resumenDatos.subList(0,9);
+        Integer totalTop = cuerpo.stream()
+                .mapToInt(dP -> dP.getTotal())
+                .sum();
+        var porcentajeTop = totalTop.doubleValue() / totalOrigen.getTotal().doubleValue() ;
+        var topTotal = new DaoPeriodo("Total Top",totalTop,porcentajeTop, "Encabezado");
+
+        List<DaoPeriodo> soloTop = new ArrayList<>(cuerpo);
+        soloTop.add(topTotal);
+        soloTop.add(totalOrigen);
+
+        var resumen = this.creaResumen(soloTop, fecha);
+
         posicion.setRow(posicion.getRow()+2);
         var posGrafica = new PosicionGrafica(posicion,1200, 800);
         //Tabla resumen
         posicion = excel.creaTablaEstilo(hoja, resumen, 0, posicion.getRow());
-        var datosGrafica = graficas.generaDataset(resumenDatos);
+        var topGrafica = soloTop.subList(0,soloTop.size()-2);
+        var datosGrafica = graficas.generaDataset(topGrafica);
         var grafica =graficas.graficaBarras("Top 10 ventas de vehículos origen  " + request.getOrigen() + ", " + fecha,
                 "Modelos" , "Total", datosGrafica);
         posGrafica.setCol(posicion.getCol() + 2);

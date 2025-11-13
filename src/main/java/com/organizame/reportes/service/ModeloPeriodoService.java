@@ -518,7 +518,7 @@ public class ModeloPeriodoService {
             String fabricante = fabricanteEntry.getKey();
 
             String estilo = predicate.test(fabricante) ? "STELLANTIS" : "Estandar";
-            log.info("{} se probara se le asigno el estilo {}", fabricante, estilo);
+            //log.info("{} se probara se le asigno el estilo {}", fabricante, estilo);
             Map<String, Integer> porMes = fabricanteEntry.getValue();
 
             List<Object> fila = new ArrayList<>();
