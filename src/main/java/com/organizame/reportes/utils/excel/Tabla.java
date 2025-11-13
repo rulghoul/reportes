@@ -103,7 +103,9 @@ public class Tabla {
                 .filter(e -> e.getNombre().equalsIgnoreCase(color)).findFirst();
         EstiloCeldaExcel estilo = temp.orElseGet(() -> this.estilos.stream()
                 .filter(e -> e.getNombre().equalsIgnoreCase("Estandar")).findFirst().get());
-        cell.setCellStyle(estilo.getNormal());
+        var estiloCentrado = estilo.getNormal();
+        estiloCentrado.setAlignment(HorizontalAlignment.CENTER);
+        cell.setCellStyle(estiloCentrado);
         this.hoja.addMergedRegion(region);
         posicion.setRow(posicion.getRow() + 1);
         return posicion;
