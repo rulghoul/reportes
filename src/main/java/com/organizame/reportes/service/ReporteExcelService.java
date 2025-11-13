@@ -88,6 +88,10 @@ public class ReporteExcelService {
 
         excel.creaTablaEstilo(portada, vasmensuales, portPos);
 
+        // Contra portada
+
+        var contra = excel.CrearHoja("contra");
+        excel.creaTablaEstilo(contra, contraPortada, 2, 2);
 
 
         // Genera hojas segmento

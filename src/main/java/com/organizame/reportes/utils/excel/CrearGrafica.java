@@ -54,7 +54,6 @@ public class CrearGrafica {
 
 
     public void insertarImagen(XSSFSheet hoja, PosicionGrafica posicion, byte[] bytes ){
-        log.info("Se insertara la imagen en la columna:{} y fila {}", posicion.getCol(), posicion.getRow());
 
         int pictureIdx = wb.addPicture(bytes, wb.PICTURE_TYPE_PNG);
 
