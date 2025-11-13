@@ -49,16 +49,21 @@ public class CrearExcel {
         this.graficas = new CrearGrafica(wb);
     }
 
-    public XSSFSheet CrearHoja(String hoja){
-        if(cerrado){
-            throw new ExcelException("El archivo ya se guardo, no se pueden agregar mas Hojas");
-        }else{
-            if(hoja.trim().length()==0){
-                return wb.createSheet("Nombre vacio");
-            }
-            String nombreHoja = hoja.trim().length() < 30 ? hoja.trim() : hoja.substring(0,30).trim();
-            return wb.createSheet(nombreHoja);
+    public XSSFSheet CrearHoja(String hoja) {
+        if (cerrado) {
+            throw new ExcelException("El archivo ya se guardó, no se pueden agregar más hojas");
         }
+
+        String nombreHoja;
+        if (hoja == null || hoja.isBlank()) {
+            nombreHoja = "Nombre vacío";
+        } else {
+            nombreHoja = hoja.trim().length() < 30 ? hoja.trim() : hoja.substring(0, 30).trim();
+        }
+
+        XSSFSheet sheet = wb.createSheet(nombreHoja);
+        sheet.setDisplayGridlines(false);  // Oculta la cuadrícula
+        return sheet;
     }
 
 
