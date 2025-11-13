@@ -96,7 +96,7 @@ public class ReporteExcelService {
 
         posContra.setCol(2);
         posContra.addRows(2);
-        excel.InsertarGrafica(contra, graficas.LineChartFabricantes(), new PosicionGrafica(posContra, 2400, 800));
+        excel.InsertarGrafica(contra, graficas.LineChartFabricantes(contraPortada), new PosicionGrafica(posContra, 2400, 800));
 
         // Genera hojas segmento
 
