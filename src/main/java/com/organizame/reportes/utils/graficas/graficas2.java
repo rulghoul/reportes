@@ -9,11 +9,15 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.labels.ItemLabelAnchor;
+import org.jfree.chart.labels.ItemLabelPosition;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.stereotype.Service;
 
@@ -243,6 +247,64 @@ public class graficas2 {
         );
 
         return dataset;
+    }
+
+
+    public  JFreeChart createChart(
+            List<DaoPeriodo> ventas,
+            String fabricanteDestacado) {
+
+        // Crear dataset directamente desde la lista ordenada
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        for (DaoPeriodo d : ventas) {
+            dataset.addValue(d.getTotal(), "Ventas", d.getModelo());
+        }
+
+        // Crear gráfico
+        JFreeChart chart = ChartFactory.createBarChart(
+                "",
+                "Cantidad",
+                "Modelo",
+                dataset,
+                PlotOrientation.HORIZONTAL,
+                false, // sin leyenda
+                true,
+                false
+        );
+
+        this.temaEstandar().apply(chart);
+
+        CategoryPlot plot = chart.getCategoryPlot();
+
+        // Colores
+        Color colorDestacado = new Color(160, 160, 160);   // gris
+        Color colorNormal = new Color(0, 32, 96);          // azul oscuro
+
+        // Renderer con colores condicionales
+        BarRenderer renderer = new BarRenderer() {
+            @Override
+            public Paint getItemPaint(int row, int column) {
+                String modelo = dataset.getColumnKey(column).toString();
+                // Buscar el fabricante de este modelo en la lista original
+                for (DaoPeriodo v : ventas) {
+                    if (v.getModelo().equals(modelo)) {
+                        return v.getEstilo().equals(fabricanteDestacado) ? colorDestacado : colorNormal;
+                    }
+                }
+                return colorNormal; // fallback
+            }
+        };
+
+        renderer.setDefaultItemLabelsVisible(true);
+        renderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+        renderer.setDefaultItemLabelPaint(Color.WHITE);
+        renderer.setDefaultPositiveItemLabelPosition(
+                new ItemLabelPosition(ItemLabelAnchor.CENTER, TextAnchor.CENTER));
+        renderer.setDrawBarOutline(false);
+
+        plot.setRenderer(renderer);
+
+        return chart;
     }
 
 }

@@ -156,9 +156,8 @@ public class ReporteExcelService {
         //Tabla resumen
         posicion = excel.creaTablaEstilo(hoja, resumen, 0, posicion.getRow());
         var topGrafica = soloTop.subList(0,soloTop.size()-2);
-        var datosGrafica = graficas.generaDataset(topGrafica);
-        var grafica =graficas.graficaBarras("Top 10 ventas de vehículos origen  " + request.getOrigen() + ", " + fecha,
-                "Modelos" , "Total", datosGrafica);
+
+        var grafica =graficas.createChart( topGrafica, "Stellantis");
         posGrafica.setCol(posicion.getCol() + 2);
         excel.InsertarGrafica(hoja, grafica, posGrafica);
     }
