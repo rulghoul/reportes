@@ -52,26 +52,31 @@ public class ReporteExcelService {
         this.nombreArchivo = "Ventas origen_" + request.getOrigen() + " " + request.getMesFinal().format(DateTimeFormatter.ofPattern("LLLL yyyy"));
         //Datos resumidos
         Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
-        var totalIndustria = service.getTotalIntustria();
-        var totalOrigen = service.getTotalOrigen(request);
-        // Datos para portada y contra portada
-        var portadaAcumulados = service.getPortadaAcumulados(filtrado, totalIndustria.orElse(0), totalOrigen.orElse(0));
-        var portadaTotales = service.getPortadaTotales(filtrado);
-        var contraPortada = service.getVolumenMarca(filtrado);
+
         //Datos para hojas
-        var fabricantes = service.generaDatosContenidoPorFabricante(filtrado);
-        var fabricanteResumen = service.generaResumenFabricante(filtrado);
-        var segmentos = service.generaDatosContenidoPorSegmento(filtrado);
-        var segmentoResumen = service.generaResumenSegmento(filtrado);
-
-
-
         CrearExcel excel = new CrearExcel();
         LocalDate fechaInicial = request.getMesFinal().minusMonths(request.getMesReporte());
         String fecha = fechaSmall.format(fechaInicial) + "-" + fechaSmall.format(request.getMesFinal());
+
+        this.crearPortada(filtrado, excel, request, fecha);
+        this.creaVolumenPorMarca(filtrado, excel);
+        this.crearHojasPorSegmento(filtrado, excel, request, fecha);
+        this.crearTopLineas(filtrado, excel, request, fecha);
+        this.creaHojasporMarca(filtrado, excel, request, fecha);
+
+
+        return excel.guardaExcel();
+    }
+
+    private void crearPortada(Set<DaoResumenPeriodo> filtrado, CrearExcel excel, RequestOrigen request, String fecha){
+        var totalIndustria = service.getTotalIntustria();
+        var totalOrigen = service.getTotalOrigen(request);
+
+        var portadaAcumulados = service.getPortadaAcumulados(filtrado, totalIndustria.orElse(0), totalOrigen.orElse(0));
+        var portadaTotales = service.getPortadaTotales(filtrado);
         // Genera portada
 
-        var portada = excel.CrearHoja("Portada");
+        var portada = excel.CrearHoja(fecha);
         var portPos = new Posicion(2,2);
         portPos = excel.creaTexto(portada, "Acumulado " + fecha, portPos, 4);
         portPos.setCol(2);
@@ -81,7 +86,7 @@ public class ReporteExcelService {
         List<FilaTabla> acumuladosTabla = new ArrayList<>();
         acumuladosTabla.add(portHeader);
         acumuladosTabla.addAll(portadaAcumulados.stream().map(Acumulado::getFilaTabla).toList());
-
+        //Se imprime la tabla de acumulados
         portPos = excel.creaTablaEstilo(portada, acumuladosTabla, portPos);
         portPos.setCol(2);
         portPos.addRows(2);
@@ -107,7 +112,11 @@ public class ReporteExcelService {
         var tituloGrafica = "Ventas por Origen Brasil, Industria y Market Share";
         excel.InsertarGrafica(portada, graficas.createComboChart(tituloGrafica, portadaTotales, request.getOrigen()), new PosicionGrafica(portPos, 1600, 1000));
 
-        // Contra portada
+    }
+
+    private void creaVolumenPorMarca(Set<DaoResumenPeriodo> filtrado, CrearExcel excel){
+        var contraPortada = service.getVolumenMarca(filtrado);
+        // Volumen por Marca
 
         var contra = excel.CrearHoja("contra");
         Posicion posContra = excel.creaTablaEstilo(contra, contraPortada, 2, 2);
@@ -116,7 +125,33 @@ public class ReporteExcelService {
         posContra.addRows(2);
         excel.InsertarGrafica(contra, graficas.LineChartFabricantes(contraPortada), new PosicionGrafica(posContra, 2400, 800));
 
+    }
+
+    private void crearTopLineas(Set<DaoResumenPeriodo> filtrado, CrearExcel excel, RequestOrigen request, String fecha){
+        var resumenDatos = service.generarResumen(filtrado,  DaoResumenPeriodo::getModelo, s -> s.equalsIgnoreCase("Stellantis"));
+
+        var top = service.getVolumenTop(filtrado);
+
+        var hoja = excel.CrearHoja("Top Líneas");
+        //Tabla principal
+        var posicion = excel.creaTablaEstilo(hoja, top, 0, 0);
+        var resumen = this.creaResumen(resumenDatos, fecha);
+        posicion.setRow(posicion.getRow()+2);
+        var posGrafica = new PosicionGrafica(posicion,1200, 800);
+        //Tabla resumen
+        posicion = excel.creaTablaEstilo(hoja, resumen, 0, posicion.getRow());
+        var datosGrafica = graficas.generaDataset(resumenDatos);
+        var grafica =graficas.graficaBarras("Top 10 ventas de vehículos origen  " + request.getOrigen() + ", " + fecha,
+                "Modelos" , "Total", datosGrafica);
+        posGrafica.setCol(posicion.getCol() + 2);
+        excel.InsertarGrafica(hoja, grafica, posGrafica);
+    }
+
+    private void crearHojasPorSegmento(Set<DaoResumenPeriodo> filtrado, CrearExcel excel, RequestOrigen request, String fecha){
         // Genera hojas segmento
+
+        var segmentos = service.generaDatosContenidoPorSegmento(filtrado);
+        var segmentoResumen = service.generaResumenSegmento(filtrado);
 
         segmentos.forEach(segmento -> {
             var hoja = excel.CrearHoja(segmento.getNombreTabla());
@@ -133,7 +168,12 @@ public class ReporteExcelService {
             posGrafica.setCol(posicion.getCol() + 2);
             excel.InsertarGrafica(hoja, grafica, posGrafica);
         });
+    }
 
+    private void creaHojasporMarca(Set<DaoResumenPeriodo> filtrado, CrearExcel excel, RequestOrigen request, String fecha){
+
+        var fabricantes = service.generaDatosContenidoPorFabricante(filtrado);
+        var fabricanteResumen = service.generaResumenFabricante(filtrado);
 
         // Genera hojas fabricantes
 
@@ -153,7 +193,6 @@ public class ReporteExcelService {
             excel.InsertarGrafica(hoja, grafica, posGrafica);
         });
 
-        return excel.guardaExcel();
     }
 
     private List<FilaTabla> creaResumen(List<DaoPeriodo> resumen, String fecha){

@@ -473,11 +473,25 @@ public class ModeloPeriodoService {
 
     public List<FilaTabla> getVolumenMarca(Set<DaoResumenPeriodo> filtrado){
         List<String> listaMeses = this.obtenerListaMeses(inicio, this.fechaFinal);
-        return this.generaTablaPivotePorFabricante(filtrado, listaMeses);
+        Predicate<String> marca = mar -> mar.equalsIgnoreCase("STELLANTIS");
+        return this.generaTablaPivotePorFabricante(filtrado, DaoResumenPeriodo::getFabricante,
+                marca,listaMeses);
+    }
+
+    public List<FilaTabla> getVolumenTop(Set<DaoResumenPeriodo> filtrado){
+        List<String> listaMeses = this.obtenerListaMeses(inicio, this.fechaFinal);
+        var modelos = filtrado.stream().filter(da -> da.getFabricante().equalsIgnoreCase("Stellantis"))
+                .map(da -> da.getModelo())
+                .collect(Collectors.toSet());
+        Predicate<String> modelosPredicate = modelo -> modelos.contains(modelo);
+        return this.generaTablaPivotePorFabricante(filtrado, DaoResumenPeriodo::getModelo,
+                modelosPredicate, listaMeses);
     }
 
     public List<FilaTabla> generaTablaPivotePorFabricante(
             Collection<DaoResumenPeriodo> datos,
+            Function<DaoResumenPeriodo, String> grupoExtractor,
+            Predicate<String> predicate,
             List<String> listaMeses) {
 
         List<FilaTabla> respuesta = new ArrayList<>();
@@ -492,7 +506,7 @@ public class ModeloPeriodoService {
         // Agrupar por fabricante y luego por mes
         Map<String, Map<String, Integer>> datosAgrupados = datos.stream()
                 .collect(Collectors.groupingBy(
-                        DaoResumenPeriodo::getFabricante,
+                        grupoExtractor,
                         Collectors.groupingBy(
                                 DaoResumenPeriodo::getMesAnio,
                                 Collectors.summingInt(DaoResumenPeriodo::getCantidad)
@@ -502,7 +516,9 @@ public class ModeloPeriodoService {
         // Crear una fila por cada fabricante
         for (Map.Entry<String, Map<String, Integer>> fabricanteEntry : datosAgrupados.entrySet()) {
             String fabricante = fabricanteEntry.getKey();
-            String estilo = fabricante.equalsIgnoreCase("STELLANTIS") ? "STELLANTIS" : "Estandar";
+
+            String estilo = predicate.test(fabricante) ? "STELLANTIS" : "Estandar";
+            log.info("{} se probara se le asigno el estilo {}", fabricante, estilo);
             Map<String, Integer> porMes = fabricanteEntry.getValue();
 
             List<Object> fila = new ArrayList<>();
