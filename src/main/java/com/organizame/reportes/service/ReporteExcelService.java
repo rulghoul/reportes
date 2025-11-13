@@ -102,7 +102,7 @@ public class ReporteExcelService {
             //Tabla resumen
             posicion = excel.creaTablaEstilo(hoja, resumen, 0, posicion.getRow());
             var datosGrafica = graficas.generaDataset(segmentoResumen.get(segmento.getNombreTabla()));
-            var grafica =graficas.graficaBarras("Segmento de " + segmento.getNombreTabla() + " - Origen " + request.getOrigen() + "fechas",
+            var grafica =graficas.graficaBarras("Segmento de " + segmento.getNombreTabla() + " - Origen " + request.getOrigen() + " fechas",
                     "Modelos" , "Participacion", datosGrafica);
             posGrafica.setCol(posicion.getCol() + 2);
             excel.InsertarGrafica(hoja, grafica, posGrafica);

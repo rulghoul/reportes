@@ -174,13 +174,19 @@ public class Tabla {
         try {
             switch (valor) {
                 case String s -> cell.setCellValue(s);
-                case Double d -> cell.setCellValue(d);
+                case Double d -> {
+                    cell.setCellValue(d);
+                    cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
+                }
                 case Date d -> {
                     cell.setCellValue(d);
                     cell.setCellStyle(par ? estilo.getOddDate() : estilo.getNormalDate());
                 }
-                case BigDecimal bd -> cell.setCellValue(bd.doubleValue());
-                case Integer i -> cell.setCellValue(i.doubleValue());
+                case BigDecimal bd -> {
+                    cell.setCellValue(bd.doubleValue());
+                    cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
+                }
+                case Integer i -> cell.setCellValue(i);
                 case Boolean b -> cell.setCellValue(b ? "VERDADERO" : "FALSO");
                 case List<?> temp -> manejarArrayList(cell, temp);
                 case null, default -> {

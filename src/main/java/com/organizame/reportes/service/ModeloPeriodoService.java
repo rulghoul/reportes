@@ -193,19 +193,19 @@ public class ModeloPeriodoService {
             List<DaoResumenPeriodo> lista = subGrupoEntry.getValue();
 
             // Agrupar por mes y sumar cantidades
-            Map<String, Double> porMes = lista.stream()
+            Map<String, Integer> porMes = lista.stream()
                     .collect(Collectors.groupingBy(
                             DaoResumenPeriodo::getMesAnio,
-                            Collectors.summingDouble(DaoResumenPeriodo::getCantidad)
+                            Collectors.summingInt(DaoResumenPeriodo::getCantidad)
                     ));
 
             // Crear fila
             List<Object> fila = new ArrayList<>();
             fila.add(subGrupo);
 
-            double total = 0.0;
+            Integer total = 0;
             for (String mes : listaMeses) {
-                double valor = porMes.getOrDefault(mes, 0.0);
+                Integer valor = porMes.getOrDefault(mes, 0);
                 fila.add(valor);
                 total += valor;
             }
@@ -247,19 +247,19 @@ public class ModeloPeriodoService {
 
             String estilo = busqueda.test(lista.getFirst()) ? "STELLANTIS" :"ESTANDAR";
             // Agrupar por mes y sumar cantidades
-            Map<String, Double> porMes = lista.stream()
+            Map<String, Integer> porMes = lista.stream()
                     .collect(Collectors.groupingBy(
                             DaoResumenPeriodo::getMesAnio,
-                            Collectors.summingDouble(DaoResumenPeriodo::getCantidad)
+                            Collectors.summingInt(DaoResumenPeriodo::getCantidad)
                     ));
 
             // Crear fila
             List<Object> fila = new ArrayList<>();
             fila.add(subGrupo);
 
-            double total = 0.0;
+            Integer total = 0;
             for (String mes : listaMeses) {
-                double valor = porMes.getOrDefault(mes, 0.0);
+                Integer valor = porMes.getOrDefault(mes, 0);
                 fila.add(valor);
                 total += valor;
             }
@@ -268,8 +268,8 @@ public class ModeloPeriodoService {
             respuesta.add(new FilaTabla(estilo,fila));
         }
         respuesta.subList(1, respuesta.size()).sort((fila1, fila2) -> {
-            Double totalFila1 = (Double) fila1.getFila().getLast();
-            Double totalFila2 = (Double) fila2.getFila().getLast();
+            Integer totalFila1 = (Integer) fila1.getFila().getLast();
+            Integer totalFila2 = (Integer) fila2.getFila().getLast();
             return totalFila2.compareTo(totalFila1);
         });
         return respuesta;
@@ -353,18 +353,18 @@ public class ModeloPeriodoService {
 
         totales.entrySet().stream()
                 .sorted(Map.Entry.<String, ResumenHelp>comparingByValue(
-                        Comparator.comparingDouble(ResumenHelp::getCantidad).reversed()
+                        Comparator.comparingInt(ResumenHelp::getCantidad).reversed()
                 ))
                 .forEach(entry -> {
                     String nombre = entry.getKey();
                     Integer total = entry.getValue().getCantidad();
-                    double porcentaje = totalGlobal > 0 ? (total.doubleValue() / totalGlobal.doubleValue()) * 100 : 0.0;
+                    double porcentaje = totalGlobal > 0 ? (total.doubleValue() / totalGlobal.doubleValue())  : 0.0;
                     String estilo = buscador.test(entry.getValue().getFabricante()) ? "Stellantis" : "Estandar";
                     tabla.add(new DaoPeriodo(nombre, total, porcentaje, estilo));
                 });
 
         // Fila total
-        tabla.add(new DaoPeriodo("TOTAL", totalGlobal, 100.0, "Total"));
+        tabla.add(new DaoPeriodo("TOTAL", totalGlobal, 1.0, "Total"));
 
 
         return tabla;
@@ -430,15 +430,15 @@ public class ModeloPeriodoService {
             Integer volumen = grupo.getValue().stream()
                     .mapToInt(reg -> reg.getCantidad())
                     .sum();
-            var peso = volumen.doubleValue() / totalOrigen.doubleValue() * 100;
-            var porcentaje = volumen.doubleValue() / totalIndustria.doubleValue() * 100;
+            var peso = volumen.doubleValue() / totalOrigen.doubleValue();
+            var porcentaje = volumen.doubleValue() / totalIndustria.doubleValue();
             return new Acumulado(fabricante, lineas, volumen, peso, porcentaje);
         }).sorted(Comparator.comparing(Acumulado::getVolumen).reversed())
                 .collect(Collectors.toCollection(LinkedList::new));
         //Se agrega linea de totales
         Integer lineas = acumulados.stream().mapToInt(Acumulado::getLineas).sum();
-        double porcentaje = totalOrigen.doubleValue() / totalIndustria.doubleValue() * 100;
-        acumulados.add(new Acumulado("Total", lineas, totalOrigen, 100.0, porcentaje));
+        double porcentaje = totalOrigen.doubleValue() / totalIndustria.doubleValue() ;
+        acumulados.add(new Acumulado("Total", lineas, totalOrigen, 1.0, porcentaje));
 
         return acumulados;
     }
@@ -466,7 +466,7 @@ public class ModeloPeriodoService {
         return porMes.entrySet().stream()
                 .map(mes -> {
             var totalMes = totalIndustria.get(mes.getKey());
-            var porcentaje = mes.getValue().doubleValue() / totalMes.doubleValue() * 100;
+            var porcentaje = mes.getValue().doubleValue() / totalMes.doubleValue();
             return new PortadaTotales(mes.getKey(), mes.getValue(), totalMes, porcentaje );
         }).toList();
     }
