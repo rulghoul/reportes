@@ -77,7 +77,7 @@ public class ReporteExcelService {
             //Tabla resumen
             posicion = excel.creaTablaEstilo(hoja, resumen, 0, posicion.getRow());
             var datosGrafica = graficas.generaDataset(fabricanteResumen.get(fabricante.getNombreTabla()));
-            var grafica = graficas.graficaBarrasColor("Volumen de ventas, origen " + request.getOrigen() + "fechas",
+            var grafica = graficas.graficaBarras("Volumen de ventas, origen " + request.getOrigen() + "fechas",
                     "Modelos" , "Participacion", datosGrafica);
             posGrafica.setCol(posicion.getCol() + 2);
             excel.InsertarGrafica(hoja, grafica, posGrafica);
