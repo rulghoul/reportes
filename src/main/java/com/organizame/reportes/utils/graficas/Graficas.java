@@ -150,13 +150,15 @@ public class Graficas {
         return chart;
     }
 
-    public JFreeChart graficaPickUpsBrasil(String titulo, String ejeX, String ejeY,
-                                           DefaultCategoryDataset dataset,
-                                           String serieBarraVerde, String serieBarraAzul, String serieLinea) {
-        int idx1 = dataset.getRowIndex(serieBarraVerde);
-        int idx2 = dataset.getRowIndex(serieBarraAzul);
-        int idx3 = dataset.getRowIndex(serieLinea);
-        if (idx1 == -1 || idx2 == -1 || idx3 == -1) {
+    /**
+     * Gráfica combinada: 1 barra + 1 línea
+     */
+    public JFreeChart grafica1Barra1Linea(String titulo, String ejeX, String ejeY,
+                                          DefaultCategoryDataset dataset,
+                                          String serieBarra, String serieLinea) {
+        int idx1 = dataset.getRowIndex(serieBarra);
+        int idx2 = dataset.getRowIndex(serieLinea);
+        if (idx1 == -1 || idx2 == -1) {
             throw new IllegalArgumentException("Una o más series no existen en el dataset.");
         }
 
@@ -167,30 +169,20 @@ public class Graficas {
 
         CategoryPlot plot = chart.getCategoryPlot();
 
-        // ✅ Eje Y derecho: % Participación
-        NumberAxis rightAxis = new NumberAxis("% Participación");
-        rightAxis.setNumberFormatOverride(new DecimalFormat("0%"));
-        rightAxis.setRange(0.0, 0.45); // 0% a 45%
-        rightAxis.setLabelPaint(Color.BLUE);
-        plot.setRangeAxis(1, rightAxis);
+        // ✅ Eje Y izquierdo: % Participación
+        NumberAxis leftAxis = new NumberAxis("% Participación");
+        leftAxis.setNumberFormatOverride(new DecimalFormat("0%"));
+        leftAxis.setRange(0.0, 0.45); // 0% a 45%
+        leftAxis.setLabelPaint(Color.BLUE);
+        plot.setRangeAxis(0, leftAxis);
 
-        // ✅ Renderer para BARRAS VERDES (modelos NO Stellantis)
-        BarRenderer barRendererVerde = new BarRenderer();
-        barRendererVerde.setSeriesPaint(0, new Color(70, 180, 70)); // Verde
-        barRendererVerde.setShadowVisible(false);
-        barRendererVerde.setItemMargin(0.05);
-        barRendererVerde.setDefaultItemLabelsVisible(true);
-        barRendererVerde.setDefaultItemLabelGenerator(
-                new StandardCategoryItemLabelGenerator("{2}", new DecimalFormat("#,###"))
-        );
-
-        // ✅ Renderer para BARRAS AZULES (modelos Stellantis)
-        BarRenderer barRendererAzul = new BarRenderer();
-        barRendererAzul.setSeriesPaint(0, new Color(30, 60, 100)); // Azul oscuro
-        barRendererAzul.setShadowVisible(false);
-        barRendererAzul.setItemMargin(0.05);
-        barRendererAzul.setDefaultItemLabelsVisible(true);
-        barRendererAzul.setDefaultItemLabelGenerator(
+        // ✅ Renderer para BARRAS (verde)
+        BarRenderer barRenderer = new BarRenderer();
+        barRenderer.setSeriesPaint(0, new Color(70, 180, 70)); // Verde
+        barRenderer.setShadowVisible(false);
+        barRenderer.setItemMargin(0.05);
+        barRenderer.setDefaultItemLabelsVisible(true);
+        barRenderer.setDefaultItemLabelGenerator(
                 new StandardCategoryItemLabelGenerator("{2}", new DecimalFormat("#,###"))
         );
 
@@ -206,12 +198,10 @@ public class Graficas {
         );
 
         // ✅ Asignar renderers y ejes
-        plot.setRenderer(idx1, barRendererVerde);
-        plot.setRenderer(idx2, barRendererAzul);
-        plot.setRenderer(idx3, lineRenderer);
+        plot.setRenderer(idx1, barRenderer);
+        plot.setRenderer(idx2, lineRenderer);
         plot.setRangeAxis(idx1, plot.getRangeAxis(0));
-        plot.setRangeAxis(idx2, plot.getRangeAxis(0));
-        plot.setRangeAxis(idx3, rightAxis);
+        plot.setRangeAxis(idx2, plot.getRangeAxis(0)); // ← ¡esto es la clave!
 
         // ✅ Eliminar título del eje Y izquierdo (evita duplicado)
         plot.getRangeAxis(0).setLabel("");
@@ -223,7 +213,6 @@ public class Graficas {
 
         return chart;
     }
-
 
     // === GRÁFICA COMBINADA: 2 BARRAS + 1 LÍNEA ===
     public JFreeChart graficaCombinada2Barras1Linea(String titulo, String ejeX,
@@ -289,6 +278,55 @@ public class Graficas {
         plot.getRangeAxis(0).setLabel("");
 
         // ✅ Estilo visual
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+        plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
+
+        return chart;
+    }
+
+    /**
+     * Gráfica de barras horizontales (Top 10 líneas comercializadas)
+     */
+    public JFreeChart graficaTop10Lineas(String titulo, DefaultCategoryDataset dataset) {
+        JFreeChart chart = ChartFactory.createBarChart(
+                titulo,
+                "Modelo", // eje Y
+                "Unidades", // eje X
+                dataset,
+                PlotOrientation.HORIZONTAL, // ← horizontal
+                true,   // leyenda
+                true,   // tooltips
+                false   // URLs
+        );
+
+        CategoryPlot plot = chart.getCategoryPlot();
+
+        // ✅ Renderer para BARRAS
+        BarRenderer renderer = new BarRenderer();
+        renderer.setSeriesPaint(0, new Color(30, 60, 100)); // Azul oscuro
+        renderer.setShadowVisible(false);
+        renderer.setItemMargin(0.05);
+
+        // ✅ Etiquetas dentro de las barras
+        renderer.setDefaultItemLabelsVisible(true);
+        renderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator(
+                "{2}", new DecimalFormat("#,###")
+        ));
+        renderer.setDefaultItemLabelFont(new Font("SansSerif", Font.BOLD, 12));
+        renderer.setDefaultItemLabelPaint(Color.WHITE); // texto blanco para contraste
+
+        // ✅ Colorear la última barra (Wrangler) de gris
+        if (dataset.getRowCount() > 0) {
+            int lastRow = dataset.getRowCount() - 1;
+            renderer.setSeriesPaint(lastRow, Color.GRAY);
+        }
+
+        plot.setRenderer(renderer);
+
+        // ✅ Estilo general
+        chart.getTitle().setFont(new Font("SansSerif", Font.BOLD, 18));
+        chart.setBackgroundPaint(Color.WHITE);
         plot.setBackgroundPaint(Color.WHITE);
         plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
         plot.setDomainGridlinePaint(Color.LIGHT_GRAY);

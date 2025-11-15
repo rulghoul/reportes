@@ -96,12 +96,18 @@ public class TestGraficas {
             //        datosParaVolumen()
             //);
 
-            // 🟢 Pick Ups Brasil
-            JFreeChart grafica = graficas.graficaPickUpsBrasil(
-                    "Top 5 ventas por segmento Pick ups-origen brasileño: 2022-octubre 2024",
-                    "Modelo", "% Participación",
-                    datosParaPickUps(),
-                    "Total Verde", "Total Azul", "% Participación"
+            // 🟢 1 Barra + 1 Línea
+            //JFreeChart grafica = graficas.grafica1Barra1Linea(
+            //        "Top 5 ventas por segmento Pick ups-origen brasileño: 2022-octubre 2024",
+            //        "Modelo", "% Participación",
+            //        datosPara1Barra1Linea(),
+            //        "Total", "% Participación"
+            //);
+
+            // 🟢 Top 10 líneas comercializadas
+            JFreeChart grafica = graficas.graficaTop10Lineas(
+                    "Top 10 líneas comercializadas en México de origen estadounidense, 2022-noviembre 2024",
+                    datosParaTop10Lineas()
             );
 
             // =================================================================
@@ -210,25 +216,31 @@ public class TestGraficas {
         return ds;
     }
 
-    private DefaultCategoryDataset datosParaPickUps() {
+    private DefaultCategoryDataset datosPara1Barra1Linea() {
         DefaultCategoryDataset ds = new DefaultCategoryDataset();
         String[] modelos = {"Saveiro", "RAM 700", "S10", "Oroch", "Promaster Rapid", "Montana Crew Cab", "Partner Rapid", "Tornado Pickup"};
 
-        // Total (barras verdes) — modelos NO Stellantis
-        double[] totalVerde = {0, 0, 0, 0, 0, 0, 1168, 2}; // Partner Rapid, Tornado Pickup
-
-        // Total (barras azules) — modelos Stellantis
-        double[] totalAzul = {43099, 30821, 13105, 10495, 7105, 3782, 0, 0}; // Saveiro, RAM 700, S10, Oroch, Promaster Rapid, Montana Crew Cab
+        // Total (barras verdes) — todos los modelos
+        double[] total = {43099, 30821, 13105, 10495, 7105, 3782, 1168, 2};
 
         // % Participación (línea azul oscuro)
-        double[] participacion = {39, 28, 12, 10, 6, 3, 1, 1};
+        double[] participacion = {0.39, 0.28, 0.12, 0.10, 0.06, 0.03, 0.01, 0.00};
 
         for (int i = 0; i < modelos.length; i++) {
-            ds.addValue(totalVerde[i], "Total Verde", modelos[i]);
-            ds.addValue(totalAzul[i], "Total Azul", modelos[i]);
+            ds.addValue(total[i], "Total", modelos[i]);
             ds.addValue(participacion[i], "% Participación", modelos[i]);
         }
         return ds;
     }
 
+    private DefaultCategoryDataset datosParaTop10Lineas() {
+        DefaultCategoryDataset ds = new DefaultCategoryDataset();
+        String[] modelos = {"CR-V", "Corolla", "Sienna", "Corolla Cross", "Highlander", "Lobo Crew Cab", "New F150 / F-150", "Civic", "Camry", "Wrangler"};
+        double[] valores = {33053, 31205, 15096, 12675, 11903, 10484, 10019, 9463, 9409, 9326};
+
+        for (int i = 0; i < modelos.length; i++) {
+            ds.addValue(valores[i], "Ventas", modelos[i]);
+        }
+        return ds;
+    }
 }
