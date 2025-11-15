@@ -90,10 +90,18 @@ public class TestGraficas {
             //JFreeChart grafica = graficas.graficaDonut("Participación por Modelo", datasetPie);
 
             // 🟢 Volumen por segmento
-            JFreeChart grafica = graficas.graficaVolumenPorSegmento(
-                    "Volumen de ventas por segmento, origen E.U.",
-                    "Top 5 ventas por segmento Lujo-origen Estadounidense: 2022-noviembre 2024",
-                    datosParaVolumen()
+            //JFreeChart grafica = graficas.graficaVolumenPorSegmento(
+            //        "Volumen de ventas por segmento, origen E.U.",
+            //        "Top 5 ventas por segmento Lujo-origen Estadounidense: 2022-noviembre 2024",
+            //        datosParaVolumen()
+            //);
+
+            // 🟢 Pick Ups Brasil
+            JFreeChart grafica = graficas.graficaPickUpsBrasil(
+                    "Top 5 ventas por segmento Pick ups-origen brasileño: 2022-octubre 2024",
+                    "Modelo", "% Participación",
+                    datosParaPickUps(),
+                    "Total Verde", "Total Azul", "% Participación"
             );
 
             // =================================================================
@@ -202,5 +210,25 @@ public class TestGraficas {
         return ds;
     }
 
+    private DefaultCategoryDataset datosParaPickUps() {
+        DefaultCategoryDataset ds = new DefaultCategoryDataset();
+        String[] modelos = {"Saveiro", "RAM 700", "S10", "Oroch", "Promaster Rapid", "Montana Crew Cab", "Partner Rapid", "Tornado Pickup"};
+
+        // Total (barras verdes) — modelos NO Stellantis
+        double[] totalVerde = {0, 0, 0, 0, 0, 0, 1168, 2}; // Partner Rapid, Tornado Pickup
+
+        // Total (barras azules) — modelos Stellantis
+        double[] totalAzul = {43099, 30821, 13105, 10495, 7105, 3782, 0, 0}; // Saveiro, RAM 700, S10, Oroch, Promaster Rapid, Montana Crew Cab
+
+        // % Participación (línea azul oscuro)
+        double[] participacion = {39, 28, 12, 10, 6, 3, 1, 1};
+
+        for (int i = 0; i < modelos.length; i++) {
+            ds.addValue(totalVerde[i], "Total Verde", modelos[i]);
+            ds.addValue(totalAzul[i], "Total Azul", modelos[i]);
+            ds.addValue(participacion[i], "% Participación", modelos[i]);
+        }
+        return ds;
+    }
 
 }

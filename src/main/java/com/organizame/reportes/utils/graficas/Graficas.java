@@ -150,6 +150,81 @@ public class Graficas {
         return chart;
     }
 
+    public JFreeChart graficaPickUpsBrasil(String titulo, String ejeX, String ejeY,
+                                           DefaultCategoryDataset dataset,
+                                           String serieBarraVerde, String serieBarraAzul, String serieLinea) {
+        int idx1 = dataset.getRowIndex(serieBarraVerde);
+        int idx2 = dataset.getRowIndex(serieBarraAzul);
+        int idx3 = dataset.getRowIndex(serieLinea);
+        if (idx1 == -1 || idx2 == -1 || idx3 == -1) {
+            throw new IllegalArgumentException("Una o más series no existen en el dataset.");
+        }
+
+        JFreeChart chart = ChartFactory.createBarChart(
+                titulo, ejeX, ejeY, dataset,
+                PlotOrientation.VERTICAL, true, true, false
+        );
+
+        CategoryPlot plot = chart.getCategoryPlot();
+
+        // ✅ Eje Y derecho: % Participación
+        NumberAxis rightAxis = new NumberAxis("% Participación");
+        rightAxis.setNumberFormatOverride(new DecimalFormat("0%"));
+        rightAxis.setRange(0.0, 0.45); // 0% a 45%
+        rightAxis.setLabelPaint(Color.BLUE);
+        plot.setRangeAxis(1, rightAxis);
+
+        // ✅ Renderer para BARRAS VERDES (modelos NO Stellantis)
+        BarRenderer barRendererVerde = new BarRenderer();
+        barRendererVerde.setSeriesPaint(0, new Color(70, 180, 70)); // Verde
+        barRendererVerde.setShadowVisible(false);
+        barRendererVerde.setItemMargin(0.05);
+        barRendererVerde.setDefaultItemLabelsVisible(true);
+        barRendererVerde.setDefaultItemLabelGenerator(
+                new StandardCategoryItemLabelGenerator("{2}", new DecimalFormat("#,###"))
+        );
+
+        // ✅ Renderer para BARRAS AZULES (modelos Stellantis)
+        BarRenderer barRendererAzul = new BarRenderer();
+        barRendererAzul.setSeriesPaint(0, new Color(30, 60, 100)); // Azul oscuro
+        barRendererAzul.setShadowVisible(false);
+        barRendererAzul.setItemMargin(0.05);
+        barRendererAzul.setDefaultItemLabelsVisible(true);
+        barRendererAzul.setDefaultItemLabelGenerator(
+                new StandardCategoryItemLabelGenerator("{2}", new DecimalFormat("#,###"))
+        );
+
+        // ✅ Renderer para LÍNEA (%)
+        LineAndShapeRenderer lineRenderer = new LineAndShapeRenderer();
+        lineRenderer.setSeriesPaint(0, new Color(30, 60, 100)); // Azul oscuro
+        lineRenderer.setDefaultStroke(new BasicStroke(2.5f));
+        lineRenderer.setDefaultShapesVisible(true);
+        lineRenderer.setDefaultShapesFilled(true);
+        lineRenderer.setDefaultItemLabelsVisible(true);
+        lineRenderer.setDefaultItemLabelGenerator(
+                new StandardCategoryItemLabelGenerator("{2}", new DecimalFormat("0%"))
+        );
+
+        // ✅ Asignar renderers y ejes
+        plot.setRenderer(idx1, barRendererVerde);
+        plot.setRenderer(idx2, barRendererAzul);
+        plot.setRenderer(idx3, lineRenderer);
+        plot.setRangeAxis(idx1, plot.getRangeAxis(0));
+        plot.setRangeAxis(idx2, plot.getRangeAxis(0));
+        plot.setRangeAxis(idx3, rightAxis);
+
+        // ✅ Eliminar título del eje Y izquierdo (evita duplicado)
+        plot.getRangeAxis(0).setLabel("");
+
+        // ✅ Estilo visual
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+        plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
+
+        return chart;
+    }
+
+
     // === GRÁFICA COMBINADA: 2 BARRAS + 1 LÍNEA ===
     public JFreeChart graficaCombinada2Barras1Linea(String titulo, String ejeX,
                                                     String ejeYVolumen, String ejeYPorcentaje,
