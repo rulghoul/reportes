@@ -15,6 +15,8 @@ import com.organizame.reportes.utils.presentacion.CrearPresentacion;
 import com.organizame.reportes.utils.presentacion.TipoDiapositiva;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
+import org.apache.poi.xslf.usermodel.XSLFAutoShape;
+import org.apache.poi.xslf.usermodel.XSLFShape;
 import org.apache.poi.xslf.usermodel.XSLFTextShape;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -58,7 +60,7 @@ public class ReportePresentacionService {
     }
 
     public ByteArrayInputStream CrearPresentacionOrigen(RequestOrigen request) throws IOException {
-        var plantilla =this.cargarPlantilla("plantilla.pptx");
+        var plantilla =this.cargarPlantilla("static/plantilla.pptx");
         return this.CrearPresentacionOrigen(request, plantilla);
     }
 
@@ -79,10 +81,10 @@ public class ReportePresentacionService {
         String fecha = fechaSmall.format(fechaInicial) + "-" + fechaSmall.format(request.getMesFinal());
 
         this.crearPortada(filtrado, presentacion, request, fecha);
-        this.creaVolumenPorMarca(filtrado, presentacion);
-        this.crearHojasPorSegmento(filtrado, presentacion, request, fecha);
-        this.crearTopLineas(filtrado, presentacion, fecha);
-        this.creaHojasporMarca(filtrado, presentacion, request, fecha);
+        //this.creaVolumenPorMarca(filtrado, presentacion);
+        //this.crearHojasPorSegmento(filtrado, presentacion, request, fecha);
+        //this.crearTopLineas(filtrado, presentacion, fecha);
+        //this.creaHojasporMarca(filtrado, presentacion, request, fecha);
 
 
         return presentacion.guardaPresentacion();
@@ -97,21 +99,31 @@ public class ReportePresentacionService {
         // Genera portada
 
         var portada = presentacion.crearDiapositiva(TipoDiapositiva.PORTADA);
-        Optional<XSLFTextShape> texto = portada.getShapes().stream()
-                .filter(shape -> shape instanceof XSLFTextShape)
-                .map(shape -> (XSLFTextShape) shape ).findFirst();
+        Optional<XSLFAutoShape> texto = portada.getShapes().stream()
+                .peek(shape -> log.info("Shape antes del primer filtro {}", shape))
+                .filter(shape -> shape instanceof XSLFAutoShape)
+                .peek(shape -> log.info("Shape despues del primer filtro {} con el texto {}", shape, ((XSLFTextShape) shape).getText()))
+                .filter(text -> ((XSLFAutoShape) text).getText().contains("{{ORIGEN}}"))
+                .map( shape -> (XSLFAutoShape) shape)
+                .peek(shape -> log.info("Shape despues del segundo filtro {} con el texto {}", shape, ((XSLFAutoShape) shape).getText()))
+                .findFirst();
         if(texto.isPresent()) {
+            log.info("Se encontro la forma donde se remplazara");
             var completo = texto.get().getText().replace("{{ORIGEN}}", request.getOrigen().toUpperCase());
             texto.get().clearText();
             texto.get().setText(completo);
+        } else {
+            log.warn("No se encontró texto con {{ORIGEN}} en la portada");
         }
+
+        presentacion.creaTexto(portada, "Hola mundo", new PosicionGrafica(2,2,20,20), "FFFFFF");
 
 
         var portada2 = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
 
 
 
-        var portPos = new PosicionGrafica(2,2, 800, 600);
+        var portPos = new PosicionGrafica(5,10, 100, 60);
         presentacion.creaTexto(portada, "Acumulado " + fecha, portPos, "#234325");
         portPos.setCol(2);
         portPos.addRows(-1);
@@ -140,12 +152,12 @@ public class ReportePresentacionService {
 
 
 
-        portPos.setRow(2);
-        portPos.setCol(8);
 
         var tituloGrafica = "Ventas por Origen Brasil, Industria y Market Share";
         try {
-            presentacion.insertarGrafica(portada, graficas.createComboChart(tituloGrafica, portadaTotales, request.getOrigen()), new PosicionGrafica(portPos, 1600, 1000), new PosicionGrafica(portPos, 1600, 1000));
+            presentacion.insertarGrafica(portada, graficas.createComboChart(tituloGrafica, portadaTotales, request.getOrigen()),
+                    new PosicionGrafica(200, 50, 160, 100),
+                    new PosicionGrafica(200, 50, 160, 100));
         }catch (GraficaException e){
             log.info("Fallo la creacion de la grafica por: {}" , e.getMessage());
         }
@@ -159,11 +171,11 @@ public class ReportePresentacionService {
         var contra = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
         presentacion.creaTablaEstilo(contra, contraPortada, new PosicionGrafica(0,0,100,100));
 
-     try{
-        presentacion.insertarGrafica(contra, graficas.LineChartFabricantes(contraPortada), new PosicionGrafica(0,0, 2400, 800), new PosicionGrafica(0,0, 2400, 800));
-    }catch (GraficaException e){
-        log.info("Fallo la creacion de la grafica por: {}" , e.getMessage());
-    }
+        try{
+            presentacion.insertarGrafica(contra, graficas.LineChartFabricantes(contraPortada), new PosicionGrafica(0,0, 2400, 800), new PosicionGrafica(0,0, 2400, 800));
+        }catch (GraficaException e){
+            log.info("Fallo la creacion de la grafica por: {}" , e.getMessage());
+        }
 
     }
 
