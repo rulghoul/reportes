@@ -15,5 +15,11 @@ public class PosicionGrafica extends Posicion {
         this.ancho = ancho;
         this.alto = alto;
     }
+
+    public PosicionGrafica(int col, int row, int ancho, int alto){
+        super(col, row);
+        this.ancho = ancho;
+        this.alto = alto;
+    }
 }
 

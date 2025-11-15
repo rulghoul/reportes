@@ -86,11 +86,20 @@ public class graficas2 {
                 PlotOrientation.VERTICAL,
                 true, true, false
         );
+
+
+        this.temaEstandar().apply(chart);
         chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(
                 org.jfree.chart.axis.CategoryLabelPositions.UP_45
         );
 
-        this.temaEstandar().apply(chart);
+        // --- Personalizar grosor de las líneas ---
+        CategoryPlot plot = chart.getCategoryPlot();
+
+        LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
+        Stroke grosor = new BasicStroke(3.5f);
+        renderer.setDefaultStroke(grosor);
+        plot.setRenderer(0, renderer);
         return chart;
     }
 
