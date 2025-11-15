@@ -87,7 +87,14 @@ public class TestGraficas {
             //JFreeChart grafica = graficas.graficaCircular3D("Participación por Modelo", datasetPie);
 
             // 🟢 Donut
-            JFreeChart grafica = graficas.graficaDonut("Participación por Modelo", datasetPie);
+            //JFreeChart grafica = graficas.graficaDonut("Participación por Modelo", datasetPie);
+
+            // 🟢 Volumen por segmento
+            JFreeChart grafica = graficas.graficaVolumenPorSegmento(
+                    "Volumen de ventas por segmento, origen E.U.",
+                    "Top 5 ventas por segmento Lujo-origen Estadounidense: 2022-noviembre 2024",
+                    datosParaVolumen()
+            );
 
             // =================================================================
             // EXPORTACIÓN (sin caché)
@@ -183,4 +190,17 @@ public class TestGraficas {
                 new DaoPeriodo("Modelo F", 150, 10.0)
         );
     }
+
+    private DefaultCategoryDataset datosParaVolumen() {
+        DefaultCategoryDataset ds = new DefaultCategoryDataset();
+        // Solo una fila (porque es apilado horizontal)
+        ds.addValue(9409, "Camry", "Ventas");
+        ds.addValue(2507, "Accord", "Ventas");
+        ds.addValue(1557, "Altima", "Ventas");
+        ds.addValue(1457, "Nautilus", "Ventas");
+        ds.addValue(933, "LEXUS ES", "Ventas");
+        return ds;
+    }
+
+
 }

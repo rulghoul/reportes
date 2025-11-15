@@ -15,6 +15,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.springframework.stereotype.Service;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.title.TextTitle;
 
 import java.awt.*;
 import java.text.DecimalFormat;
@@ -364,6 +365,63 @@ public class Graficas {
         chart.setBackgroundPaint(Color.WHITE);
         plot.setBackgroundPaint(Color.WHITE);
         plot.setOutlineVisible(false);
+
+        return chart;
+    }
+
+    /**
+     * Gráfica de barras apiladas horizontales (simula Marimekko)
+     */
+    public JFreeChart graficaVolumenPorSegmento(String titulo, String subtítulo, DefaultCategoryDataset dataset) {
+        JFreeChart chart = ChartFactory.createStackedBarChart(
+                titulo,
+                "Modelo", // eje X
+                "Unidades", // eje Y
+                dataset,
+                PlotOrientation.HORIZONTAL, // ← horizontal
+                true,   // leyenda
+                true,   // tooltips
+                false   // URLs
+        );
+
+        CategoryPlot plot = chart.getCategoryPlot();
+        StackedBarRenderer renderer = new StackedBarRenderer();
+
+        // ✅ Etiquetas dentro de las barras
+        renderer.setDefaultItemLabelsVisible(true);
+        renderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator(
+                "{2}", new DecimalFormat("#,##0") // {2} = valor
+        ));
+        renderer.setDefaultItemLabelFont(new Font("SansSerif", Font.BOLD, 12));
+        renderer.setDefaultItemLabelPaint(Color.WHITE); // texto blanco para contraste
+
+        // ✅ Colores vibrantes
+        Paint[] colores = new Paint[]{
+                new Color(30, 60, 100),   // Azul oscuro
+                new Color(70, 130, 180),   // Verde
+                new Color(192, 80, 77),     // Rojo
+                new Color(255, 215, 0),     // Naranja
+                new Color(128, 0, 128)      // Morado
+        };
+        renderer.setSeriesPaint(0, colores[0]);
+        renderer.setSeriesPaint(1, colores[1]);
+        renderer.setSeriesPaint(2, colores[2]);
+        renderer.setSeriesPaint(3, colores[3]);
+        renderer.setSeriesPaint(4, colores[4]);
+
+        plot.setRenderer(renderer);
+
+        // ✅ Título y subtítulo
+        chart.setTitle(titulo);
+        TextTitle subtitle = new TextTitle(subtítulo);
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        chart.addSubtitle(subtitle);
+
+        // ✅ Estilo general
+        chart.setBackgroundPaint(Color.WHITE);
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+        plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
 
         return chart;
     }
