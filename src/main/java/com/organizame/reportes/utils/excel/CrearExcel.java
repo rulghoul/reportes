@@ -49,26 +49,56 @@ public class CrearExcel {
         this.graficas = new CrearGrafica(wb);
     }
 
-    public XSSFSheet CrearHoja(String hoja){
-        if(cerrado){
-            throw new ExcelException("El archivo ya se guardo, no se pueden agregar mas Hojas");
-        }else{
-            return wb.createSheet(hoja);
+    public XSSFSheet CrearHoja(String hoja) {
+        if (cerrado) {
+            throw new ExcelException("El archivo ya se guardó, no se pueden agregar más hojas");
         }
+
+        String nombreHoja;
+        if (hoja == null || hoja.isBlank()) {
+            nombreHoja = "Nombre vacío";
+        } else {
+            nombreHoja = hoja.trim().length() < 30 ? hoja.trim() : hoja.substring(0, 30).trim();
+        }
+
+        XSSFSheet sheet = wb.createSheet(nombreHoja);
+        sheet.setDisplayGridlines(false);  // Oculta la cuadrícula
+        return sheet;
     }
 
 
     public Posicion creaTabla(XSSFSheet hoja, List<List<Object>> datos, Integer columna, Integer  fila){
-        Tabla tabla = Tabla.fromList(wb, estilos, encabezado, hoja, datos, columna, fila);
+        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
+        tabla.tablaFromList(datos, columna, fila);
         var resultado = tabla.procesaTabla();
         return resultado;
     }
 
     public Posicion creaTablaEstilo(XSSFSheet hoja, List<FilaTabla> datos, Integer columna, Integer  fila){
-        Tabla tabla = Tabla.fromFila(wb, estilos, encabezado, hoja, datos, columna, fila);
+        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
+        tabla.tablaFromFila(datos, columna, fila);
         var resultado = tabla.procesaTablaEstilo();
         return resultado;
     }
+
+    public Posicion creaTablaEstilo(XSSFSheet hoja, List<FilaTabla> datos, Posicion posicion){
+        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
+        tabla.tablaFromFila(datos, posicion.getCol(), posicion.getRow());
+        return tabla.procesaTablaEstilo();
+    }
+
+    public Posicion creaFila(XSSFSheet hoja, FilaTabla filaDatos, Posicion posicion, int ancho){
+        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
+        return posicion;
+    }
+
+    public Posicion creaTexto(XSSFSheet hoja, String valor, Posicion posicion, int ancho){
+        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
+        tabla.dibujaCeldaUnida(valor,"Encabezado", posicion, ancho);
+        posicion.addRows(1);
+        return posicion;
+    }
+
 
     public void InsertarGrafica(XSSFSheet hoja,
                                 JFreeChart chart, PosicionGrafica pocicion){
@@ -87,11 +117,8 @@ public class CrearExcel {
         //colores
         ColorExcel estandar = new ColorExcel("Estandar", "#FEFEFE", "F5F5F5");
         XSSFColor azulObscuro = estandar.ConvierteRGB("002B7F");
-        XSSFColor gris = estandar.ConvierteRGB("96938E");
 
-        CreationHelper createHelper = wb.getCreationHelper();
-
-        encabezado = (XSSFCellStyle) wb.createCellStyle();
+        encabezado = wb.createCellStyle();
         Font resaltar = wb.createFont();
         resaltar.setFontName(fuenteNombre);
         resaltar.setFontHeightInPoints(fuenteSize.shortValue());
@@ -109,8 +136,16 @@ public class CrearExcel {
         //Estilo Stellantis
         var colorEstellantis = new ColorExcel("Stellantis", "96938E" ,"#C7C5C2");
         var estiloEstellantis = new EstiloCeldaExcel(colorEstellantis, wb);
+
         //estiloEstellantis.getOdd().setFont(resaltar);
         estilos.add(estiloEstellantis);
+        var colorEncabezado = new ColorExcel("Encabezado", "002B7F" ,"#002B7F");
+        var estiloEncabezado = new EstiloCeldaExcel(colorEncabezado,wb);
+        estiloEncabezado.setNormal(encabezado);
+        estilos.add(estiloEncabezado);
+        var colorTotal = new ColorExcel("Total", "00B050" ,"#00B050");
+        var estiloTotal = new EstiloCeldaExcel(colorTotal,wb);
+        estilos.add(estiloTotal);
 
     }
 

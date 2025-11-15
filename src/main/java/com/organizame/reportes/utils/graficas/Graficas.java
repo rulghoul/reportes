@@ -57,7 +57,7 @@ public class Graficas {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         datos.stream()
                 .filter(dato -> !dato.getModelo().equalsIgnoreCase("TOTAL"))
-                .filter(dato -> dato.getPorcentaje() > 2)
+                .filter(dato -> dato.getPorcentaje() > 0.02)
                 .forEach(dato ->
                         dataset.addValue(dato.getPorcentaje(), dato.getModelo(), "Porcentaje")
                 );
