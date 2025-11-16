@@ -1,7 +1,9 @@
 package com.organizame.reportes.utils.excel;
 
 
+import com.organizame.reportes.exceptions.ColorExcepcion;
 import com.organizame.reportes.exceptions.ExcelException;
+import com.organizame.reportes.utils.Utilidades;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +27,6 @@ public class ColorExcel {
     private final String nombre;
     private final XSSFColor normal;
     private final XSSFColor odd;
-    private final Pattern rgb = Pattern
-            .compile("(?i)\\#*(?<r>[0-9|a-f]{2})(?<g>[0-9|a-f]{2})(?<b>[0-9|a-f]{2})");
 
     public ColorExcel(String nombre, String normal, String odd) throws ExcelException {
         this.nombre = nombre;
@@ -47,14 +47,11 @@ public class ColorExcel {
     }
 
     public XSSFColor ConvierteRGB(String valor) throws ExcelException {
-        Matcher match = rgb.matcher(valor);
-        while (match.find()) {
-            int r = Integer.parseInt(match.group("r"), 16);
-            int g = Integer.parseInt(match.group("g"), 16);
-            int b = Integer.parseInt(match.group("b"), 16);
-            return new XSSFColor(new Color(r, g, b),null);
+        try {
+            return new XSSFColor(Utilidades.convierteRGB(valor), null);
+        }catch (ColorExcepcion e){
+            throw new ExcelException(e.getMessage());
         }
-        throw new ExcelException("No se pudo cargar el color");
     }
 
     private XSSFColor ConvierteRGB(List<Integer> valor) throws ExcelException {

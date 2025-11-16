@@ -1,6 +1,7 @@
 package com.organizame.reportes.utils.presentacion;
 
 import com.organizame.reportes.dto.FilaTabla;
+import com.organizame.reportes.exceptions.ColorExcepcion;
 import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.exceptions.PresentacionException;
 import com.organizame.reportes.utils.Utilidades;
@@ -75,7 +76,7 @@ public class CrearPresentacion {
 
 
 
-    public void creaTexto(XSLFSlide diapositiva, String texto, PosicionGrafica portPos, String color)  throws PresentacionException{
+    public void creaTexto(XSLFSlide diapositiva, String texto, PosicionGrafica portPos, String color)  throws PresentacionException, ColorExcepcion {
         XSLFTextBox textBox = diapositiva.createTextBox();
         textBox.setAnchor(this.getRectangle(portPos));
 
