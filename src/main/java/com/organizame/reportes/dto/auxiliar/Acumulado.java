@@ -11,8 +11,8 @@ public class Acumulado {
     private String fabricante;
     private Integer lineas;
     private Integer volumen;
-    private double peso;
-    private double porcentajeIndustria;
+    private Double peso;
+    private Double porcentajeIndustria;
 
     public FilaTabla getFilaTabla(){
         var estilo = fabricante.equalsIgnoreCase("Stellantis") ? "Stellantis" : "Estandar";

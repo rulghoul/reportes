@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -35,6 +36,8 @@ import java.util.Set;
 @Slf4j
 @Service
 public class ReportePresentacionService {
+
+    private final DecimalFormat formatoDecimal;
 
     private  final DateTimeFormatter fechaSmall;
 
@@ -52,19 +55,18 @@ public class ReportePresentacionService {
         this.graficas = graficas;
         this.resourceLoader = resourceLoader;
         this.fechaSmall = DateTimeFormatter.ofPattern("MMMuu");
+        this.formatoDecimal = new DecimalFormat("#.#");
     }
 
-    public XMLSlideShow cargarPlantilla(String rutaPlantilla) throws IOException {
-        Resource resource = this.resourceLoader.getResource("classpath:" + rutaPlantilla);
-        return new XMLSlideShow(resource.getInputStream());
+    public Resource cargarImagen(String rutaPlantilla) throws IOException {
+        return this.resourceLoader.getResource("classpath:" + rutaPlantilla);
     }
+
 
     public ByteArrayInputStream CrearPresentacionOrigen(RequestOrigen request) throws IOException {
-        var plantilla =this.cargarPlantilla("static/plantilla.pptx");
-        return this.CrearPresentacionOrigen(request, plantilla);
-    }
-
-    public ByteArrayInputStream CrearPresentacionOrigen(RequestOrigen request, XMLSlideShow plantilla) throws IOException {
+        // Carga fondos de para diapositiva de portada y diapositiva de contenido
+        Resource bg_contenido = this.cargarImagen("static/fondo_contenido.png");
+        Resource bg_portada =this.cargarImagen("static/fondo_portada.png");
         //datos brutos
         List<VhcModeloperiodoindustria> resultado = service.recuperaOrigenFechaInicial(request.getOrigen(), request.getMesReporte(), request.getMesFinal());
         if(resultado.isEmpty()){
@@ -76,7 +78,7 @@ public class ReportePresentacionService {
         Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
 
         //Datos para hojas
-        CrearPresentacion presentacion = new CrearPresentacion(plantilla);
+        CrearPresentacion presentacion = new CrearPresentacion(bg_contenido,  bg_portada);
         LocalDate fechaInicial = request.getMesFinal().minusMonths(request.getMesReporte());
         String fecha = fechaSmall.format(fechaInicial) + "-" + fechaSmall.format(request.getMesFinal());
 
@@ -99,45 +101,63 @@ public class ReportePresentacionService {
         // Genera portada
 
         var portada = presentacion.crearDiapositiva(TipoDiapositiva.PORTADA);
-        Optional<XSLFAutoShape> texto = portada.getShapes().stream()
-                .peek(shape -> log.info("Shape antes del primer filtro {}", shape))
-                .filter(shape -> shape instanceof XSLFAutoShape)
-                .peek(shape -> log.info("Shape despues del primer filtro {} con el texto {}", shape, ((XSLFTextShape) shape).getText()))
-                .filter(text -> ((XSLFAutoShape) text).getText().contains("{{ORIGEN}}"))
-                .map( shape -> (XSLFAutoShape) shape)
-                .peek(shape -> log.info("Shape despues del segundo filtro {} con el texto {}", shape, ((XSLFAutoShape) shape).getText()))
-                .findFirst();
-        if(texto.isPresent()) {
-            log.info("Se encontro la forma donde se remplazara");
-            var completo = texto.get().getText().replace("{{ORIGEN}}", request.getOrigen().toUpperCase());
-            texto.get().clearText();
-            texto.get().setText(completo);
-        } else {
-            log.warn("No se encontró texto con {{ORIGEN}} en la portada");
-        }
 
-        presentacion.creaTexto(portada, "Hola mundo", new PosicionGrafica(2,2,20,20), "FFFFFF");
+
+        presentacion.creaTexto(portada, "ANÁLISIS VENTAS" +
+                "DE VEHÍCULOS\n" +
+                "DE ORIGEN " + request.getOrigen().toUpperCase(), new PosicionGrafica(100,42,30,30), "FAFAFA");
 
 
         var portada2 = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
 
+        var portPos = new PosicionGrafica(2,2, 35, 35);
+        presentacion.creaTexto(portada2, """
+                        En la industria mexicana, 6 marcas
+                        comercializan {{MODELOS}} vehículos de
+                        origen {{ORIGEN}}. Durante el periodo {{PERIODO}},
+                        se vendieron {{UNIDADES}} unidades, lo que
+                        representó una participación de
+                        mercado del {{PARTICIPACION}}% del total de la industria
+                        """.replace("{{MODELOS}}", portadaAcumulados.getLast().getLineas().toString())
+                        .replace("{{ORIGEN}}", request.getOrigen().toUpperCase())
+                        .replace("{{PERIODO}}", fecha)
+                        .replace("{{UNIDADES}}", portadaAcumulados.getLast().getVolumen().toString())
+                        .replace("{{PARTICIPACION}}", formatoDecimal.format(portadaAcumulados.getLast().getPorcentajeIndustria()*100))
+                , portPos, "#234325");
 
+        portPos.setRow(38);
 
-        var portPos = new PosicionGrafica(5,10, 100, 60);
-        presentacion.creaTexto(portada, "Acumulado " + fecha, portPos, "#234325");
-        portPos.setCol(2);
-        portPos.addRows(-1);
+        var stellantis = portadaAcumulados.stream()
+                        .filter(acu -> acu.getFabricante().equalsIgnoreCase("STELLANTIS"))
+                                .findFirst();
+
+        if(stellantis.isPresent()) {
+            var posicion = portadaAcumulados.indexOf(stellantis);
+            var posicionString = convertirNumeroAOrdinal(posicion);
+            presentacion.creaTexto(portada2, """
+                            En el periodo {{PERIODO}}, Stellantis se
+                            posicionó en {{POSICION}} posición con una participación
+                            del {{PARTICIPACION}} de las ventas totales que corresponden a los
+                            vehículos importados desde {{ORIGEN}}, esto represento la
+                            comercialización de {{UNIDADES}} unidades.
+                            """.replace("{{ORIGEN}}", request.getOrigen().toUpperCase())
+                            .replace("{{PERIODO}}", fecha)
+                            .replace("{{POSICION}}", posicionString)
+                            .replace("{{UNIDADES}}", stellantis.get().getVolumen().toString())
+                            .replace("{{PARTICIPACION}}", formatoDecimal.format(stellantis.get().getPorcentajeIndustria()*100))
+                    , portPos, "#234325");
+        }
 
         var portHeader = new FilaTabla("Encabezado", List.of("Marcas", "Número de lineas", "Volumen", "Peso", "% MS Industria total"));
         List<FilaTabla> acumuladosTabla = new ArrayList<>();
         acumuladosTabla.add(portHeader);
         acumuladosTabla.addAll(portadaAcumulados.stream().map(Acumulado::getFilaTabla).toList());
         //Se imprime la tabla de acumulados
-        presentacion.creaTablaEstilo(portada, acumuladosTabla, portPos);
+        presentacion.creaTablaEstilo(portada2, acumuladosTabla, portPos);
         portPos.setCol(2);
         portPos.addRows(2);
 
-        presentacion.creaTexto(portada, "Total Industria " + fecha, portPos, "#232323");
+        presentacion.creaTexto(portada2, "Total Industria " + fecha, portPos, "#232323");
         portPos.addRows(1);
 
         portPos.setCol(2);
@@ -148,7 +168,7 @@ public class ReportePresentacionService {
         vasmensuales.add(portResHeader);
         vasmensuales.addAll(portadaTotales.stream().map(PortadaTotales::getFilaTabla).toList());
 
-        presentacion.creaTablaEstilo(portada, vasmensuales, portPos);
+        presentacion.creaTablaEstilo(portada2, vasmensuales, portPos);
 
 
 
@@ -286,5 +306,21 @@ public class ReportePresentacionService {
 
     public String getNombreArchivo() {
         return nombreArchivo;
+    }
+
+    private String convertirNumeroAOrdinal(int numero) {
+        return switch (numero) {
+            case 1 -> "PRIMERO";
+            case 2 -> "SEGUNDO";
+            case 3 -> "TERCERO";
+            case 4 -> "CUARTO";
+            case 5 -> "QUINTO";
+            case 6 -> "SEXTO";
+            case 7 -> "SÉPTIMO";
+            case 8 -> "OCTAVO";
+            case 9 -> "NOVENO";
+            case 10 -> "DÉCIMO";
+            default -> String.valueOf(numero); // Si es mayor a 10, devuelve el número como cadena
+        };
     }
 }

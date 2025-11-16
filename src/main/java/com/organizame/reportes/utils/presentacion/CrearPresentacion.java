@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.sl.usermodel.PictureData;
 import org.apache.poi.xslf.usermodel.*;
 import org.jfree.chart.JFreeChart;
+import org.springframework.core.io.Resource;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -25,27 +26,36 @@ import java.util.Objects;
 @Slf4j
 public class CrearPresentacion {
 
-    private static final Integer UNIDAD = 12; // 1 unidad = 1/6 pulgada (12 puntos)
+    private static final Integer UNIDAD = 6; // 1 unidad = 1/12 pulgada (6 puntos)
+    private final Rectangle posicionFondo = new Rectangle(0,0,793,446);
 
     private final List<ColorPresentacion> colores;
     private final ColorPresentacion estandar;
 
-    private final XMLSlideShow plantilla;
-    private final XMLSlideShow trabajo;
 
-    public CrearPresentacion(XMLSlideShow plantilla){
-        this.trabajo = plantilla;
-        this.plantilla = plantilla;
+    private final XMLSlideShow trabajo;
+    private final XSLFPictureData picturePortada;
+    private final XSLFPictureData pictureContenido;
+
+    public CrearPresentacion(Resource bgContenido, Resource bgPortada) throws IOException {
+        this.trabajo = new XMLSlideShow();
+        this.trabajo.setPageSize(new Dimension(793, 446));
         this.colores = new ArrayList<>();
         estandar = new ColorPresentacion("Estandar", "FFFFFF", "000000", 11,true);
+        this.picturePortada = trabajo.addPicture(bgPortada.getContentAsByteArray(), PictureData.PictureType.PNG);
+        this.pictureContenido = trabajo.addPicture(bgContenido.getContentAsByteArray(), PictureData.PictureType.PNG);
+
     }
 
-    public CrearPresentacion(XMLSlideShow plantilla, List<ColorPresentacion> colores){
-        this.trabajo = plantilla;
-        this.plantilla = plantilla;
+    public CrearPresentacion(Resource bgContenido, Resource bgPortada, List<ColorPresentacion> colores) throws IOException {
+        this.trabajo = new XMLSlideShow();
+        this.trabajo.setPageSize(new Dimension(793, 446));
         this.colores = Objects.nonNull(colores) ? colores : new ArrayList<>();
         estandar = new ColorPresentacion("Estandar", "FFFFFF", "000000", 11,true);
+        this.picturePortada = trabajo.addPicture(bgPortada.getContentAsByteArray(), PictureData.PictureType.PNG);
+        this.pictureContenido = trabajo.addPicture(bgContenido.getContentAsByteArray(), PictureData.PictureType.PNG);
     }
+
 
     public void agregarColor(ColorPresentacion color){
         this.colores.add(color);
@@ -59,10 +69,13 @@ public class CrearPresentacion {
     }
 
     public XSLFSlide crearDiapositiva(TipoDiapositiva tipo) {
-        var diapositiva = tipo.equals(TipoDiapositiva.PORTADA)
-                ? plantilla.getSlides().get(0)
-                : plantilla.getSlides().get(1);
-        return trabajo.createSlide(diapositiva.getSlideLayout());
+        XSLFSlide diapositiva = trabajo.createSlide();
+        PictureData backGround = tipo.equals(TipoDiapositiva.CONTENIDO)
+            ? this.pictureContenido
+                : this.picturePortada;
+        XSLFPictureShape bg = diapositiva.createPicture(backGround);
+        bg.setAnchor(this.posicionFondo); // Ajusta a tamaño de diapositiva
+        return diapositiva;
     }
 
     private Rectangle getRectangle(PosicionGrafica posicion){
