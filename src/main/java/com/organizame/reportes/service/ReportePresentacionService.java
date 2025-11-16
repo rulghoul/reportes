@@ -162,7 +162,7 @@ public class ReportePresentacionService {
         portPos.setCol(66);
         portPos.setRow(2);
         portPos.setAlto(70);
-        presentacion.creaTablaEstilo(portada2, acumuladosTabla, portPos);
+        presentacion.creaTablaEstilo(portada2, acumuladosTabla, portPos, List.of(24,10, 10,10,10));
 
         try {
             var grafica = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
@@ -182,7 +182,7 @@ public class ReportePresentacionService {
         // Volumen por Marca
 
         var contra = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
-        presentacion.creaTablaEstilo(contra, contraPortada, new PosicionGrafica(0,0,100,100));
+        presentacion.creaTablaEstilo(contra, contraPortada, new PosicionGrafica(0,0,100,100), List.of(24,10, 10,10,10));
 
         try{
             presentacion.insertarGrafica(contra, graficas.LineChartFabricantes(contraPortada), new PosicionGrafica(0,0, 2400, 800), new PosicionGrafica(0,0, 2400, 800));
@@ -199,7 +199,7 @@ public class ReportePresentacionService {
 
         var hoja = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
         //Tabla principal
-        presentacion.creaTablaEstilo(hoja, top, new PosicionGrafica(0,0, 50, 50));
+        presentacion.creaTablaEstilo(hoja, top, new PosicionGrafica(0,0, 50, 50), List.of(24,10, 10,10,10));
 
         //Recuoerar solo los 10 modelos topo
         var totalOrigen =resumenDatos.getLast();
@@ -219,7 +219,7 @@ public class ReportePresentacionService {
 
         var posGrafica = new PosicionGrafica(10,10,100, 80);
         //Tabla resumen
-        presentacion.creaTablaEstilo(hoja, resumen, posGrafica);
+        presentacion.creaTablaEstilo(hoja, resumen, posGrafica, List.of(24,10, 10,10,10));
         var topGrafica = soloTop.subList(0,soloTop.size()-2);
 
         var grafica =graficas.createChart( topGrafica, "Stellantis");
@@ -240,12 +240,12 @@ public class ReportePresentacionService {
         segmentos.forEach(segmento -> {
             var hoja = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
             //Tabla principal
-            presentacion.creaTablaEstilo(hoja, segmento.getDatos(), new PosicionGrafica(0,0, 100, 50));
+            presentacion.creaTablaEstilo(hoja, segmento.getDatos(), new PosicionGrafica(0,0, 100, 50), List.of(24,10, 10,10,10));
             var resumen = this.creaResumen(segmentoResumen.get(segmento.getNombreTabla()), fecha);
 
             var posGrafica = new PosicionGrafica(50,50,1200, 800);
             //Tabla resumen
-            presentacion.creaTablaEstilo(hoja, resumen, new PosicionGrafica(0,0, 100, 50));
+            presentacion.creaTablaEstilo(hoja, resumen, new PosicionGrafica(0,0, 100, 50), List.of(24,10, 10,10,10));
             var datosGrafica = graficas.generaDataset(segmentoResumen.get(segmento.getNombreTabla()));
             var grafica =graficas.graficaBarras("Segmento de " + segmento.getNombreTabla() + " - Origen " + request.getOrigen() + " fechas",
                     "Modelos" , "Participacion", datosGrafica);
@@ -268,12 +268,12 @@ public class ReportePresentacionService {
         fabricantes.forEach(fabricante -> {
             var hoja = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
             //Tabla princial
-            presentacion.creaTablaEstilo(hoja, fabricante.getDatos(), new PosicionGrafica(0,0, 50, 100));
+            presentacion.creaTablaEstilo(hoja, fabricante.getDatos(), new PosicionGrafica(0,0, 50, 100), List.of(24,10, 10,10,10));
             var resumen = this.creaResumen(fabricanteResumen.get(fabricante.getNombreTabla()), fecha);
 
             var posGrafica = new PosicionGrafica(200, 200,1200, 800);
             //Tabla resumen
-            presentacion.creaTablaEstilo(hoja, resumen, posGrafica);
+            presentacion.creaTablaEstilo(hoja, resumen, posGrafica, List.of(24,10, 10,10,10));
             var datosGrafica = graficas.generaDataset(fabricanteResumen.get(fabricante.getNombreTabla()));
             var grafica = graficas.graficaBarrasColor("Volumen de ventas, origen " + request.getOrigen() + "fechas",
                     "Modelos" , "Participacion", datosGrafica);

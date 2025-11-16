@@ -18,6 +18,7 @@ public class Acumulado {
 
     public FilaTabla getFilaTabla(){
         var estilo = fabricante.equalsIgnoreCase("Stellantis") ? "Stellantis" : "Estandar";
+        estilo = fabricante.equalsIgnoreCase("TOTAL") ? "TOTAL" : estilo;
         return new FilaTabla(estilo, List.of(fabricante, lineas, volumen, peso, porcentajeIndustria));
     }
 

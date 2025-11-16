@@ -106,13 +106,21 @@ public class CrearPresentacion {
 
     }
 
-    public void creaTablaEstilo(XSLFSlide diapositiva,  List<FilaTabla> acumuladosTabla, PosicionGrafica portPos) {
+    public void creaTablaEstilo(XSLFSlide diapositiva,  List<FilaTabla> acumuladosTabla, PosicionGrafica portPos, List<Integer> anchos) {
         XSLFTable table = diapositiva.createTable(acumuladosTabla.size(), acumuladosTabla.getFirst().getFila().size());
         table.setAnchor(this.getRectangle(portPos));
 
         for(int row = 0; row < acumuladosTabla.size(); row++){
             var fila =acumuladosTabla.get(row);
             this.aplicaEstiloFila(table, fila, row);
+        }
+
+        if (anchos.size() < table.getNumberOfColumns()) {
+            log.warn("No se definieron suficientes anchos para todas las columnas");
+        } else {
+            for (int i = 0; i < table.getNumberOfColumns(); i++) {
+                table.setColumnWidth(i, anchos.get(i) * UNIDAD);
+            }
         }
     }
 
