@@ -4,11 +4,12 @@ import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.exceptions.ColorExcepcion;
 import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.exceptions.PresentacionException;
-import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.dto.*;
 import com.organizame.reportes.utils.presentacion.dto.ColorPresentacion;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.sl.usermodel.PictureData;
+import org.apache.poi.sl.usermodel.StrokeStyle;
+import org.apache.poi.sl.usermodel.TableCell;
 import org.apache.poi.xslf.usermodel.*;
 import org.jfree.chart.JFreeChart;
 import org.springframework.core.io.Resource;
@@ -89,17 +90,18 @@ public class CrearPresentacion {
 
 
 
-    public void creaTexto(XSLFSlide diapositiva, String texto, PosicionGrafica portPos, String color)  throws PresentacionException, ColorExcepcion {
+    public void creaTexto(XSLFSlide diapositiva, String texto, PosicionGrafica portPos, String colorNombre)  throws PresentacionException, ColorExcepcion {
+        var color = this.getColorPresentacion(colorNombre);
         XSLFTextBox textBox = diapositiva.createTextBox();
         textBox.setAnchor(this.getRectangle(portPos));
 
         XSLFTextParagraph paragraph = textBox.addNewTextParagraph();
         XSLFTextRun run = paragraph.addNewTextRun();
         run.setText(texto);
-        run.setFontSize(14.0);
-        run.setFontColor(Utilidades.convierteRGB(color));
+        run.setFontSize(color.getFontSize());
+        run.setFontColor(color.getFontColor());
         run.setFontFamily("Tahoma");
-        run.setBold(true);
+        run.setBold(color.isBold());
 
 
     }
@@ -116,6 +118,7 @@ public class CrearPresentacion {
 
     private void aplicaEstiloFila(XSLFTable tabla, FilaTabla fila,  int row){
         var estilo = this.getColorPresentacion(fila.getNombreEstilo());
+        log.info("Se recupero el estilo {} para {}", estilo, fila.getNombreEstilo());
         for (int col = 0; col < tabla.getNumberOfColumns(); col++) {
 
             XSLFTableCell cell = tabla.getCell(row, col);
@@ -127,6 +130,12 @@ public class CrearPresentacion {
             run.setFontSize(estilo.getFontSize());
             run.setFontColor(estilo.getFontColor());
             run.setBold(estilo.isBold());
+
+            // Aplicar bordes negros finos
+            cell.setBorderCap(TableCell.BorderEdge.bottom, StrokeStyle.LineCap.FLAT);
+            cell.setBorderCap(TableCell.BorderEdge.top, StrokeStyle.LineCap.FLAT);
+            cell.setBorderCap(TableCell.BorderEdge.left, StrokeStyle.LineCap.FLAT);
+            cell.setBorderCap(TableCell.BorderEdge.right, StrokeStyle.LineCap.FLAT);
         }
     }
 
@@ -150,9 +159,10 @@ public class CrearPresentacion {
     }
 
     private void insertarImagen(XSLFSlide diapositiva, PosicionGrafica posicionGrafica, byte[] byteArray) {
+        log.info("Se insertara la imagen en {}, la imagen mide {} bytes", posicionGrafica, byteArray.length);
         XSLFPictureData pictureData = diapositiva.getSlideShow().addPicture(byteArray, PictureData.PictureType.PNG);
-        var picture = diapositiva.createPicture(pictureData);
 
+        var picture = diapositiva.createPicture(pictureData);
         // Definir posición y tamaño
         picture.setAnchor(this.getRectangle(posicionGrafica));
     }

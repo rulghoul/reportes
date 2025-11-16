@@ -4,7 +4,6 @@ import com.organizame.reportes.dto.DaoPeriodo;
 import com.organizame.reportes.dto.DaoResumenPeriodo;
 import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.dto.auxiliar.Acumulado;
-import com.organizame.reportes.dto.auxiliar.PortadaTotales;
 import com.organizame.reportes.dto.request.RequestOrigen;
 import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.exceptions.SinDatos;
@@ -13,11 +12,8 @@ import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
 import com.organizame.reportes.utils.graficas.graficas2;
 import com.organizame.reportes.utils.presentacion.CrearPresentacion;
 import com.organizame.reportes.utils.presentacion.TipoDiapositiva;
+import com.organizame.reportes.utils.presentacion.dto.ColorPresentacion;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.xslf.usermodel.XMLSlideShow;
-import org.apache.poi.xslf.usermodel.XSLFAutoShape;
-import org.apache.poi.xslf.usermodel.XSLFShape;
-import org.apache.poi.xslf.usermodel.XSLFTextShape;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -30,7 +26,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -74,11 +69,12 @@ public class ReportePresentacionService {
                     request.getOrigen() + " en " + request.getMesReporte() + " meses antes de " + request.getMesFinal() );
         }
         this.nombreArchivo = "Ventas origen_" + request.getOrigen() + " " + request.getMesFinal().format(DateTimeFormatter.ofPattern("LLLL yyyy"));
+
         //Datos resumidos
         Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
 
         //Datos para hojas
-        CrearPresentacion presentacion = new CrearPresentacion(bg_contenido,  bg_portada);
+        CrearPresentacion presentacion = new CrearPresentacion(bg_contenido,  bg_portada, this.creaColoresBase());
         LocalDate fechaInicial = request.getMesFinal().minusMonths(request.getMesReporte());
         String fecha = fechaSmall.format(fechaInicial) + "-" + fechaSmall.format(request.getMesFinal());
 
@@ -96,21 +92,31 @@ public class ReportePresentacionService {
         var totalIndustria = service.getTotalIntustria();
         var totalOrigen = service.getTotalOrigen(request);
 
-        var portadaAcumulados = service.getPortadaAcumulados(filtrado, totalIndustria.orElse(0), totalOrigen.orElse(0));
+        var portadaAcumulados = service.getPortadaAcumulados(filtrado, totalIndustria.orElse(1), totalOrigen.orElse(1));
+        var acumuladoCorregido = portadaAcumulados.stream()
+                .map(acumulado -> {
+                    return new Acumulado(
+                            acumulado.getFabricante(),
+                            acumulado.getLineas(),
+                            acumulado.getVolumen(),
+                            acumulado.getPeso() * 100,
+                            acumulado.getPorcentajeIndustria() * 100
+                    );
+                })
+                .toList();
         var portadaTotales = service.getPortadaTotales(filtrado);
         // Genera portada
 
         var portada = presentacion.crearDiapositiva(TipoDiapositiva.PORTADA);
 
-
-        presentacion.creaTexto(portada, "ANÁLISIS VENTAS" +
-                "DE VEHÍCULOS\n" +
-                "DE ORIGEN " + request.getOrigen().toUpperCase(), new PosicionGrafica(100,42,30,30), "FAFAFA");
+        presentacion.creaTexto(portada, "ANÁLISIS VENTAS DE VEHÍCULOS DE ORIGEN "
+                        + request.getOrigen().toUpperCase(),
+                new PosicionGrafica(80,52,40,20), "Portada");
 
 
         var portada2 = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
 
-        var portPos = new PosicionGrafica(2,2, 35, 35);
+        var portPos = new PosicionGrafica(2,2, 64, 35);
         presentacion.creaTexto(portada2, """
                         En la industria mexicana, 6 marcas
                         comercializan {{MODELOS}} vehículos de
@@ -118,21 +124,21 @@ public class ReportePresentacionService {
                         se vendieron {{UNIDADES}} unidades, lo que
                         representó una participación de
                         mercado del {{PARTICIPACION}}% del total de la industria
-                        """.replace("{{MODELOS}}", portadaAcumulados.getLast().getLineas().toString())
+                        """.replace("{{MODELOS}}", acumuladoCorregido.getLast().getLineas().toString())
                         .replace("{{ORIGEN}}", request.getOrigen().toUpperCase())
                         .replace("{{PERIODO}}", fecha)
-                        .replace("{{UNIDADES}}", portadaAcumulados.getLast().getVolumen().toString())
-                        .replace("{{PARTICIPACION}}", formatoDecimal.format(portadaAcumulados.getLast().getPorcentajeIndustria()*100))
-                , portPos, "#234325");
+                        .replace("{{UNIDADES}}", acumuladoCorregido.getLast().getVolumen().toString())
+                        .replace("{{PARTICIPACION}}", formatoDecimal.format(acumuladoCorregido.getLast().getPorcentajeIndustria()))
+                , portPos, "normal2");
 
         portPos.setRow(38);
 
-        var stellantis = portadaAcumulados.stream()
+        var stellantis = acumuladoCorregido.stream()
                         .filter(acu -> acu.getFabricante().equalsIgnoreCase("STELLANTIS"))
                                 .findFirst();
 
         if(stellantis.isPresent()) {
-            var posicion = portadaAcumulados.indexOf(stellantis);
+            var posicion = acumuladoCorregido.indexOf(stellantis);
             var posicionString = convertirNumeroAOrdinal(posicion);
             presentacion.creaTexto(portada2, """
                             En el periodo {{PERIODO}}, Stellantis se
@@ -144,40 +150,27 @@ public class ReportePresentacionService {
                             .replace("{{PERIODO}}", fecha)
                             .replace("{{POSICION}}", posicionString)
                             .replace("{{UNIDADES}}", stellantis.get().getVolumen().toString())
-                            .replace("{{PARTICIPACION}}", formatoDecimal.format(stellantis.get().getPorcentajeIndustria()*100))
-                    , portPos, "#234325");
+                            .replace("{{PARTICIPACION}}", formatoDecimal.format(stellantis.get().getPorcentajeIndustria()))
+                    , portPos, "normal");
         }
 
         var portHeader = new FilaTabla("Encabezado", List.of("Marcas", "Número de lineas", "Volumen", "Peso", "% MS Industria total"));
         List<FilaTabla> acumuladosTabla = new ArrayList<>();
         acumuladosTabla.add(portHeader);
-        acumuladosTabla.addAll(portadaAcumulados.stream().map(Acumulado::getFilaTabla).toList());
+        acumuladosTabla.addAll(acumuladoCorregido.stream().map(acumulado -> acumulado.getFilaTabla(this.formatoDecimal)).toList());
         //Se imprime la tabla de acumulados
+        portPos.setCol(66);
+        portPos.setRow(2);
+        portPos.setAlto(70);
         presentacion.creaTablaEstilo(portada2, acumuladosTabla, portPos);
-        portPos.setCol(2);
-        portPos.addRows(2);
 
-        presentacion.creaTexto(portada2, "Total Industria " + fecha, portPos, "#232323");
-        portPos.addRows(1);
-
-        portPos.setCol(2);
-        var portResHeader = new FilaTabla("Encabezado",
-                List.of("Periodo", "Ventas modelos de origen " + request.getOrigen(), "Ventas totales de la Industria",
-                        "% de Market share"));
-        List<FilaTabla> vasmensuales = new ArrayList<>();
-        vasmensuales.add(portResHeader);
-        vasmensuales.addAll(portadaTotales.stream().map(PortadaTotales::getFilaTabla).toList());
-
-        presentacion.creaTablaEstilo(portada2, vasmensuales, portPos);
-
-
-
-
-        var tituloGrafica = "Ventas por Origen Brasil, Industria y Market Share";
         try {
-            presentacion.insertarGrafica(portada, graficas.createComboChart(tituloGrafica, portadaTotales, request.getOrigen()),
-                    new PosicionGrafica(200, 50, 160, 100),
-                    new PosicionGrafica(200, 50, 160, 100));
+            var grafica = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
+            var tituloGrafica = "Ventas por Origen Brasil, Industria y Market Share";
+
+            presentacion.insertarGrafica(grafica, graficas.createComboChart(tituloGrafica, portadaTotales, request.getOrigen()),
+                    new PosicionGrafica(200, 50, 1600, 1000),
+                    new PosicionGrafica(66, 2, 64, 72));
         }catch (GraficaException e){
             log.info("Fallo la creacion de la grafica por: {}" , e.getMessage());
         }
@@ -322,5 +315,22 @@ public class ReportePresentacionService {
             case 10 -> "DÉCIMO";
             default -> String.valueOf(numero); // Si es mayor a 10, devuelve el número como cadena
         };
+    }
+
+    private List<ColorPresentacion> creaColoresBase(){
+        List<ColorPresentacion> colores = new ArrayList<>();
+        colores.add(new ColorPresentacion("Portada", "FFFFFF", "FAFAFA", 18, true));
+        colores.add(new ColorPresentacion("Normal", "FFFFFF", "002B7F", 16, true));
+        colores.add(new ColorPresentacion("Titulo", "FFFFFF", "000000", 18, true));
+        colores.add(new ColorPresentacion("Destacado", "FFFFFF", "FF0000", 18, true));
+        colores.add(new ColorPresentacion("Normal2", "FFFFFF", "373F66", 18, true));
+        colores.add(new ColorPresentacion("Numeracion", "F6C6CE", "9B182E", 18, true));
+        // Colores de tablas
+        colores.add(new ColorPresentacion("Encabezado", "002B7F", "FAFAFA", 12, true));
+        colores.add(new ColorPresentacion("Estandar", "FFFFFF", "000000", 11, false));
+        colores.add(new ColorPresentacion("Stellantis", "96938E", "FAFAFA", 11, false));
+        colores.add(new ColorPresentacion("RowOdd", "FAFAFA", "000000", 11, false));
+        colores.add(new ColorPresentacion("TOTAL", "000000", "FAFAFA", 11, true));
+        return colores;
     }
 }
