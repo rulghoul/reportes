@@ -169,8 +169,8 @@ public class ReportePresentacionService {
             var tituloGrafica = "Ventas por Origen Brasil, Industria y Market Share";
 
             presentacion.insertarGrafica(grafica, graficas.createComboChart(tituloGrafica, portadaTotales, request.getOrigen()),
-                    new PosicionGrafica(200, 50, 1600, 1000),
-                    new PosicionGrafica(66, 2, 64, 72));
+                    new PosicionGrafica(2, 2, 128, 74),
+                    new PosicionGrafica(66, 2, 1280, 740));
         }catch (GraficaException e){
             log.info("Fallo la creacion de la grafica por: {}" , e.getMessage());
         }
