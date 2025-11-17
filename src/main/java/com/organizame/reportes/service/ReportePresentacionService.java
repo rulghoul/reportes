@@ -328,14 +328,11 @@ public class ReportePresentacionService {
         XSLFSlide diapositiva = null;
         for (var segmento : segmentos) {
             var operacion = contador.getAndIncrement();
-            log.info("La operacion es {}", operacion);
             if (operacion % 2 == 0){
-                log.info("Se creo nueva diapositiva el contador esta en {}", operacion);
                 diapositiva = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
             }
 
             if(Objects.isNull(diapositiva)) {
-                log.info("Se creo nueva diapositiva por ser nula el contador esta en {}", operacion);
                 diapositiva = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
             }
 
@@ -368,28 +365,30 @@ public class ReportePresentacionService {
         XSLFSlide diapositiva = null;
         for (var fabricante : fabricantes) {
             var operacion = contador.getAndIncrement();
-            log.info("La operacion es {}", operacion);
             if (operacion % 2 == 0) {
-                log.info("Se creo nueva diapositiva el contador esta en {}", operacion);
                 diapositiva = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
             }
 
             if (Objects.isNull(diapositiva)) {
-                log.info("Se creo nueva diapositiva por ser nula el contador esta en {}", operacion);
                 diapositiva = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
             }
 
-            var datosGrafica = graficas.generaDataset(fabricanteResumen.get(fabricante.getNombreTabla()));
-            var grafica = graficas.graficaBarrasColor("Volumen de ventas, origen " + request.getOrigen() + "fechas",
-                    "Modelos" , "Participacion", datosGrafica);
+            var datosGrafica = graficas.generaPieDataset(fabricanteResumen.get(fabricante.getNombreTabla()));
+            var grafica = graficas.graficaDonut("Volumen de ventas, origen " + request.getOrigen() + " " + fecha,
+                     datosGrafica);
+
+            var mensaje = " El total de modelos " + fabricante.getNombreTabla() + " procedentes de "
+                    + request.getOrigen() + " representaron el "
+                    + "{porcentajer}" + "% del volumen total que vendió la marca durante el periodo " +
+                    fecha;
 
             try {
                 var marca = this.cargarImagen("static/images/marcas/stellantis.png");
                 var modelo = this.cargarImagen("static/images/marcas/modelo.png");
                 if (operacion % 2 == 0) {
-                    this.dibujaGraficaIzquierda(presentacion, diapositiva, grafica, modelo, marca, "Arriba");
+                    this.dibujaGraficaIzquierda(presentacion, diapositiva, grafica, modelo, marca, mensaje);
                 }else{
-                    this.dibujaGraficaDerecha(presentacion, diapositiva, grafica, modelo, marca, "abajo");
+                    this.dibujaGraficaDerecha(presentacion, diapositiva, grafica, modelo, marca, mensaje);
                 }
             }catch (Exception e){
                 log.warn("No se pudieron cargar las images ");
@@ -475,7 +474,7 @@ public class ReportePresentacionService {
             log.info("Fallo la creacion del modelo por: {}" , e.getMessage());
         }
 
-        presentacion.creaTexto(diapositiva, mensaje,texto ,"Normal");
+        presentacion.creaTexto(diapositiva, mensaje,texto ,"Small");
 
     }
 
@@ -529,6 +528,7 @@ public class ReportePresentacionService {
         List<ColorPresentacion> colores = new ArrayList<>();
         colores.add(new ColorPresentacion("Portada", "FFFFFF", "FAFAFA", 18, true));
         colores.add(new ColorPresentacion("Normal", "FFFFFF", "002B7F", 16, true));
+        colores.add(new ColorPresentacion("Small", "FFFFFF", "002B7F", 12, true));
         colores.add(new ColorPresentacion("Titulo", "FFFFFF", "000000", 18, true));
         colores.add(new ColorPresentacion("Destacado", "FFFFFF", "FF0000", 18, true));
         colores.add(new ColorPresentacion("Normal2", "FFFFFF", "373F66", 18, true));

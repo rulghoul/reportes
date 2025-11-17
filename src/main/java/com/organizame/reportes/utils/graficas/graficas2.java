@@ -12,13 +12,16 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.labels.ItemLabelAnchor;
 import org.jfree.chart.labels.ItemLabelPosition;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.RingPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
@@ -30,6 +33,12 @@ import java.util.List;
 @Slf4j
 @Service
 public class graficas2 {
+
+    private final StandardChartTheme tema;
+
+    public graficas2(){
+        this.tema = this.temaEstandar();
+    }
 
     private StandardChartTheme temaEstandar() {
         StandardChartTheme tema = new StandardChartTheme("TemaOrganizame");
@@ -46,13 +55,16 @@ public class graficas2 {
         tema.setRegularFont(new Font("Tahoma", Font.PLAIN, 12));   // etiquetas
 
         // 🎯 Colores de las series
+
         Paint[] coloresSeries = new Paint[]{
-                new Color(79, 129, 189),   // Azul
-                new Color(192, 80, 77),    // Rojo
-                new Color(155, 187, 89),   // Verde
-                new Color(128, 100, 162),  // Morado
-                new Color(75, 172, 198)    // Turquesa
+                new Color(70, 130, 180),   // Azul
+                new Color(192, 80, 77),     // Rojo
+                new Color(155, 187, 89),    // Verde
+                new Color(255, 215, 0),     // Amarillo
+                new Color(128, 0, 128),     // Morado
+                new Color(30, 144, 255)     // Azul cielo
         };
+
         tema.setDrawingSupplier(new DefaultDrawingSupplier(
                 coloresSeries,
                 DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
@@ -72,6 +84,17 @@ public class graficas2 {
                 .forEach(dato ->
                 dataset.addValue(dato.getPorcentaje() , dato.getModelo(), "Participacion")
         );
+        return dataset;
+    }
+
+    public DefaultPieDataset generaPieDataset(List<DaoPeriodo> datos){
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        datos.stream()
+                .filter(dato -> !dato.getModelo().equalsIgnoreCase("TOTAL"))
+                .filter(dato -> dato.getPorcentaje() > 0.02)
+                .forEach(dato ->
+                        dataset.setValue(dato.getModelo(), dato.getPorcentaje())
+                );
         return dataset;
     }
 
@@ -313,6 +336,42 @@ public class graficas2 {
         renderer.setDrawBarOutline(false);
 
         plot.setRenderer(renderer);
+
+        return chart;
+    }
+
+
+    public JFreeChart graficaDonut(String titulo, DefaultPieDataset datos) {
+        var chart = ChartFactory.createRingChart(
+                titulo,
+                datos,
+                true,   // leyenda
+                true,   // tooltips
+                false   // URLs
+        );
+        this.tema.apply(chart);
+
+        RingPlot plot = (RingPlot) chart.getPlot();
+        plot.setSectionDepth(0.5); // Grosor del anillo (0.5 = 50% del radio)
+
+        // ✅ Etiquetas: valor + porcentaje
+        plot.setLabelGenerator(new StandardPieSectionLabelGenerator(
+                "{1}; {2}",
+                new DecimalFormat("#,##0"),
+                new DecimalFormat("0%")
+        ));
+        plot.setLabelFont(new Font("Tahoma", Font.BOLD, 12));
+        plot.setLabelPaint(Color.BLACK);
+        plot.setLabelBackgroundPaint(null);
+        plot.setLabelOutlinePaint(null);
+        plot.setLabelShadowPaint(null);
+
+
+        // ✅ Estilo general
+        chart.getTitle().setFont(new Font("Tahoma", Font.BOLD, 18));
+        chart.setBackgroundPaint(Color.WHITE);
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setOutlineVisible(false);
 
         return chart;
     }
