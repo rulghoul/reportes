@@ -416,6 +416,12 @@ public class ModeloPeriodoService {
         return repository.findSumaTotalCantidadPorFiltros(request.getOrigen(), desde, hasta);
     }
 
+    public Optional<Integer> getTotalFabricante(String fabricante) {
+        int desde = Integer.parseInt(this.inicio.format(toIntegerFormater));
+        int hasta = Integer.parseInt(this.fechaFinal.format(toIntegerFormater));
+        return  repository.findSumaTotalCantidadMarcaPorFechas(desde, hasta, fabricante);
+    }
+
     public List<Acumulado> getPortadaAcumulados(Set<DaoResumenPeriodo> filtrado, Integer totalIndustria, Integer totalOrigen) {
         // Se dividen en dubgrupos divididos por fabricante
         Map<String, List<DaoResumenPeriodo>> portadaMarcas = filtrado.stream()

@@ -365,6 +365,10 @@ public class ReportePresentacionService {
         XSLFSlide diapositiva = null;
         for (var fabricante : fabricantes) {
             var operacion = contador.getAndIncrement();
+            var totalMarca = service.getTotalFabricante(fabricante.getNombreTabla());
+            var totalOrigen = fabricante.getTotal();
+            var porcentaje = totalOrigen.doubleValue() / totalMarca.orElse(1).doubleValue() *100 ;
+            log.info("Se obtubo un porcentaje de {} para untotal global de {} y un total de origen de {}", porcentaje, totalMarca, totalOrigen);
             if (operacion % 2 == 0) {
                 diapositiva = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
             }
@@ -379,7 +383,7 @@ public class ReportePresentacionService {
 
             var mensaje = " El total de modelos " + fabricante.getNombreTabla() + " procedentes de "
                     + request.getOrigen() + " representaron el "
-                    + "{porcentajer}" + "% del volumen total que vendió la marca durante el periodo " +
+                    + this.formatoDecimal.format(porcentaje) + "% del volumen total que vendió la marca durante el periodo " +
                     fecha;
 
             try {

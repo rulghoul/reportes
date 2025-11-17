@@ -50,6 +50,18 @@ public interface VhcModeloperiodoindustriaRepository2 extends JpaRepository<VhcM
             @Param("hasta") int hasta
     );
 
+    @Query("""
+                select sum(v.cantidad) 
+                from VhcModeloperiodoindustria v
+                where  (v.periodoanio * 100 + v.periodomes) between :desde and :hasta
+                and v.fabricantearchivo = :marca
+            """)
+    Optional<Integer> findSumaTotalCantidadMarcaPorFechas(
+            @Param("desde") int desde,
+            @Param("hasta") int hasta,
+            @Param("marca") String marca
+    );
+
 
     @Query("""
                 select v.periodoanio, v.periodomes, sum(v.cantidad)
