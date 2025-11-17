@@ -126,7 +126,6 @@ public class CrearPresentacion {
 
     private void aplicaEstiloFila(XSLFTable tabla, FilaTabla fila,  int row){
         var estilo = this.getColorPresentacion(fila.getNombreEstilo());
-        log.info("Se recupero el estilo {} para {}", estilo, fila.getNombreEstilo());
         for (int col = 0; col < tabla.getNumberOfColumns(); col++) {
 
             XSLFTableCell cell = tabla.getCell(row, col);
@@ -166,7 +165,7 @@ public class CrearPresentacion {
         }
     }
 
-    private void insertarImagen(XSLFSlide diapositiva, PosicionGrafica posicionGrafica, byte[] byteArray) {
+    public void insertarImagen(XSLFSlide diapositiva, PosicionGrafica posicionGrafica, byte[] byteArray) {
         log.info("Se insertara la imagen en {}, la imagen mide {} bytes", posicionGrafica, byteArray.length);
         XSLFPictureData pictureData = diapositiva.getSlideShow().addPicture(byteArray, PictureData.PictureType.PNG);
 

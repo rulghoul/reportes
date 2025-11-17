@@ -49,7 +49,7 @@ public class ReportePresentacionService {
         this.service = service;
         this.graficas = graficas;
         this.resourceLoader = resourceLoader;
-        this.fechaSmall = DateTimeFormatter.ofPattern("MMMuu");
+        this.fechaSmall = DateTimeFormatter.ofPattern("MMM yyyy");
         this.formatoDecimal = new DecimalFormat("#.#");
     }
 
@@ -76,10 +76,10 @@ public class ReportePresentacionService {
         //Datos para hojas
         CrearPresentacion presentacion = new CrearPresentacion(bg_contenido,  bg_portada, this.creaColoresBase());
         LocalDate fechaInicial = request.getMesFinal().minusMonths(request.getMesReporte());
-        String fecha = fechaSmall.format(fechaInicial) + "-" + fechaSmall.format(request.getMesFinal());
+        String fecha = fechaSmall.format(fechaInicial) + " a " + fechaSmall.format(request.getMesFinal());
 
         this.crearPortada(filtrado, presentacion, request, fecha);
-        //this.creaVolumenPorMarca(filtrado, presentacion);
+        this.creaVolumenPorMarca(filtrado, presentacion, request, fecha);
         //this.crearHojasPorSegmento(filtrado, presentacion, request, fecha);
         //this.crearTopLineas(filtrado, presentacion, fecha);
         //this.creaHojasporMarca(filtrado, presentacion, request, fecha);
@@ -129,7 +129,7 @@ public class ReportePresentacionService {
                         .replace("{{PERIODO}}", fecha)
                         .replace("{{UNIDADES}}", acumuladoCorregido.getLast().getVolumen().toString())
                         .replace("{{PARTICIPACION}}", formatoDecimal.format(acumuladoCorregido.getLast().getPorcentajeIndustria()))
-                , portPos, "normal2");
+                , portPos, "normal");
 
         portPos.setRow(38);
 
@@ -160,7 +160,7 @@ public class ReportePresentacionService {
         acumuladosTabla.addAll(acumuladoCorregido.stream().map(acumulado -> acumulado.getFilaTabla(this.formatoDecimal)).toList());
         //Se imprime la tabla de acumulados
         portPos.setCol(66);
-        portPos.setRow(2);
+        portPos.setRow(20);
         portPos.setAlto(70);
         presentacion.creaTablaEstilo(portada2, acumuladosTabla, portPos, List.of(24,10, 10,10,10));
 
@@ -169,7 +169,7 @@ public class ReportePresentacionService {
             var tituloGrafica = "Ventas por Origen Brasil, Industria y Market Share";
 
             presentacion.insertarGrafica(grafica, graficas.createComboChart(tituloGrafica, portadaTotales, request.getOrigen()),
-                    new PosicionGrafica(2, 2, 128, 74),
+                    new PosicionGrafica(2, 2, 124, 70),
                     new PosicionGrafica(66, 2, 1280, 740));
         }catch (GraficaException e){
             log.info("Fallo la creacion de la grafica por: {}" , e.getMessage());
@@ -177,18 +177,46 @@ public class ReportePresentacionService {
 
     }
 
-    private void creaVolumenPorMarca(Set<DaoResumenPeriodo> filtrado, CrearPresentacion presentacion){
+    private void creaVolumenPorMarca(Set<DaoResumenPeriodo> filtrado, CrearPresentacion presentacion, RequestOrigen request, String fecha){
         var contraPortada = service.getVolumenMarca(filtrado);
+        var grafica = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
         // Volumen por Marca
-
-        var contra = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
-        presentacion.creaTablaEstilo(contra, contraPortada, new PosicionGrafica(0,0,100,100), List.of(24,10, 10,10,10));
-
         try{
-            presentacion.insertarGrafica(contra, graficas.LineChartFabricantes(contraPortada), new PosicionGrafica(0,0, 2400, 800), new PosicionGrafica(0,0, 2400, 800));
+            presentacion.insertarGrafica(grafica, graficas.LineChartFabricantes(contraPortada),
+                    new PosicionGrafica(2, 2, 84, 49),
+                    new PosicionGrafica(66, 2, 1280, 740));
         }catch (GraficaException e){
             log.info("Fallo la creacion de la grafica por: {}" , e.getMessage());
         }
+
+
+        presentacion.creaTexto(grafica,"""
+        Estas 5 marcas representaron el 94.0% de la venta
+        total correspondiente a los vehículos provenientes de
+        {{ORIGEN}} durante el periodo {{PERIODO}}
+                """.replace("{{ORIGEN}}", request.getOrigen().toUpperCase())
+                        .replace("{{PERIODO}}", fecha)
+                , new PosicionGrafica(2, 53, 84, 19), "normal");
+
+        //Aqui se generaran los logos de las marcas y su numero de modelos
+        var logosPos =new PosicionGrafica(88, 2, 20, 8);
+        var nombrePos =new PosicionGrafica(108, 2, 20, 8);
+        contraPortada
+                .stream()
+                .filter(fila -> !fila.getFila().getFirst().toString().equalsIgnoreCase("Fabricante"))
+                .forEach(fabricante -> {
+                    try {
+                        var imagenResorce = this.cargarImagen("static/images/marcas/logo.png");
+                        presentacion.insertarImagen(grafica, logosPos, imagenResorce.getContentAsByteArray());
+                    }catch (Exception e){
+                        log.warn("No se puedo cargar la imagen para la marca{}", fabricante.getFila().getFirst().toString());
+                    }
+
+                    presentacion.creaTexto(grafica, fabricante.getFila().getFirst().toString(),
+                            nombrePos, "Normal");
+                    nombrePos.addRows(10);
+                    logosPos.addRows(10);
+                });
 
     }
 
