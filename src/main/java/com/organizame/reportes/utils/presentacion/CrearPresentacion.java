@@ -166,7 +166,6 @@ public class CrearPresentacion {
     }
 
     public void insertarImagen(XSLFSlide diapositiva, PosicionGrafica posicionGrafica, byte[] byteArray) {
-        log.info("Se insertara la imagen en {}, la imagen mide {} bytes", posicionGrafica, byteArray.length);
         XSLFPictureData pictureData = diapositiva.getSlideShow().addPicture(byteArray, PictureData.PictureType.PNG);
 
         var picture = diapositiva.createPicture(pictureData);

@@ -49,7 +49,7 @@ public class ReportePresentacionService {
         this.service = service;
         this.graficas = graficas;
         this.resourceLoader = resourceLoader;
-        this.fechaSmall = DateTimeFormatter.ofPattern("MMM yyyy");
+        this.fechaSmall = DateTimeFormatter.ofPattern("MMMM 'del' yyyy");
         this.formatoDecimal = new DecimalFormat("#.#");
     }
 
@@ -81,7 +81,7 @@ public class ReportePresentacionService {
         this.crearPortada(filtrado, presentacion, request, fecha);
         this.creaVolumenPorMarca(filtrado, presentacion, request, fecha);
         //this.crearHojasPorSegmento(filtrado, presentacion, request, fecha);
-        //this.crearTopLineas(filtrado, presentacion, fecha);
+        this.crearTopLineas(filtrado, presentacion, request, fecha);
         //this.creaHojasporMarca(filtrado, presentacion, request, fecha);
 
 
@@ -138,8 +138,8 @@ public class ReportePresentacionService {
                                 .findFirst();
 
         if(stellantis.isPresent()) {
-            var posicion = acumuladoCorregido.indexOf(stellantis);
-            var posicionString = convertirNumeroAOrdinal(posicion);
+            var posicion = acumuladoCorregido.indexOf(stellantis.get());
+            var posicionString = convertirNumeroAOrdinal(posicion+1);
             presentacion.creaTexto(portada2, """
                             En el periodo {{PERIODO}}, Stellantis se
                             posicionó en {{POSICION}} posición con una participación
@@ -179,10 +179,10 @@ public class ReportePresentacionService {
 
     private void creaVolumenPorMarca(Set<DaoResumenPeriodo> filtrado, CrearPresentacion presentacion, RequestOrigen request, String fecha){
         var contraPortada = service.getVolumenMarca(filtrado);
-        var grafica = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
+        var diapositiva = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
         // Volumen por Marca
         try{
-            presentacion.insertarGrafica(grafica, graficas.LineChartFabricantes(contraPortada),
+            presentacion.insertarGrafica(diapositiva, graficas.LineChartFabricantes(contraPortada),
                     new PosicionGrafica(2, 2, 84, 49),
                     new PosicionGrafica(66, 2, 1280, 740));
         }catch (GraficaException e){
@@ -190,7 +190,7 @@ public class ReportePresentacionService {
         }
 
 
-        presentacion.creaTexto(grafica,"""
+        presentacion.creaTexto(diapositiva,"""
         Estas 5 marcas representaron el 94.0% de la venta
         total correspondiente a los vehículos provenientes de
         {{ORIGEN}} durante el periodo {{PERIODO}}
@@ -207,12 +207,12 @@ public class ReportePresentacionService {
                 .forEach(fabricante -> {
                     try {
                         var imagenResorce = this.cargarImagen("static/images/marcas/logo.png");
-                        presentacion.insertarImagen(grafica, logosPos, imagenResorce.getContentAsByteArray());
+                        presentacion.insertarImagen(diapositiva, logosPos, imagenResorce.getContentAsByteArray());
                     }catch (Exception e){
                         log.warn("No se puedo cargar la imagen para la marca{}", fabricante.getFila().getFirst().toString());
                     }
 
-                    presentacion.creaTexto(grafica, fabricante.getFila().getFirst().toString(),
+                    presentacion.creaTexto(diapositiva, fabricante.getFila().getFirst().toString(),
                             nombrePos, "Normal");
                     nombrePos.addRows(10);
                     logosPos.addRows(10);
@@ -220,43 +220,46 @@ public class ReportePresentacionService {
 
     }
 
-    private void crearTopLineas(Set<DaoResumenPeriodo> filtrado, CrearPresentacion presentacion, String fecha){
+    private void crearTopLineas(Set<DaoResumenPeriodo> filtrado, CrearPresentacion presentacion, RequestOrigen request,String fecha) {
         List<DaoPeriodo> resumenDatos = service.generarResumen(filtrado, DaoResumenPeriodo::getModelo, s -> s.equalsIgnoreCase("Stellantis"));
 
-        var top = service.getVolumenTop(filtrado);
+        var diapositiva = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
 
-        var hoja = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
-        //Tabla principal
-        presentacion.creaTablaEstilo(hoja, top, new PosicionGrafica(0,0, 50, 50), List.of(24,10, 10,10,10));
-
-        //Recuoerar solo los 10 modelos topo
-        var totalOrigen =resumenDatos.getLast();
-        var cuerpo = resumenDatos.subList(0,9);
+        //Recuperar solo los 10 modelos top
+        var totalOrigen = resumenDatos.getLast();
+        var cuerpo = resumenDatos.subList(0, 9); //Estos son el top 10
         Integer totalTop = cuerpo.stream()
                 .mapToInt(dP -> dP.getTotal())
                 .sum();
-        var porcentajeTop = totalTop.doubleValue() / totalOrigen.getTotal().doubleValue() ;
-        var topTotal = new DaoPeriodo("Total Top",totalTop,porcentajeTop, "Encabezado");
+        var porcentajeTop = totalTop.doubleValue() / totalOrigen.getTotal().doubleValue() * 100;
 
-        List<DaoPeriodo> soloTop = new ArrayList<>(cuerpo);
-        soloTop.add(topTotal);
-        soloTop.add(totalOrigen);
-
-        var resumen = this.creaResumen(soloTop, fecha);
+        var posGrafica = new PosicionGrafica(2, 2, 90, 50);
+        var graficaSize = new PosicionGrafica(2, 2, 900, 500);
 
 
-        var posGrafica = new PosicionGrafica(10,10,100, 80);
-        //Tabla resumen
-        presentacion.creaTablaEstilo(hoja, resumen, posGrafica, List.of(24,10, 10,10,10));
-        var topGrafica = soloTop.subList(0,soloTop.size()-2);
-
-        var grafica =graficas.createChart( topGrafica, "Stellantis");
+        var grafica = graficas.createChart(cuerpo, "Stellantis");
 
         try {
-            presentacion.insertarGrafica(hoja, grafica, posGrafica, posGrafica);
+            presentacion.insertarGrafica(diapositiva, grafica, posGrafica, graficaSize);
         } catch (GraficaException e) {
-            log.info("Fallo la creacion de la grafica por: {}" , e.getMessage());
+            log.info("Fallo la creacion de la grafica por: {}", e.getMessage());
         }
+        log.info("El porcentaje es {}", this.formatoDecimal.format(porcentajeTop));
+        var posTexto = new PosicionGrafica(4, 54, 90, 45);
+        presentacion.creaTexto(diapositiva, "Estos 10 vehículos representan el {{PORCENTAJE}}% de las ventas totales que corresponden a las líneas provenientes de {{ORIGEN}} de {{PERIODO}}"
+                        .replace("{{ORIGEN}}", request.getOrigen())
+                                .replace("{{PERIODO}}", fecha)
+                                .replace("{{PORCENTAJE}}", this.formatoDecimal.format(porcentajeTop))
+                , posTexto, "Normal");
+
+        //Dibuja el top de estelantis, segundo de stelantis
+        //dibuja logo de stelantis
+        //Escribe el texto
+        var stellantis = cuerpo.stream()
+                .filter(modelo -> modelo.getEstilo().equalsIgnoreCase("STELLANTIS"))
+                .peek(modelo -> log.info(modelo.getModelo())).toList();
+
+
     }
 
     private void crearHojasPorSegmento(Set<DaoResumenPeriodo> filtrado, CrearPresentacion presentacion, RequestOrigen request, String fecha){
@@ -331,17 +334,17 @@ public class ReportePresentacionService {
 
     private String convertirNumeroAOrdinal(int numero) {
         return switch (numero) {
-            case 1 -> "PRIMERO";
-            case 2 -> "SEGUNDO";
-            case 3 -> "TERCERO";
-            case 4 -> "CUARTO";
-            case 5 -> "QUINTO";
-            case 6 -> "SEXTO";
-            case 7 -> "SÉPTIMO";
-            case 8 -> "OCTAVO";
-            case 9 -> "NOVENO";
-            case 10 -> "DÉCIMO";
-            default -> String.valueOf(numero); // Si es mayor a 10, devuelve el número como cadena
+            case 1 -> "Primera";
+            case 2 -> "Segunda";
+            case 3 -> "Tercera";
+            case 4 -> "Cuarta";
+            case 5 -> "Quinta";
+            case 6 -> "Sexta";
+            case 7 -> "Séptima";
+            case 8 -> "Octava";
+            case 9 -> "Novena";
+            case 10 -> "Décima";
+            default -> numero + "ª";
         };
     }
 
