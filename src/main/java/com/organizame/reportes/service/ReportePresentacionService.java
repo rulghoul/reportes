@@ -390,13 +390,13 @@ public class ReportePresentacionService {
                                         XSLFSlide diapositiva, JFreeChart grafica,
                                         Resource modeloResorce, Resource marcaResorce,
                                         String mensaje){
-        var graficaImagen = new PosicionGrafica(0,0,640,350);
-        var graficaPocision = new PosicionGrafica(2,2,64, 35);
+        var graficaImagen = new PosicionGrafica(0,0,620,340);
+        var graficaPocision = new PosicionGrafica(2,2,62, 34);
 
-        var textoGanador = new PosicionGrafica(98, 2, 20,5);
-        var marca = new PosicionGrafica(45, 2,20,10);
-        var modelo = new PosicionGrafica(37, 8, 30, 15);
-        var texto = new PosicionGrafica(37,25,64,10);
+        var textoGanador = new PosicionGrafica(88, 2, 45,4);
+        var marca = new PosicionGrafica(68, 2,16,8);
+        var modelo = new PosicionGrafica(68, 8, 38, 18);
+        var texto = new PosicionGrafica(68,25,62,10);
 
         this.dibujaGraficaDiapositiva(graficaImagen, graficaPocision, textoGanador, marca, modelo,
                 texto, presentacion,  diapositiva, grafica, modeloResorce, marcaResorce, mensaje);
@@ -407,13 +407,13 @@ public class ReportePresentacionService {
                                       Resource modeloResorce, Resource marcaResorce,
                                       String mensaje){
 
-        var graficaImagen = new PosicionGrafica(0,0,640,350);
-        var graficaPocision = new PosicionGrafica(2,39,64, 35);
+        var graficaImagen = new PosicionGrafica(0,0,620,340);
+        var graficaPocision = new PosicionGrafica(66,39,62, 34);
 
-        var textoGanador = new PosicionGrafica(98, 39, 20,5);
-        var marca = new PosicionGrafica(45, 39,20,10);
-        var modelo = new PosicionGrafica(37, 45, 30, 15);
-        var texto = new PosicionGrafica(37,60,64,10);
+        var textoGanador = new PosicionGrafica(17, 38, 45,4);
+        var marca = new PosicionGrafica(2, 38,16,8);
+        var modelo = new PosicionGrafica(37, 45, 38, 18);
+        var texto = new PosicionGrafica(37,52,62,10);
 
         this.dibujaGraficaDiapositiva(graficaImagen, graficaPocision, textoGanador, marca, modelo,
                 texto, presentacion,  diapositiva, grafica, modeloResorce, marcaResorce, mensaje);
