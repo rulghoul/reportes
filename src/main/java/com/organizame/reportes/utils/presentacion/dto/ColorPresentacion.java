@@ -1,5 +1,6 @@
 package com.organizame.reportes.utils.presentacion.dto;
 
+import com.organizame.reportes.exceptions.ColorExcepcion;
 import com.organizame.reportes.utils.Utilidades;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,7 @@ public class ColorPresentacion {
     private Double fontSize;
     private boolean isBold;
 
-    public ColorPresentacion(String nombre, String fillColor, String fontColor, Number fontsize, boolean isBold){
+    public ColorPresentacion(String nombre, String fillColor, String fontColor, Number fontsize, boolean isBold) throws ColorExcepcion {
         this.nombre = nombre;
         this.fillColor = Utilidades.convierteRGB(fillColor);
         this.fontColor = Utilidades.convierteRGB(fontColor);
