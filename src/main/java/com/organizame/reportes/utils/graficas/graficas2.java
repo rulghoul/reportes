@@ -261,7 +261,8 @@ public class graficas2 {
 
     public  JFreeChart createChart(
             List<DaoPeriodo> ventas,
-            String fabricanteDestacado) {
+            String fabricanteDestacado,
+            String titulo) {
 
         // Crear dataset directamente desde la lista ordenada
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
@@ -271,7 +272,7 @@ public class graficas2 {
 
         // Crear gráfico
         JFreeChart chart = ChartFactory.createBarChart(
-                "",
+                titulo,
                 "Cantidad",
                 "Modelo",
                 dataset,

@@ -109,7 +109,7 @@ public class ReporteExcelService {
         portPos.setRow(2);
         portPos.setCol(8);
 
-        var tituloGrafica = "Ventas por Origen Brasil, Industria y Market Share";
+        var tituloGrafica = "Ventas por Origen " + request.getOrigen() + ", Industria y Market Share";
         excel.InsertarGrafica(portada, graficas.createComboChart(tituloGrafica, portadaTotales, request.getOrigen()), new PosicionGrafica(portPos, 1600, 1000));
 
     }
@@ -157,7 +157,8 @@ public class ReporteExcelService {
         posicion = excel.creaTablaEstilo(hoja, resumen, 0, posicion.getRow());
         var topGrafica = soloTop.subList(0,soloTop.size()-2);
 
-        var grafica =graficas.createChart( topGrafica, "Stellantis");
+        var grafica =graficas.createChart( topGrafica, "Stellantis",
+                "Top 10 ventas de vehículos origen "+request.getOrigen()+", " + fecha);
         posGrafica.setCol(posicion.getCol() + 2);
         excel.InsertarGrafica(hoja, grafica, posGrafica);
     }

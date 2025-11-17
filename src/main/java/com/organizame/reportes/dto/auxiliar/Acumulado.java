@@ -31,16 +31,4 @@ public class Acumulado {
         return new FilaTabla(estilo, List.of(fabricante, lineas, volumen
                 , formato.format(peso)+"%", formato.format(porcentajeIndustria)+"%"));
     }
-
-    @Override
-    public boolean equals(Object obj){
-        log.info("Se compara {} contra {}", obj, this);
-        if(obj instanceof Acumulado){
-            if( ((Acumulado) obj).getFabricante().equalsIgnoreCase(this.fabricante)){
-                return true;
-            }
-            return false;
-        }
-        return false;
-    }
 }

@@ -27,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Service
@@ -166,7 +167,7 @@ public class ReportePresentacionService {
 
         try {
             var grafica = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
-            var tituloGrafica = "Ventas por Origen Brasil, Industria y Market Share";
+            var tituloGrafica = "Ventas por Origen " + request.getOrigen() + ", Industria y Market Share";
 
             presentacion.insertarGrafica(grafica, graficas.createComboChart(tituloGrafica, portadaTotales, request.getOrigen()),
                     new PosicionGrafica(2, 2, 124, 70),
@@ -237,7 +238,7 @@ public class ReportePresentacionService {
         var graficaSize = new PosicionGrafica(2, 2, 900, 500);
 
 
-        var grafica = graficas.createChart(cuerpo, "Stellantis");
+        var grafica = graficas.createChart(cuerpo, "Stellantis", "Top 10 ventas de vehículos origen "+request.getOrigen()+", " + fecha);
 
         try {
             presentacion.insertarGrafica(diapositiva, grafica, posGrafica, graficaSize);
@@ -252,14 +253,65 @@ public class ReportePresentacionService {
                                 .replace("{{PORCENTAJE}}", this.formatoDecimal.format(porcentajeTop))
                 , posTexto, "Normal");
 
-        //Dibuja el top de estelantis, segundo de stelantis
-        //dibuja logo de stelantis
-        //Escribe el texto
-        var stellantis = cuerpo.stream()
-                .filter(modelo -> modelo.getEstilo().equalsIgnoreCase("STELLANTIS"))
-                .peek(modelo -> log.info(modelo.getModelo())).toList();
 
+        var logosPos =new PosicionGrafica(96, 2, 32, 8);
+        try {
+            var imagenResorce = this.cargarImagen("static/images/marcas/logo.png");
+            presentacion.insertarImagen(diapositiva, logosPos, imagenResorce.getContentAsByteArray());
+        }catch (Exception e){
+            log.warn("No se puedo cargar la imagen para la marca");
+        }
 
+        logosPos.addRows(10);
+        try {
+            var imagenResorce = this.cargarImagen("static/images/marcas/modelo.png");
+            presentacion.insertarImagen(diapositiva, logosPos, imagenResorce.getContentAsByteArray());
+        }catch (Exception e){
+            log.warn("No se puedo cargar la imagen para la marca");
+        }
+
+        logosPos.addRows(10);
+
+        try {
+            var imagenResorce = this.cargarImagen("static/images/marcas/stellantis.png");
+            presentacion.insertarImagen(diapositiva, logosPos, imagenResorce.getContentAsByteArray());
+        }catch (Exception e){
+            log.warn("No se puedo cargar la imagen para la marca");
+        }
+
+        logosPos.addRows(10);
+        presentacion.creaTexto(diapositiva, this.getPosicionesTop(cuerpo), logosPos, "Destacado");
+
+        logosPos.addRows(16);
+        try {
+            var imagenResorce = this.cargarImagen("static/images/marcas/modelo.png");
+            presentacion.insertarImagen(diapositiva, logosPos, imagenResorce.getContentAsByteArray());
+        }catch (Exception e){
+            log.warn("No se puedo cargar la imagen para la marca");
+        }
+    }
+
+    private String getPosicionesTop(List<DaoPeriodo> datos){
+        StringBuilder resultado = new StringBuilder();
+        var posiciones = IntStream.range(0, datos.size())
+                .filter(i -> datos.get(i).getEstilo().equalsIgnoreCase("STELLANTIS"))
+                .mapToObj(i ->
+                        this.capitalizar(datos.get(i).getModelo()) +
+                                " se posicionó en " + this.convertirNumeroAOrdinalShort(i + 1)
+                )
+                .toList();
+        int size = posiciones.size();
+        if(size == 1) resultado.append(posiciones.getFirst());
+        if(size >= 2){
+            resultado.append(String.join(", ", posiciones.subList(0, size-1)))
+                    .append(" y ").append(posiciones.getLast());
+        }
+        return resultado.toString();
+    }
+
+    private String capitalizar(String texto) {
+        if (texto == null || texto.isBlank()) return texto;
+        return texto.substring(0, 1).toUpperCase() + texto.substring(1).toLowerCase();
     }
 
     private void crearHojasPorSegmento(Set<DaoResumenPeriodo> filtrado, CrearPresentacion presentacion, RequestOrigen request, String fecha){
@@ -344,6 +396,22 @@ public class ReportePresentacionService {
             case 8 -> "Octava";
             case 9 -> "Novena";
             case 10 -> "Décima";
+            default -> numero + "ª";
+        };
+    }
+
+    private String convertirNumeroAOrdinalShort(int numero) {
+        return switch (numero) {
+            case 1 -> "1ro";
+            case 2 -> "2do";
+            case 3 -> "3ro";
+            case 4 -> "4to";
+            case 5 -> "5to";
+            case 6 -> "6to";
+            case 7 -> "7mo";
+            case 8 -> "8vo";
+            case 9 -> "9no";
+            case 10 -> "10mo";
             default -> numero + "ª";
         };
     }
