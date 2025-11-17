@@ -7,9 +7,7 @@ import com.organizame.reportes.exceptions.PresentacionException;
 import com.organizame.reportes.utils.excel.dto.*;
 import com.organizame.reportes.utils.presentacion.dto.ColorPresentacion;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.sl.usermodel.PictureData;
-import org.apache.poi.sl.usermodel.StrokeStyle;
-import org.apache.poi.sl.usermodel.TableCell;
+import org.apache.poi.sl.usermodel.*;
 import org.apache.poi.xslf.usermodel.*;
 import org.jfree.chart.JFreeChart;
 import org.springframework.core.io.Resource;
@@ -171,6 +169,18 @@ public class CrearPresentacion {
         var picture = diapositiva.createPicture(pictureData);
         // Definir posición y tamaño
         picture.setAnchor(this.getRectangle(posicionGrafica));
+    }
+
+    public void creaLinea(XSLFSlide diapositiva, PosicionGrafica posicionGrafica, String color) {
+        var estilo = this.getColorPresentacion(color);
+        XSLFAutoShape linea = diapositiva.createAutoShape();
+        linea.setShapeType(ShapeType.LINE);
+
+        linea.setAnchor(this.getRectangle(posicionGrafica));
+
+        linea.setLineColor(estilo.getFillColor());
+        linea.setLineWidth(2.0);
+        linea.setLineTailDecoration(LineDecoration.DecorationShape.ARROW);
     }
 
 

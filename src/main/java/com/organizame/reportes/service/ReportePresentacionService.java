@@ -14,6 +14,8 @@ import com.organizame.reportes.utils.presentacion.CrearPresentacion;
 import com.organizame.reportes.utils.presentacion.TipoDiapositiva;
 import com.organizame.reportes.utils.presentacion.dto.ColorPresentacion;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.xslf.usermodel.XSLFSlide;
+import org.jfree.chart.JFreeChart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -26,7 +28,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 @Slf4j
@@ -81,7 +85,7 @@ public class ReportePresentacionService {
 
         this.crearPortada(filtrado, presentacion, request, fecha);
         this.creaVolumenPorMarca(filtrado, presentacion, request, fecha);
-        //this.crearHojasPorSegmento(filtrado, presentacion, request, fecha);
+        this.crearHojasPorSegmento(filtrado, presentacion, request, fecha);
         this.crearTopLineas(filtrado, presentacion, request, fecha);
         //this.creaHojasporMarca(filtrado, presentacion, request, fecha);
 
@@ -320,25 +324,37 @@ public class ReportePresentacionService {
         var segmentos = service.generaDatosContenidoPorSegmento(filtrado);
         var segmentoResumen = service.generaResumenSegmento(filtrado);
 
-        segmentos.forEach(segmento -> {
-            var hoja = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
-            //Tabla principal
-            presentacion.creaTablaEstilo(hoja, segmento.getDatos(), new PosicionGrafica(0,0, 100, 50), List.of(24,10, 10,10,10));
-            var resumen = this.creaResumen(segmentoResumen.get(segmento.getNombreTabla()), fecha);
+        var contador = new AtomicInteger(0);
+        XSLFSlide diapositiva = null;
+        for (var segmento : segmentos) {
+            var operacion = contador.getAndIncrement();
+            log.info("La operacion es {}", operacion);
+            if (operacion % 2 == 0){
+                log.info("Se creo nueva diapositiva el contador esta en {}", operacion);
+                diapositiva = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
+            }
 
-            var posGrafica = new PosicionGrafica(50,50,1200, 800);
+            if(Objects.isNull(diapositiva)) {
+                log.info("Se creo nueva diapositiva por ser nula el contador esta en {}", operacion);
+                diapositiva = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
+            }
+
             //Tabla resumen
-            presentacion.creaTablaEstilo(hoja, resumen, new PosicionGrafica(0,0, 100, 50), List.of(24,10, 10,10,10));
             var datosGrafica = graficas.generaDataset(segmentoResumen.get(segmento.getNombreTabla()));
             var grafica =graficas.graficaBarras("Segmento de " + segmento.getNombreTabla() + " - Origen " + request.getOrigen() + " fechas",
                     "Modelos" , "Participacion", datosGrafica);
-
             try {
-                presentacion.insertarGrafica(hoja, grafica, posGrafica, posGrafica);
-            } catch (GraficaException e) {
-                log.info("Fallo la creacion de la grafica por: {}" , e.getMessage());
+                var marca = this.cargarImagen("static/images/marcas/stellantis.png");
+                var modelo = this.cargarImagen("static/images/marcas/modelo.png");
+                if (operacion % 2 == 0) {
+                    this.dibujaGraficaIzquierda(presentacion, diapositiva, grafica, modelo, marca, "Arriba");
+                }else{
+                    this.dibujaGraficaDerecha(presentacion, diapositiva, grafica, modelo, marca, "abajo");
+                }
+            }catch (Exception e){
+                log.warn("No se pudieron cargar las images ");
             }
-        });
+        }
     }
 
     private void creaHojasporMarca(Set<DaoResumenPeriodo> filtrado, CrearPresentacion presentacion, RequestOrigen request, String fecha){
@@ -367,6 +383,87 @@ public class ReportePresentacionService {
                 log.info("Fallo la creacion de la grafica por: {}" , e.getMessage());
             }
         });
+
+    }
+
+    private void dibujaGraficaIzquierda(CrearPresentacion presentacion,
+                                        XSLFSlide diapositiva, JFreeChart grafica,
+                                        Resource modeloResorce, Resource marcaResorce,
+                                        String mensaje){
+        var graficaImagen = new PosicionGrafica(0,0,640,350);
+        var graficaPocision = new PosicionGrafica(2,2,64, 35);
+
+        var textoGanador = new PosicionGrafica(98, 2, 20,5);
+        var marca = new PosicionGrafica(45, 2,20,10);
+        var modelo = new PosicionGrafica(37, 8, 30, 15);
+        var texto = new PosicionGrafica(37,25,64,10);
+
+        this.dibujaGraficaDiapositiva(graficaImagen, graficaPocision, textoGanador, marca, modelo,
+                texto, presentacion,  diapositiva, grafica, modeloResorce, marcaResorce, mensaje);
+    }
+
+    private void dibujaGraficaDerecha(CrearPresentacion presentacion,
+                                      XSLFSlide diapositiva, JFreeChart grafica,
+                                      Resource modeloResorce, Resource marcaResorce,
+                                      String mensaje){
+
+        var graficaImagen = new PosicionGrafica(0,0,640,350);
+        var graficaPocision = new PosicionGrafica(2,39,64, 35);
+
+        var textoGanador = new PosicionGrafica(98, 39, 20,5);
+        var marca = new PosicionGrafica(45, 39,20,10);
+        var modelo = new PosicionGrafica(37, 45, 30, 15);
+        var texto = new PosicionGrafica(37,60,64,10);
+
+        this.dibujaGraficaDiapositiva(graficaImagen, graficaPocision, textoGanador, marca, modelo,
+                texto, presentacion,  diapositiva, grafica, modeloResorce, marcaResorce, mensaje);
+    }
+
+    private void dibujaGraficaCompleta(CrearPresentacion presentacion,
+                                       XSLFSlide diapositiva, JFreeChart grafica,
+                                       Resource modeloResorce, Resource marcaResorce,
+                                       String mensaje){ //Para stellantis
+
+        var graficaImagen = new PosicionGrafica(0,0,640,350);
+        var graficaPocision = new PosicionGrafica(2,2,64, 35);
+
+        var textoGanador = new PosicionGrafica(98, 2, 20,5);
+        var marca = new PosicionGrafica(45, 2,20,10);
+        var modelo = new PosicionGrafica(37, 8, 30, 15);
+        var texto = new PosicionGrafica(37,25,64,10);
+        this.dibujaGraficaDiapositiva(graficaImagen, graficaPocision, textoGanador, marca, modelo,
+                texto, presentacion,  diapositiva, grafica, modeloResorce, marcaResorce, mensaje);
+    }
+
+    private void dibujaGraficaDiapositiva(PosicionGrafica graficaImagen, PosicionGrafica graficaPosicion,
+                                          PosicionGrafica textoGanador, PosicionGrafica marca,
+                                          PosicionGrafica modelo, PosicionGrafica texto,
+                                          CrearPresentacion presentacion,
+                                          XSLFSlide diapositiva, JFreeChart grafica,
+                                          Resource modeloResorce, Resource marcaResorce,
+                                          String mensaje
+                                          ){
+
+        try{
+            presentacion.insertarGrafica(diapositiva, grafica, graficaPosicion, graficaImagen);
+        } catch (GraficaException e) {
+            log.info("Fallo la creacion de la grafica por: {}" , e.getMessage());
+        }
+        presentacion.creaTexto(diapositiva, "Producto ganador", textoGanador,"Titulo");
+
+        try{
+            presentacion.insertarImagen(diapositiva, marca, marcaResorce.getContentAsByteArray());
+        } catch (IOException e) {
+            log.info("Fallo la creacion de la imagen del fabricante por: {}" , e.getMessage());
+        }
+
+        try{
+            presentacion.insertarImagen(diapositiva, modelo, modeloResorce.getContentAsByteArray());
+        } catch (IOException e) {
+            log.info("Fallo la creacion del modelo por: {}" , e.getMessage());
+        }
+
+        presentacion.creaTexto(diapositiva, mensaje,texto ,"Normal");
 
     }
 
@@ -430,6 +527,8 @@ public class ReportePresentacionService {
         colores.add(new ColorPresentacion("Stellantis", "96938E", "FAFAFA", 11, false));
         colores.add(new ColorPresentacion("RowOdd", "FAFAFA", "000000", 11, false));
         colores.add(new ColorPresentacion("TOTAL", "000000", "FAFAFA", 11, true));
+        //Color de la lina de divicion
+        colores.add(new ColorPresentacion("linea","91162B","91162B", 1, false));
         return colores;
     }
 }
