@@ -4,6 +4,7 @@ import com.organizame.reportes.dto.DaoPeriodo;
 import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.dto.VentasPorMes;
 import com.organizame.reportes.dto.auxiliar.PortadaTotales;
+import com.organizame.reportes.utils.Utilidades;
 import jakarta.validation.OverridesAttribute;
 import lombok.extern.slf4j.Slf4j;
 import org.jfree.chart.ChartFactory;
@@ -153,32 +154,26 @@ public class graficas2 {
         renderer.setDefaultPositiveItemLabelPosition(
                 new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BOTTOM_CENTER)
         );
+        renderer.setDefaultStroke(new BasicStroke(5.0f));
 
         // ✅ Estilos: Stellantis más gruesa y punteada
-        renderer.setSeriesStroke(0, new BasicStroke(
-                4.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0f,
-                new float[]{8.0f, 6.0f}, 0.0f
-        ));
-        renderer.setSeriesPaint(0, new Color(30, 60, 100)); // Stellantis
 
-        renderer.setSeriesStroke(1, new BasicStroke(4.0f));
-        renderer.setSeriesPaint(1, new Color(255, 140, 0)); // Renault
-
-        renderer.setSeriesStroke(2, new BasicStroke(4.0f));
-        renderer.setSeriesPaint(2, new Color(0, 128, 0)); // VW
-
-        renderer.setSeriesStroke(3, new BasicStroke(4.0f));
-        renderer.setSeriesPaint(3, new Color(0, 100, 200)); // GM
-
-        renderer.setSeriesStroke(4, new BasicStroke(4.0f));
-        renderer.setSeriesPaint(4, new Color(128, 0, 128)); // Hyundai
+        int indiceResaltado = dataset.getRowIndex("STELLANTIS");
+        // ✅ Aplicar estilo específico a la serie resaltada
+        if (Objects.nonNull(indiceResaltado) && indiceResaltado >= 0) {
+            renderer.setSeriesStroke(indiceResaltado, new BasicStroke(
+                    6.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0f,
+                    new float[]{10.0f, 6.0f}, 0.0f  // Línea punteada más gruesa
+            ));
+            renderer.setSeriesPaint(indiceResaltado, Utilidades.convierteRGB("002B7F")); // Azul Stellantis
+            renderer.setSeriesShapesVisible(indiceResaltado, true); // Asegurar que los puntos sean visibles
+        }
 
         plot.setRenderer(renderer);
         plot.setBackgroundPaint(Color.WHITE);
         plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
         plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
 
-        this.temaEstandar().apply(chart);
         return chart;
     }
 

@@ -113,6 +113,10 @@ public class ReporteExcelService {
 
     private void creaVolumenPorMarca(Set<DaoResumenPeriodo> filtrado, CrearExcel excel, String fecha){
         var contraPortada = service.getVolumenMarca(filtrado);
+        // solo se recupera el top 6 para graficar
+        int endIndex = Math.min(7, contraPortada.size());
+        var top = contraPortada.subList(0, endIndex);
+
         // Volumen por Marca
 
         var contra = excel.CrearHoja(fecha);
@@ -120,7 +124,7 @@ public class ReporteExcelService {
 
         posContra.setCol(2);
         posContra.addRows(2);
-        excel.InsertarGrafica(contra, graficas.generarGraficaLineasMarcas("Ventas Mensuales por Fabricante", contraPortada), new PosicionGrafica(posContra, 2400, 800));
+        excel.InsertarGrafica(contra, graficas.generarGraficaLineasMarcas("Ventas Mensuales por Fabricante " + fecha, top), new PosicionGrafica(posContra, 2400, 800));
 
     }
 
