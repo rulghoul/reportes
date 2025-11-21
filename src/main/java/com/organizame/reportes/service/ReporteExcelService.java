@@ -56,7 +56,7 @@ public class ReporteExcelService {
         String fecha = fechaSmall.format(fechaInicial) + "-" + fechaSmall.format(request.getMesFinal());
 
         this.crearPortada(filtrado, excel, request, fecha);
-        this.creaVolumenPorMarca(filtrado, excel);
+        this.creaVolumenPorMarca(filtrado, excel, fecha);
         this.crearHojasPorSegmento(filtrado, excel, request, fecha);
         this.crearTopLineas(filtrado, excel, request, fecha);
         this.creaHojasporMarca(filtrado, excel, request, fecha);
@@ -73,7 +73,7 @@ public class ReporteExcelService {
         var portadaTotales = service.getPortadaTotales(filtrado);
         // Genera portada
 
-        var portada = excel.CrearHoja(fecha);
+        var portada = excel.CrearHoja(request.getOrigen());
         var portPos = new Posicion(2,2);
         portPos = excel.creaTexto(portada, "Acumulado " + fecha, portPos, 4);
         portPos.setCol(2);
@@ -111,16 +111,16 @@ public class ReporteExcelService {
 
     }
 
-    private void creaVolumenPorMarca(Set<DaoResumenPeriodo> filtrado, CrearExcel excel){
+    private void creaVolumenPorMarca(Set<DaoResumenPeriodo> filtrado, CrearExcel excel, String fecha){
         var contraPortada = service.getVolumenMarca(filtrado);
         // Volumen por Marca
 
-        var contra = excel.CrearHoja("contra");
+        var contra = excel.CrearHoja(fecha);
         Posicion posContra = excel.creaTablaEstilo(contra, contraPortada, 2, 2);
 
         posContra.setCol(2);
         posContra.addRows(2);
-        excel.InsertarGrafica(contra, graficas.LineChartFabricantes(contraPortada), new PosicionGrafica(posContra, 2400, 800));
+        excel.InsertarGrafica(contra, graficas.generarGraficaLineasMarcas("Ventas Mensuales por Fabricante", contraPortada), new PosicionGrafica(posContra, 2400, 800));
 
     }
 

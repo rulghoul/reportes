@@ -183,10 +183,24 @@ public class ReportePresentacionService {
 
     private void creaVolumenPorMarca(Set<DaoResumenPeriodo> filtrado, CrearPresentacion presentacion, RequestOrigen request, String fecha){
         var contraPortada = service.getVolumenMarca(filtrado);
+        int endIndex = Math.min(7, contraPortada.size());
+        var top = contraPortada.subList(0, endIndex);
         var diapositiva = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
+
+        //Calculo prcentaje top 6(o menos)
+        double totalOrigen = contraPortada.subList(1, contraPortada.size())
+                .stream().mapToDouble(valor -> (int) valor.getFila().getLast())
+                .sum();
+
+        double totalTop = top.subList(1, endIndex)
+                .stream().mapToDouble(valor -> (int) valor.getFila().getLast())
+                .sum();
+
+        double porcentaje = totalTop / totalOrigen * 100;
         // Volumen por Marca
         try{
-            presentacion.insertarGrafica(diapositiva, graficas.LineChartFabricantes(contraPortada),
+            presentacion.insertarGrafica(diapositiva,
+                    graficas.generarGraficaLineasMarcas("Ventas Mensuales por Fabricante " + fecha,top),
                     new PosicionGrafica(2, 2, 84, 49),
                     new PosicionGrafica(66, 2, 1280, 740));
         }catch (GraficaException e){
@@ -194,14 +208,17 @@ public class ReportePresentacionService {
         }
 
 
-        presentacion.creaTexto(diapositiva,"Estas 5 marcas representaron el 94.0% de la venta total correspondiente a los vehículos provenientes de {{ORIGEN}} durante el periodo {{PERIODO}}".replace("{{ORIGEN}}", request.getOrigen().toUpperCase())
+        presentacion.creaTexto(diapositiva,"Estas {{NUM_MARCAS}} marcas representaron el {{PORCENTAJE}}% de la venta total correspondiente a los vehículos provenientes de {{ORIGEN}} durante el periodo {{PERIODO}}"
+                        .replace("{{NUM_MARCAS}}",String.valueOf(endIndex-1))
+                        .replace("{{PORCENTAJE}}", formatoDecimal.format(porcentaje))
+                        .replace("{{ORIGEN}}", request.getOrigen().toUpperCase() )
                         .replace("{{PERIODO}}", fecha)
                 , new PosicionGrafica(2, 53, 84, 19), "normal");
 
         //Aqui se generaran los logos de las marcas y su numero de modelos
         var logosPos =new PosicionGrafica(88, 2, 20, 8);
         var nombrePos =new PosicionGrafica(108, 2, 20, 8);
-        contraPortada
+        top
                 .stream()
                 .filter(fila -> !fila.getFila().getFirst().toString().equalsIgnoreCase("Fabricante"))
                 .forEach(fabricante -> {
@@ -244,7 +261,6 @@ public class ReportePresentacionService {
         } catch (GraficaException e) {
             log.info("Fallo la creacion de la grafica por: {}", e.getMessage());
         }
-        log.info("El porcentaje es {}", this.formatoDecimal.format(porcentajeTop));
         var posTexto = new PosicionGrafica(4, 54, 90, 45);
         presentacion.creaTexto(diapositiva, "Estos 10 vehículos representan el {{PORCENTAJE}}% de las ventas totales que corresponden a las líneas provenientes de {{ORIGEN}} de {{PERIODO}}"
                         .replace("{{ORIGEN}}", request.getOrigen())
@@ -357,7 +373,7 @@ public class ReportePresentacionService {
                         .filter(dato -> dato.getModelo().equalsIgnoreCase(modelo))
                         .map(dato -> dato.getFabricante())
                         .findFirst().orElse("logo");
-                log.info("Se recuperaran las imagenes para el modelo {}  y la marca {}", modelo, fabricante);
+
                 var marca = this.images.recuperaMarca(fabricante);
                 var modeloImagen = this.images.recuperaModelo(fabricante, modelo);
                 log.info("Se recuperaron las imagenes para el modelo {}  y la marca {}", modelo, fabricante);

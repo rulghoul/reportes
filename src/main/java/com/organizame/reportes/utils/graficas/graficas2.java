@@ -2,6 +2,7 @@ package com.organizame.reportes.utils.graficas;
 
 import com.organizame.reportes.dto.DaoPeriodo;
 import com.organizame.reportes.dto.FilaTabla;
+import com.organizame.reportes.dto.VentasPorMes;
 import com.organizame.reportes.dto.auxiliar.PortadaTotales;
 import jakarta.validation.OverridesAttribute;
 import lombok.extern.slf4j.Slf4j;
@@ -123,6 +124,61 @@ public class graficas2 {
         Stroke grosor = new BasicStroke(3.5f);
         renderer.setDefaultStroke(grosor);
         plot.setRenderer(0, renderer);
+        return chart;
+    }
+
+    public JFreeChart generarGraficaLineasMarcas(String titulo, List<FilaTabla> tabla) {
+        DefaultCategoryDataset dataset = createDataset(tabla);
+
+        JFreeChart chart = ChartFactory.createLineChart(
+                titulo, "Mes", "Unidades Vendidas", dataset,
+                PlotOrientation.VERTICAL, true, true, false
+        );
+
+        this.tema.apply(chart);
+        chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(
+                org.jfree.chart.axis.CategoryLabelPositions.UP_45
+        );
+
+        CategoryPlot plot = chart.getCategoryPlot();
+        LineAndShapeRenderer renderer = new LineAndShapeRenderer();
+
+        // ✅ Métodos COMPATIBLES con 1.0.19
+        renderer.setDefaultShapesVisible(true);
+        renderer.setDefaultShapesFilled(true);
+        renderer.setDefaultItemLabelsVisible(true);
+        renderer.setDefaultItemLabelGenerator(
+                new StandardCategoryItemLabelGenerator("{2}", new DecimalFormat("#,##0"))
+        );
+        renderer.setDefaultPositiveItemLabelPosition(
+                new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BOTTOM_CENTER)
+        );
+
+        // ✅ Estilos: Stellantis más gruesa y punteada
+        renderer.setSeriesStroke(0, new BasicStroke(
+                4.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0f,
+                new float[]{8.0f, 6.0f}, 0.0f
+        ));
+        renderer.setSeriesPaint(0, new Color(30, 60, 100)); // Stellantis
+
+        renderer.setSeriesStroke(1, new BasicStroke(4.0f));
+        renderer.setSeriesPaint(1, new Color(255, 140, 0)); // Renault
+
+        renderer.setSeriesStroke(2, new BasicStroke(4.0f));
+        renderer.setSeriesPaint(2, new Color(0, 128, 0)); // VW
+
+        renderer.setSeriesStroke(3, new BasicStroke(4.0f));
+        renderer.setSeriesPaint(3, new Color(0, 100, 200)); // GM
+
+        renderer.setSeriesStroke(4, new BasicStroke(4.0f));
+        renderer.setSeriesPaint(4, new Color(128, 0, 128)); // Hyundai
+
+        plot.setRenderer(renderer);
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+        plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
+
+        this.temaEstandar().apply(chart);
         return chart;
     }
 

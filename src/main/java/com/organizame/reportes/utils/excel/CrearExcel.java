@@ -58,7 +58,7 @@ public class CrearExcel {
         if (hoja == null || hoja.isBlank()) {
             nombreHoja = "Nombre vacío";
         } else {
-            nombreHoja = hoja.trim().length() < 30 ? hoja.trim() : hoja.substring(0, 30).trim();
+            nombreHoja = hoja.trim().length() < 31 ? hoja.trim() : hoja.substring(0, 31).trim();
         }
 
         XSSFSheet sheet = wb.createSheet(nombreHoja);
