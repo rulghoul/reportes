@@ -11,6 +11,7 @@ import com.organizame.reportes.dto.auxiliar.ResumenHelp;
 import com.organizame.reportes.dto.request.RequestOrigen;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.repository.VhcModeloperiodoindustriaRepository2;
+import com.organizame.reportes.utils.Utilidades;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class ModeloPeriodoService {
 
     private final DateTimeFormatter toIntegerFormater;
     private final DateTimeFormatter mesAnioFormatter;
-    private final static Pattern patternSegmento = Pattern.compile("((.+?)\\s(?<segmento1>[\\w]{1,3})\\s.+)|(?<segmento2>.+)");
+    private final static Pattern patternSegmento = Pattern.compile("(?<segmento2>.+)");
 
 
     private LocalDate fechaFinal;
@@ -73,7 +74,7 @@ public class ModeloPeriodoService {
                                 this.recuperaMesAnioDate(dato.getPeriodoanio(), dato.getPeriodomes()),
                                 dato.getMarcaarchivo(),
                                 dato.getFabricantearchivo(),
-                                this.recuperaSegmento(dato.getSegmentoarchivo())) )
+                                Utilidades.sanitizeSheetName(dato.getSegmentoarchivo())) )
                 .collect(Collectors.toSet());
     }
 
@@ -360,11 +361,11 @@ public class ModeloPeriodoService {
                     Integer total = entry.getValue().getCantidad();
                     double porcentaje = totalGlobal > 0 ? (total.doubleValue() / totalGlobal.doubleValue())  : 0.0;
                     String estilo = buscador.test(entry.getValue().getFabricante()) ? "Stellantis" : "Estandar";
-                    tabla.add(new DaoPeriodo(nombre, total, porcentaje, estilo));
+                    tabla.add(new DaoPeriodo(entry.getValue().getFabricante(), nombre, total, porcentaje, estilo));
                 });
 
         // Fila total
-        tabla.add(new DaoPeriodo("TOTAL", totalGlobal, 1.0, "Total"));
+        tabla.add(new DaoPeriodo("TOTAL","TOTAL", totalGlobal, 1.0, "Total"));
 
 
         return tabla;

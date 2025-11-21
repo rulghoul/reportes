@@ -9,12 +9,13 @@ import java.util.List;
 @AllArgsConstructor
 public class DaoPeriodo {
 
+    private String fabicante;
     private String modelo;
     private Integer total;
     private double porcentaje;
     private String estilo;
 
-    public DaoPeriodo(String modelo, Integer total, double porcentaje){
+    public DaoPeriodo(String fabricante, String modelo, Integer total, double porcentaje){
         this.estilo = "Estandar";
         this.modelo = modelo;
         this.total = total;

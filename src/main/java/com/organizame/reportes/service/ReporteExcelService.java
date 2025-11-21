@@ -6,16 +6,13 @@ import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.dto.auxiliar.Acumulado;
 import com.organizame.reportes.dto.auxiliar.PortadaTotales;
 import com.organizame.reportes.dto.request.RequestOrigen;
-import com.organizame.reportes.exceptions.ExcelException;
 import com.organizame.reportes.exceptions.SinDatos;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.utils.excel.CrearExcel;
 import com.organizame.reportes.utils.excel.dto.Posicion;
 import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
-import com.organizame.reportes.utils.graficas.Graficas;
 import com.organizame.reportes.utils.graficas.graficas2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -109,7 +106,7 @@ public class ReporteExcelService {
         portPos.setRow(2);
         portPos.setCol(8);
 
-        var tituloGrafica = "Ventas por Origen " + request.getOrigen() + ", Industria y Market Share";
+        var tituloGrafica = "Ventas por Origen " + request.getOrigen() + ", Industria y Market Share para el periodo " + fecha;
         excel.InsertarGrafica(portada, graficas.createComboChart(tituloGrafica, portadaTotales, request.getOrigen()), new PosicionGrafica(portPos, 1600, 1000));
 
     }
@@ -143,7 +140,7 @@ public class ReporteExcelService {
                 .mapToInt(dP -> dP.getTotal())
                 .sum();
         var porcentajeTop = totalTop.doubleValue() / totalOrigen.getTotal().doubleValue() ;
-        var topTotal = new DaoPeriodo("Total Top",totalTop,porcentajeTop, "Encabezado");
+        var topTotal = new DaoPeriodo("TotalTop","Total Top",totalTop,porcentajeTop, "Encabezado");
 
         List<DaoPeriodo> soloTop = new ArrayList<>(cuerpo);
         soloTop.add(topTotal);

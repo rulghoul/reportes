@@ -196,12 +196,12 @@ public class TestGraficas {
      */
     private List<DaoPeriodo> datosParaBarras() {
         return List.of(
-                new DaoPeriodo("Modelo A", 50, 6.0),
-                new DaoPeriodo("Modelo B", 100, 23.0),
-                new DaoPeriodo("Modelo C", 150, 40.0),
-                new DaoPeriodo("Modelo D", 50, 10.0),
-                new DaoPeriodo("Modelo E", 100, 10.0),
-                new DaoPeriodo("Modelo F", 150, 10.0)
+                new DaoPeriodo("fabicante 2","Modelo A", 50, 6.0),
+                new DaoPeriodo("fabicante 1","Modelo B", 100, 23.0),
+                new DaoPeriodo("fabicante 2","Modelo C", 150, 40.0),
+                new DaoPeriodo("fabicante 1","Modelo D", 50, 10.0),
+                new DaoPeriodo("fabicante 2","Modelo E", 100, 10.0),
+                new DaoPeriodo("fabicante 1","Modelo F", 150, 10.0)
         );
     }
 

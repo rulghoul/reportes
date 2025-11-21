@@ -8,7 +8,9 @@ import com.organizame.reportes.dto.request.RequestOrigen;
 import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.exceptions.SinDatos;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
+import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
+import com.organizame.reportes.utils.graficas.Images;
 import com.organizame.reportes.utils.graficas.graficas2;
 import com.organizame.reportes.utils.presentacion.CrearPresentacion;
 import com.organizame.reportes.utils.presentacion.TipoDiapositiva;
@@ -22,6 +24,8 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -45,15 +49,21 @@ public class ReportePresentacionService {
 
     private  final ResourceLoader resourceLoader;
 
+    private final Images images;
+
     private  final graficas2 graficas;
 
     private String nombreArchivo;
+    
+    private final String STELANTIS = "Stellantis";
 
     @Autowired
-    public ReportePresentacionService(ModeloPeriodoService service, graficas2 graficas, ResourceLoader resourceLoader){
+    public ReportePresentacionService(ModeloPeriodoService service, graficas2 graficas,
+                                      ResourceLoader resourceLoader, Images images){
         this.service = service;
         this.graficas = graficas;
         this.resourceLoader = resourceLoader;
+        this.images = images;
         this.fechaSmall = DateTimeFormatter.ofPattern("MMMM 'del' yyyy");
         this.formatoDecimal = new DecimalFormat("#.#");
     }
@@ -122,14 +132,8 @@ public class ReportePresentacionService {
         var portada2 = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
 
         var portPos = new PosicionGrafica(2,2, 64, 35);
-        presentacion.creaTexto(portada2, """
-                        En la industria mexicana, 6 marcas
-                        comercializan {{MODELOS}} vehículos de
-                        origen {{ORIGEN}}. Durante el periodo {{PERIODO}},
-                        se vendieron {{UNIDADES}} unidades, lo que
-                        representó una participación de
-                        mercado del {{PARTICIPACION}}% del total de la industria
-                        """.replace("{{MODELOS}}", acumuladoCorregido.getLast().getLineas().toString())
+        presentacion.creaTexto(portada2, "En la industria mexicana, 6 marcas comercializan {{MODELOS}} vehículos de origen {{ORIGEN}}. Durante el periodo {{PERIODO}}, se vendieron {{UNIDADES}} unidades, lo que representó una participación de mercado del {{PARTICIPACION}}% del total de la industria"
+                        .replace("{{MODELOS}}", acumuladoCorregido.getLast().getLineas().toString())
                         .replace("{{ORIGEN}}", request.getOrigen().toUpperCase())
                         .replace("{{PERIODO}}", fecha)
                         .replace("{{UNIDADES}}", acumuladoCorregido.getLast().getVolumen().toString())
@@ -139,19 +143,14 @@ public class ReportePresentacionService {
         portPos.setRow(38);
 
         var stellantis = acumuladoCorregido.stream()
-                        .filter(acu -> acu.getFabricante().equalsIgnoreCase("STELLANTIS"))
+                        .filter(acu -> acu.getFabricante().equalsIgnoreCase(STELANTIS))
                                 .findFirst();
 
         if(stellantis.isPresent()) {
             var posicion = acumuladoCorregido.indexOf(stellantis.get());
-            var posicionString = convertirNumeroAOrdinal(posicion+1);
-            presentacion.creaTexto(portada2, """
-                            En el periodo {{PERIODO}}, Stellantis se
-                            posicionó en {{POSICION}} posición con una participación
-                            del {{PARTICIPACION}} de las ventas totales que corresponden a los
-                            vehículos importados desde {{ORIGEN}}, esto represento la
-                            comercialización de {{UNIDADES}} unidades.
-                            """.replace("{{ORIGEN}}", request.getOrigen().toUpperCase())
+            var posicionString = Utilidades.convertirNumeroAOrdinal(posicion+1);
+            presentacion.creaTexto(portada2, "En el periodo {{PERIODO}}, Stellantis se posicionó en {{POSICION}} posición con una participación del {{PARTICIPACION}} de las ventas totales que corresponden a los vehículos importados desde {{ORIGEN}}, esto represento la comercialización de {{UNIDADES}} unidades."
+                            .replace("{{ORIGEN}}", request.getOrigen().toUpperCase())
                             .replace("{{PERIODO}}", fecha)
                             .replace("{{POSICION}}", posicionString)
                             .replace("{{UNIDADES}}", stellantis.get().getVolumen().toString())
@@ -159,7 +158,7 @@ public class ReportePresentacionService {
                     , portPos, "normal");
         }
 
-        var portHeader = new FilaTabla("Encabezado", List.of("Marcas", "Número de lineas", "Volumen", "Peso", "% MS Industria total"));
+        var portHeader = new FilaTabla("Encabezado", List.of("Marcas", "Número de lineas", "Volumen", "Peso", "% MS Industria total para el periodo" + fecha));
         List<FilaTabla> acumuladosTabla = new ArrayList<>();
         acumuladosTabla.add(portHeader);
         acumuladosTabla.addAll(acumuladoCorregido.stream().map(acumulado -> acumulado.getFilaTabla(this.formatoDecimal)).toList());
@@ -171,7 +170,7 @@ public class ReportePresentacionService {
 
         try {
             var grafica = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
-            var tituloGrafica = "Ventas por Origen " + request.getOrigen() + ", Industria y Market Share";
+            var tituloGrafica = "Ventas por Origen " + request.getOrigen() + ", Industria y Market Share del periodo " + fecha;
 
             presentacion.insertarGrafica(grafica, graficas.createComboChart(tituloGrafica, portadaTotales, request.getOrigen()),
                     new PosicionGrafica(2, 2, 124, 70),
@@ -195,11 +194,7 @@ public class ReportePresentacionService {
         }
 
 
-        presentacion.creaTexto(diapositiva,"""
-        Estas 5 marcas representaron el 94.0% de la venta
-        total correspondiente a los vehículos provenientes de
-        {{ORIGEN}} durante el periodo {{PERIODO}}
-                """.replace("{{ORIGEN}}", request.getOrigen().toUpperCase())
+        presentacion.creaTexto(diapositiva,"Estas 5 marcas representaron el 94.0% de la venta total correspondiente a los vehículos provenientes de {{ORIGEN}} durante el periodo {{PERIODO}}".replace("{{ORIGEN}}", request.getOrigen().toUpperCase())
                         .replace("{{PERIODO}}", fecha)
                 , new PosicionGrafica(2, 53, 84, 19), "normal");
 
@@ -211,10 +206,10 @@ public class ReportePresentacionService {
                 .filter(fila -> !fila.getFila().getFirst().toString().equalsIgnoreCase("Fabricante"))
                 .forEach(fabricante -> {
                     try {
-                        var imagenResorce = this.cargarImagen("static/images/marcas/logo.png");
-                        presentacion.insertarImagen(diapositiva, logosPos, imagenResorce.getContentAsByteArray());
+                        var imagenResorce = this.images.recuperaMarca(fabricante.getFila().getFirst().toString().toLowerCase());
+                        presentacion.insertarImagen(diapositiva, logosPos, imagenResorce);
                     }catch (Exception e){
-                        log.warn("No se puedo cargar la imagen para la marca{}", fabricante.getFila().getFirst().toString());
+                        log.warn("No se puedo cargar la imagen para la marca {}", fabricante.getFila().getFirst().toString());
                     }
 
                     presentacion.creaTexto(diapositiva, fabricante.getFila().getFirst().toString(),
@@ -226,7 +221,7 @@ public class ReportePresentacionService {
     }
 
     private void crearTopLineas(Set<DaoResumenPeriodo> filtrado, CrearPresentacion presentacion, RequestOrigen request,String fecha) {
-        List<DaoPeriodo> resumenDatos = service.generarResumen(filtrado, DaoResumenPeriodo::getModelo, s -> s.equalsIgnoreCase("Stellantis"));
+        List<DaoPeriodo> resumenDatos = service.generarResumen(filtrado, DaoResumenPeriodo::getModelo, s -> s.equalsIgnoreCase(STELANTIS));
 
         var diapositiva = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
 
@@ -242,7 +237,7 @@ public class ReportePresentacionService {
         var graficaSize = new PosicionGrafica(2, 2, 900, 500);
 
 
-        var grafica = graficas.createChart(cuerpo, "Stellantis", "Top 10 ventas de vehículos origen "+request.getOrigen()+", " + fecha);
+        var grafica = graficas.createChart(cuerpo, STELANTIS, "Top 10 ventas de vehículos origen "+request.getOrigen()+", " + fecha);
 
         try {
             presentacion.insertarGrafica(diapositiva, grafica, posGrafica, graficaSize);
@@ -259,17 +254,23 @@ public class ReportePresentacionService {
 
 
         var logosPos =new PosicionGrafica(96, 2, 32, 8);
+        var marcaGanadora = resumenDatos.subList(1, resumenDatos.size()-1).getFirst().getFabicante();
         try {
-            var imagenResorce = this.cargarImagen("static/images/marcas/logo.png");
-            presentacion.insertarImagen(diapositiva, logosPos, imagenResorce.getContentAsByteArray());
+            var imagenResorce = this.images.recuperaMarca(marcaGanadora);
+            presentacion.insertarImagen(diapositiva, logosPos, imagenResorce);
         }catch (Exception e){
             log.warn("No se puedo cargar la imagen para la marca");
         }
 
         logosPos.addRows(10);
+        var primerLugar = resumenDatos.stream()
+                .filter(res -> res.getFabicante().equalsIgnoreCase(STELANTIS) )
+                .map(rs -> rs.getModelo())
+                .findFirst().orElse("ram700");
         try {
-            var imagenResorce = this.cargarImagen("static/images/marcas/modelo.png");
-            presentacion.insertarImagen(diapositiva, logosPos, imagenResorce.getContentAsByteArray());
+            log.info("Se intenta recuperar la imagen para la marca {} modelo {}", STELANTIS, primerLugar);
+            var imagenResorce = this.images.recuperaModelo(STELANTIS, primerLugar);
+            presentacion.insertarImagen(diapositiva, logosPos, imagenResorce);
         }catch (Exception e){
             log.warn("No se puedo cargar la imagen para la marca");
         }
@@ -277,8 +278,8 @@ public class ReportePresentacionService {
         logosPos.addRows(10);
 
         try {
-            var imagenResorce = this.cargarImagen("static/images/marcas/stellantis.png");
-            presentacion.insertarImagen(diapositiva, logosPos, imagenResorce.getContentAsByteArray());
+            var imagenResorce = this.images.recuperaMarca(STELANTIS);
+            presentacion.insertarImagen(diapositiva, logosPos, imagenResorce);
         }catch (Exception e){
             log.warn("No se puedo cargar la imagen para la marca");
         }
@@ -287,21 +288,28 @@ public class ReportePresentacionService {
         presentacion.creaTexto(diapositiva, this.getPosicionesTop(cuerpo), logosPos, "Destacado");
 
         logosPos.addRows(16);
+
+        var segundoLugar = resumenDatos.stream()
+                .filter(res -> !res.getModelo().equalsIgnoreCase(primerLugar))
+                .filter(res -> res.getFabicante().equalsIgnoreCase(STELANTIS) )
+                .map(rs -> rs.getModelo())
+                .findFirst().orElse("ram700");
         try {
-            var imagenResorce = this.cargarImagen("static/images/marcas/modelo.png");
-            presentacion.insertarImagen(diapositiva, logosPos, imagenResorce.getContentAsByteArray());
+            log.info("Se intenta recuperar la imagen para la marca {} modelo {}", STELANTIS, primerLugar);
+            var imagenResorce = this.images.recuperaModelo(STELANTIS, segundoLugar);
+            presentacion.insertarImagen(diapositiva, logosPos, imagenResorce);
         }catch (Exception e){
-            log.warn("No se puedo cargar la imagen para la marca");
+            log.warn("No se puedo cargar la imagen para la marca {} en el modelo {}", STELANTIS, segundoLugar);
         }
     }
 
     private String getPosicionesTop(List<DaoPeriodo> datos){
         StringBuilder resultado = new StringBuilder();
         var posiciones = IntStream.range(0, datos.size())
-                .filter(i -> datos.get(i).getEstilo().equalsIgnoreCase("STELLANTIS"))
+                .filter(i -> datos.get(i).getEstilo().equalsIgnoreCase(STELANTIS))
                 .mapToObj(i ->
                         this.capitalizar(datos.get(i).getModelo()) +
-                                " se posicionó en " + this.convertirNumeroAOrdinalShort(i + 1)
+                                " se posicionó en " + Utilidades.convertirNumeroAOrdinalShort(i + 1)
                 )
                 .toList();
         int size = posiciones.size();
@@ -338,18 +346,28 @@ public class ReportePresentacionService {
 
             //Tabla resumen
             var datosGrafica = graficas.generaDataset(segmentoResumen.get(segmento.getNombreTabla()));
-            var grafica =graficas.graficaBarras("Segmento de " + segmento.getNombreTabla() + " - Origen " + request.getOrigen() + " fechas",
+            var grafica =graficas.graficaBarras("Segmento de " + segmento.getNombreTabla() + " - Origen " + request.getOrigen() + " "+ fecha,
                     "Modelos" , "Participacion", datosGrafica);
             try {
-                var marca = this.cargarImagen("static/images/marcas/stellantis.png");
-                var modelo = this.cargarImagen("static/images/marcas/modelo.png");
+                //var marca = this.cargarImagen("static/images/marcas/stellantis.png");
+                //var modelo = this.cargarImagen("static/images/marcas/modelo.png");
+                var modelo = segmento.getDatos().get(1).getFila().getFirst().toString();
+
+                var fabricante = filtrado.stream()
+                        .filter(dato -> dato.getModelo().equalsIgnoreCase(modelo))
+                        .map(dato -> dato.getFabricante())
+                        .findFirst().orElse("logo");
+                log.info("Se recuperaran las imagenes para el modelo {}  y la marca {}", modelo, fabricante);
+                var marca = this.images.recuperaMarca(fabricante);
+                var modeloImagen = this.images.recuperaModelo(fabricante, modelo);
+                log.info("Se recuperaron las imagenes para el modelo {}  y la marca {}", modelo, fabricante);
                 if (operacion % 2 == 0) {
-                    this.dibujaGraficaIzquierda(presentacion, diapositiva, grafica, modelo, marca, "Arriba");
+                    this.dibujaGraficaIzquierda(presentacion, diapositiva, grafica, modeloImagen, marca, "Arriba");
                 }else{
-                    this.dibujaGraficaDerecha(presentacion, diapositiva, grafica, modelo, marca, "abajo");
+                    this.dibujaGraficaDerecha(presentacion, diapositiva, grafica, modeloImagen, marca, "abajo");
                 }
             }catch (Exception e){
-                log.warn("No se pudieron cargar las images ");
+                log.warn("No se pudieron cargar las images por: {}", e.getMessage());
             }
         }
     }
@@ -368,7 +386,7 @@ public class ReportePresentacionService {
             var totalMarca = service.getTotalFabricante(fabricante.getNombreTabla());
             var totalOrigen = fabricante.getTotal();
             var porcentaje = totalOrigen.doubleValue() / totalMarca.orElse(1).doubleValue() *100 ;
-            log.info("Se obtubo un porcentaje de {} para untotal global de {} y un total de origen de {}", porcentaje, totalMarca, totalOrigen);
+            log.debug("Se obtubo un porcentaje de {} para un total global de {} y un total de origen de {}", porcentaje, totalMarca, totalOrigen);
             if (operacion % 2 == 0) {
                 diapositiva = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
             }
@@ -378,7 +396,7 @@ public class ReportePresentacionService {
             }
 
             var datosGrafica = graficas.generaPieDataset(fabricanteResumen.get(fabricante.getNombreTabla()));
-            var grafica = graficas.graficaDonut("Volumen de ventas, origen " + request.getOrigen() + " " + fecha,
+            var grafica = graficas.graficaDonut("Volumen de ventas, origen " + request.getOrigen() + " " + fecha + " para la marca " + fabricante.getNombreTabla(),
                      datosGrafica);
 
             var mensaje = " El total de modelos " + fabricante.getNombreTabla() + " procedentes de "
@@ -387,15 +405,16 @@ public class ReportePresentacionService {
                     fecha;
 
             try {
-                var marca = this.cargarImagen("static/images/marcas/stellantis.png");
-                var modelo = this.cargarImagen("static/images/marcas/modelo.png");
+                var marca = this.images.recuperaMarca(fabricante.getNombreTabla());
+                var modelo = this.images.recuperaModelo(fabricante.getNombreTabla(),
+                        fabricante.getDatos().getFirst().getFila().getFirst().toString());
                 if (operacion % 2 == 0) {
                     this.dibujaGraficaIzquierda(presentacion, diapositiva, grafica, modelo, marca, mensaje);
                 }else{
                     this.dibujaGraficaDerecha(presentacion, diapositiva, grafica, modelo, marca, mensaje);
                 }
             }catch (Exception e){
-                log.warn("No se pudieron cargar las images ");
+                log.warn("No se pudieron cargar las images por {}", e.getMessage());
             }
         }
 
@@ -403,7 +422,7 @@ public class ReportePresentacionService {
 
     private void dibujaGraficaIzquierda(CrearPresentacion presentacion,
                                         XSLFSlide diapositiva, JFreeChart grafica,
-                                        Resource modeloResorce, Resource marcaResorce,
+                                        File modeloResorce, File marcaResorce,
                                         String mensaje){
         var graficaImagen = new PosicionGrafica(0,0,620,340);
         var graficaPocision = new PosicionGrafica(2,2,62, 34);
@@ -419,7 +438,7 @@ public class ReportePresentacionService {
 
     private void dibujaGraficaDerecha(CrearPresentacion presentacion,
                                       XSLFSlide diapositiva, JFreeChart grafica,
-                                      Resource modeloResorce, Resource marcaResorce,
+                                      File modeloResorce, File marcaResorce,
                                       String mensaje){
 
         var graficaImagen = new PosicionGrafica(0,0,620,340);
@@ -436,7 +455,7 @@ public class ReportePresentacionService {
 
     private void dibujaGraficaCompleta(CrearPresentacion presentacion,
                                        XSLFSlide diapositiva, JFreeChart grafica,
-                                       Resource modeloResorce, Resource marcaResorce,
+                                       File modeloResorce, File marcaResorce,
                                        String mensaje){ //Para stellantis
 
         var graficaImagen = new PosicionGrafica(0,0,640,350);
@@ -455,7 +474,7 @@ public class ReportePresentacionService {
                                           PosicionGrafica modelo, PosicionGrafica texto,
                                           CrearPresentacion presentacion,
                                           XSLFSlide diapositiva, JFreeChart grafica,
-                                          Resource modeloResorce, Resource marcaResorce,
+                                          File modeloResorce, File marcaResorce,
                                           String mensaje
                                           ){
 
@@ -467,13 +486,15 @@ public class ReportePresentacionService {
         presentacion.creaTexto(diapositiva, "Producto ganador", textoGanador,"Titulo");
 
         try{
-            presentacion.insertarImagen(diapositiva, marca, marcaResorce.getContentAsByteArray());
+            FileInputStream inputStream = new FileInputStream(marcaResorce);
+            presentacion.insertarImagen(diapositiva, marca, inputStream.readAllBytes());
         } catch (IOException e) {
             log.info("Fallo la creacion de la imagen del fabricante por: {}" , e.getMessage());
         }
 
         try{
-            presentacion.insertarImagen(diapositiva, modelo, modeloResorce.getContentAsByteArray());
+            FileInputStream inputStream = new FileInputStream(modeloResorce);
+            presentacion.insertarImagen(diapositiva, modelo, inputStream.readAllBytes());
         } catch (IOException e) {
             log.info("Fallo la creacion del modelo por: {}" , e.getMessage());
         }
@@ -482,51 +503,11 @@ public class ReportePresentacionService {
 
     }
 
-    private List<FilaTabla> creaResumen(List<DaoPeriodo> resumen, String fecha){
-        List<FilaTabla> resultado = new ArrayList<>();
-        resultado.add(new FilaTabla("Estandar",List.of("Modelo", fecha, "Part.")));
-        resultado.addAll(
-                resumen.stream().map(DaoPeriodo::toFilas)
-                        .toList()
-        );
-        return resultado;
-    }
 
     public String getNombreArchivo() {
         return nombreArchivo;
     }
 
-    private String convertirNumeroAOrdinal(int numero) {
-        return switch (numero) {
-            case 1 -> "Primera";
-            case 2 -> "Segunda";
-            case 3 -> "Tercera";
-            case 4 -> "Cuarta";
-            case 5 -> "Quinta";
-            case 6 -> "Sexta";
-            case 7 -> "Séptima";
-            case 8 -> "Octava";
-            case 9 -> "Novena";
-            case 10 -> "Décima";
-            default -> numero + "ª";
-        };
-    }
-
-    private String convertirNumeroAOrdinalShort(int numero) {
-        return switch (numero) {
-            case 1 -> "1ro";
-            case 2 -> "2do";
-            case 3 -> "3ro";
-            case 4 -> "4to";
-            case 5 -> "5to";
-            case 6 -> "6to";
-            case 7 -> "7mo";
-            case 8 -> "8vo";
-            case 9 -> "9no";
-            case 10 -> "10mo";
-            default -> numero + "ª";
-        };
-    }
 
     private List<ColorPresentacion> creaColoresBase(){
         List<ColorPresentacion> colores = new ArrayList<>();
@@ -540,7 +521,7 @@ public class ReportePresentacionService {
         // Colores de tablas
         colores.add(new ColorPresentacion("Encabezado", "002B7F", "FAFAFA", 12, true));
         colores.add(new ColorPresentacion("Estandar", "FFFFFF", "000000", 11, false));
-        colores.add(new ColorPresentacion("Stellantis", "96938E", "FAFAFA", 11, false));
+        colores.add(new ColorPresentacion(STELANTIS, "96938E", "FAFAFA", 11, false));
         colores.add(new ColorPresentacion("RowOdd", "FAFAFA", "000000", 11, false));
         colores.add(new ColorPresentacion("TOTAL", "000000", "FAFAFA", 11, true));
         //Color de la lina de divicion

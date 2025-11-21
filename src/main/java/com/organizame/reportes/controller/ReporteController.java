@@ -3,6 +3,7 @@ package com.organizame.reportes.controller;
 import com.organizame.reportes.dto.request.RequestOrigen;
 import com.organizame.reportes.exceptions.SinDatos;
 import com.organizame.reportes.service.ReporteExcelService;
+import com.organizame.reportes.service.ReportePDFService;
 import com.organizame.reportes.service.ReportePresentacionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,10 +29,13 @@ public class ReporteController {
 
     private final ReporteExcelService serviceLibro;
     private final ReportePresentacionService servicePresentacion;
+    private final ReportePDFService pdfService;
 
-    public ReporteController(ReporteExcelService service, ReportePresentacionService servicePresentacion){
+    public ReporteController(ReporteExcelService service, ReportePresentacionService servicePresentacion,
+                             ReportePDFService pdfService){
         this.serviceLibro = service;
         this.servicePresentacion = servicePresentacion;
+        this.pdfService = pdfService;
     }
 
     @Operation(summary = "regresa reporte Excel")
@@ -83,6 +87,40 @@ public class ReporteController {
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + archivo + ".pptx")
                     .contentType(MediaType.parseMediaType("application/vnd.ms-powerpoint"))
+                    .body(new InputStreamResource(resultado, "reporte"));
+        } catch (IOException e) {
+
+            log.error("Error al generar la Presentacion", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("mensaje", "No se pudo generar el archivo de Presentacion");
+            error.put("detalle", e.getMessage());
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(error);
+        }catch (SinDatos e){
+            return ResponseEntity.badRequest().body("Error en la petición: " + e.getMessage());
+        }
+    }
+
+    @Operation(summary = "regresa reporte en formato PDF")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
+    @PostMapping("/pdf")
+    @ResponseBody
+    public ResponseEntity<?>  reportePDF(@RequestBody RequestOrigen request){
+        try {
+            ByteArrayInputStream presentacion = servicePresentacion.CrearPresentacionOrigen(request);
+            var resultado = pdfService.ConviertePPTtoPDF(presentacion);
+            //Codigo para convertir en base64 String base64String = convertToBase64(resultado);
+            var archivo = servicePresentacion.getNombreArchivo();
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + archivo + ".pdf")
+                    .contentType(MediaType.parseMediaType("application/pdf"))
                     .body(new InputStreamResource(resultado, "reporte"));
         } catch (IOException e) {
 
