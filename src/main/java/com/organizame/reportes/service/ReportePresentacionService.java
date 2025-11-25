@@ -43,6 +43,10 @@ public class ReportePresentacionService {
 
     private final DecimalFormat formatoDecimal;
 
+    private final DecimalFormat formatoSpanish;
+
+    private final DecimalFormat formatSinDecimales;
+
     private  final DateTimeFormatter fechaSmall;
 
     private  final ModeloPeriodoService service;
@@ -66,9 +70,11 @@ public class ReportePresentacionService {
         this.images = images;
         this.fechaSmall = DateTimeFormatter.ofPattern("MMMM 'del' yyyy");
         this.formatoDecimal = new DecimalFormat("#.#");
+        this.formatoSpanish = new DecimalFormat("#,##0.00");
+        this.formatSinDecimales = new DecimalFormat("#,##0");
     }
 
-    public Resource cargarImagen(String rutaPlantilla) throws IOException {
+    public Resource cargarImagen(String rutaPlantilla) {
         return this.resourceLoader.getResource("classpath:" + rutaPlantilla);
     }
 
@@ -132,11 +138,12 @@ public class ReportePresentacionService {
         var portada2 = presentacion.crearDiapositiva(TipoDiapositiva.CONTENIDO);
 
         var portPos = new PosicionGrafica(2,2, 64, 35);
-        presentacion.creaTexto(portada2, "En la industria mexicana, 6 marcas comercializan {{MODELOS}} vehículos de origen {{ORIGEN}}. Durante el periodo {{PERIODO}}, se vendieron {{UNIDADES}} unidades, lo que representó una participación de mercado del {{PARTICIPACION}}% del total de la industria"
+        presentacion.creaTexto(portada2, "En la industria mexicana, {{NUM_MARCAS}} marcas comercializan {{MODELOS}} vehículos de origen {{ORIGEN}}. Durante el periodo {{PERIODO}}, se vendieron {{UNIDADES}} unidades, lo que representó una participación de mercado del {{PARTICIPACION}}% del total de la industria"
+                        .replace("{{NUM_MARCAS}}",String.valueOf(portadaAcumulados.size()-1))
                         .replace("{{MODELOS}}", acumuladoCorregido.getLast().getLineas().toString())
                         .replace("{{ORIGEN}}", request.getOrigen().toUpperCase())
                         .replace("{{PERIODO}}", fecha)
-                        .replace("{{UNIDADES}}", acumuladoCorregido.getLast().getVolumen().toString())
+                        .replace("{{UNIDADES}}", formatSinDecimales.format(acumuladoCorregido.getLast().getVolumen().intValue()))
                         .replace("{{PARTICIPACION}}", formatoDecimal.format(acumuladoCorregido.getLast().getPorcentajeIndustria()))
                 , portPos, "normal");
 
@@ -146,25 +153,26 @@ public class ReportePresentacionService {
                         .filter(acu -> acu.getFabricante().equalsIgnoreCase(STELANTIS))
                                 .findFirst();
 
+
         if(stellantis.isPresent()) {
             var posicion = acumuladoCorregido.indexOf(stellantis.get());
             var posicionString = Utilidades.convertirNumeroAOrdinal(posicion+1);
-            presentacion.creaTexto(portada2, "En el periodo {{PERIODO}}, Stellantis se posicionó en {{POSICION}} posición con una participación del {{PARTICIPACION}} de las ventas totales que corresponden a los vehículos importados desde {{ORIGEN}}, esto represento la comercialización de {{UNIDADES}} unidades."
+            presentacion.creaTexto(portada2, "En el periodo {{PERIODO}}, Stellantis se posicionó en {{POSICION}} posición con una participación del {{PARTICIPACION}}% de las ventas totales que corresponden a los vehículos importados desde {{ORIGEN}}, esto represento la comercialización de {{UNIDADES}} unidades."
                             .replace("{{ORIGEN}}", request.getOrigen().toUpperCase())
                             .replace("{{PERIODO}}", fecha)
                             .replace("{{POSICION}}", posicionString)
-                            .replace("{{UNIDADES}}", stellantis.get().getVolumen().toString())
-                            .replace("{{PARTICIPACION}}", formatoDecimal.format(stellantis.get().getPorcentajeIndustria()))
+                            .replace("{{UNIDADES}}", this.formatSinDecimales.format(stellantis.get().getVolumen().intValue()))
+                            .replace("{{PARTICIPACION}}", formatoDecimal.format(stellantis.get().getPeso()))
                     , portPos, "normal");
         }
 
-        var portHeader = new FilaTabla("Encabezado", List.of("Marcas", "Número de lineas", "Volumen", "Peso", "% MS Industria total para el periodo" + fecha));
+        var portHeader = new FilaTabla("Encabezado", List.of("Marcas", "Número de lineas", "Volumen", "Peso", "% MS Industria total" ));
         List<FilaTabla> acumuladosTabla = new ArrayList<>();
         acumuladosTabla.add(portHeader);
-        acumuladosTabla.addAll(acumuladoCorregido.stream().map(acumulado -> acumulado.getFilaTabla(this.formatoDecimal)).toList());
+        acumuladosTabla.addAll(acumuladoCorregido.stream().map(acumulado -> acumulado.getFilaTabla(this.formatSinDecimales,this.formatoSpanish)).toList());
         //Se imprime la tabla de acumulados
         portPos.setCol(66);
-        portPos.setRow(20);
+        portPos.setRow(2);
         portPos.setAlto(70);
         presentacion.creaTablaEstilo(portada2, acumuladosTabla, portPos, List.of(24,10, 10,10,10));
 
@@ -200,8 +208,9 @@ public class ReportePresentacionService {
         // Volumen por Marca
         try{
             presentacion.insertarGrafica(diapositiva,
-                    graficas.generarGraficaLineasMarcas("Ventas Mensuales por Fabricante " + fecha,top),
-                    new PosicionGrafica(2, 2, 84, 49),
+                    graficas.generarGraficaLineasMarcas("Top " + (endIndex -1)
+                            + " de marcas que comercializan modelos provenientes de " + request.getOrigen() + " del periodo "  + fecha,top),
+                    new PosicionGrafica(2, 3, 84, 49),
                     new PosicionGrafica(66, 2, 1280, 740));
         }catch (GraficaException e){
             log.info("Fallo la creacion de la grafica por: {}" , e.getMessage());
@@ -216,8 +225,8 @@ public class ReportePresentacionService {
                 , new PosicionGrafica(2, 53, 84, 19), "normal");
 
         //Aqui se generaran los logos de las marcas y su numero de modelos
-        var logosPos =new PosicionGrafica(88, 2, 20, 8);
-        var nombrePos =new PosicionGrafica(108, 2, 20, 8);
+        var logosPos =new PosicionGrafica(90, 8, 20, 8);
+        var nombrePos =new PosicionGrafica(112, 7, 20, 8);
         top
                 .stream()
                 .filter(fila -> !fila.getFila().getFirst().toString().equalsIgnoreCase("Fabricante"))
@@ -229,7 +238,12 @@ public class ReportePresentacionService {
                         log.warn("No se puedo cargar la imagen para la marca {}", fabricante.getFila().getFirst().toString());
                     }
 
-                    presentacion.creaTexto(diapositiva, fabricante.getFila().getFirst().toString(),
+                    //numero de modelos
+                    var numModelos = filtrado.stream()
+                            .filter(dato -> dato.getFabricante().equalsIgnoreCase(fabricante.getFila().getFirst().toString()))
+                                    .map(dato -> dato.getModelo())
+                                            .distinct().count();
+                    presentacion.creaTexto(diapositiva, numModelos + " modelos" ,
                             nombrePos, "Normal");
                     nombrePos.addRows(10);
                     logosPos.addRows(10);
@@ -244,7 +258,7 @@ public class ReportePresentacionService {
 
         //Recuperar solo los 10 modelos top
         var totalOrigen = resumenDatos.getLast();
-        var cuerpo = resumenDatos.subList(0, 9); //Estos son el top 10
+        var cuerpo = resumenDatos.subList(0, 10); //Estos son el top 10
         Integer totalTop = cuerpo.stream()
                 .mapToInt(dP -> dP.getTotal())
                 .sum();
@@ -460,9 +474,9 @@ public class ReportePresentacionService {
         var graficaImagen = new PosicionGrafica(0,0,620,340);
         var graficaPocision = new PosicionGrafica(66,39,62, 34);
 
-        var textoGanador = new PosicionGrafica(17, 38, 45,4);
+        var textoGanador = new PosicionGrafica(19, 38, 45,4);
         var marca = new PosicionGrafica(2, 38,16,8);
-        var modelo = new PosicionGrafica(37, 45, 38, 18);
+        var modelo = new PosicionGrafica(37, 40, 38, 18);
         var texto = new PosicionGrafica(2,62,62,10);
 
         this.dibujaGraficaDiapositiva(graficaImagen, graficaPocision, textoGanador, marca, modelo,
@@ -501,15 +515,14 @@ public class ReportePresentacionService {
         }
         presentacion.creaTexto(diapositiva, "Producto ganador", textoGanador,"Titulo");
 
-        try{
-            FileInputStream inputStream = new FileInputStream(marcaResorce);
-            presentacion.insertarImagen(diapositiva, marca, inputStream.readAllBytes());
+
+        try (FileInputStream inputStream = new FileInputStream(marcaResorce)) {
+                presentacion.insertarImagen(diapositiva, marca, inputStream.readAllBytes());
         } catch (IOException e) {
             log.info("Fallo la creacion de la imagen del fabricante por: {}" , e.getMessage());
         }
 
-        try{
-            FileInputStream inputStream = new FileInputStream(modeloResorce);
+        try (FileInputStream inputStream = new FileInputStream(modeloResorce)){
             presentacion.insertarImagen(diapositiva, modelo, inputStream.readAllBytes());
         } catch (IOException e) {
             log.info("Fallo la creacion del modelo por: {}" , e.getMessage());

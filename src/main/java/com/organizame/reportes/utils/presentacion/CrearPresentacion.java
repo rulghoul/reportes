@@ -134,11 +134,16 @@ public class CrearPresentacion {
             run.setFontColor(estilo.getFontColor());
             run.setBold(estilo.isBold());
 
+            if(col != 0){
+                paragraph.setTextAlign(TextParagraph.TextAlign.RIGHT);
+            }
+
             // Aplicar bordes negros finos
             cell.setBorderCap(TableCell.BorderEdge.bottom, StrokeStyle.LineCap.FLAT);
             cell.setBorderCap(TableCell.BorderEdge.top, StrokeStyle.LineCap.FLAT);
             cell.setBorderCap(TableCell.BorderEdge.left, StrokeStyle.LineCap.FLAT);
             cell.setBorderCap(TableCell.BorderEdge.right, StrokeStyle.LineCap.FLAT);
+
         }
     }
 

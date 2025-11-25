@@ -24,6 +24,7 @@ import java.util.*;
 @Service
 public class ReporteExcelService {
 
+
     private final DateTimeFormatter fechaSmall;
 
     private final ModeloPeriodoService service;
@@ -56,7 +57,7 @@ public class ReporteExcelService {
         String fecha = fechaSmall.format(fechaInicial) + "-" + fechaSmall.format(request.getMesFinal());
 
         this.crearPortada(filtrado, excel, request, fecha);
-        this.creaVolumenPorMarca(filtrado, excel, fecha);
+        this.creaVolumenPorMarca(filtrado, excel,request, fecha);
         this.crearHojasPorSegmento(filtrado, excel, request, fecha);
         this.crearTopLineas(filtrado, excel, request, fecha);
         this.creaHojasporMarca(filtrado, excel, request, fecha);
@@ -111,7 +112,7 @@ public class ReporteExcelService {
 
     }
 
-    private void creaVolumenPorMarca(Set<DaoResumenPeriodo> filtrado, CrearExcel excel, String fecha){
+    private void creaVolumenPorMarca(Set<DaoResumenPeriodo> filtrado, CrearExcel excel,RequestOrigen request, String fecha){
         var contraPortada = service.getVolumenMarca(filtrado);
         // solo se recupera el top 6 para graficar
         int endIndex = Math.min(7, contraPortada.size());
@@ -124,7 +125,9 @@ public class ReporteExcelService {
 
         posContra.setCol(2);
         posContra.addRows(2);
-        excel.InsertarGrafica(contra, graficas.generarGraficaLineasMarcas("Ventas Mensuales por Fabricante " + fecha, top), new PosicionGrafica(posContra, 2400, 800));
+        var titulo ="Top " + (endIndex -1)
+                + " de marcas que comercializan modelos provenientes de " + request.getOrigen() + " del periodo "  + fecha;
+        excel.InsertarGrafica(contra, graficas.generarGraficaLineasMarcas(titulo, top), new PosicionGrafica(posContra, 2400, 800));
 
     }
 
@@ -139,7 +142,7 @@ public class ReporteExcelService {
 
         //Recuoerar solo los 10 modelos topo
         var totalOrigen =resumenDatos.getLast();
-        var cuerpo = resumenDatos.subList(0,9);
+        var cuerpo = resumenDatos.subList(0,10);
         Integer totalTop = cuerpo.stream()
                 .mapToInt(dP -> dP.getTotal())
                 .sum();
