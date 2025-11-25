@@ -392,9 +392,9 @@ public class ReportePresentacionService {
                 var modeloImagen = this.images.recuperaModelo(fabricante, modelo);
                 log.info("Se recuperaron las imagenes para el modelo {}  y la marca {}", modelo, fabricante);
                 if (operacion % 2 == 0) {
-                    this.dibujaGraficaIzquierda(presentacion, diapositiva, grafica, modeloImagen, marca, "Arriba");
+                    this.dibujaGraficaIzquierda(presentacion, diapositiva, grafica, modeloImagen, marca, "");
                 }else{
-                    this.dibujaGraficaDerecha(presentacion, diapositiva, grafica, modeloImagen, marca, "abajo");
+                    this.dibujaGraficaDerecha(presentacion, diapositiva, grafica, modeloImagen, marca, "");
                 }
             }catch (Exception e){
                 log.warn("No se pudieron cargar las images por: {}", e.getMessage());
