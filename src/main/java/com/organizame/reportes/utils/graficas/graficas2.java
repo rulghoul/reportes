@@ -438,7 +438,7 @@ public class graficas2 {
                 new DecimalFormat("#,##0"),
                 new DecimalFormat("0%")
         ));
-        plot.setLabelFont(new Font("Tahoma", Font.BOLD, 12));
+        plot.setLabelFont(new Font("Tahoma", Font.BOLD, 18));
         plot.setLabelPaint(Color.BLACK);
         plot.setLabelBackgroundPaint(null);
         plot.setLabelOutlinePaint(null);
@@ -446,7 +446,7 @@ public class graficas2 {
 
 
         // ✅ Estilo general
-        chart.getTitle().setFont(new Font("Tahoma", Font.BOLD, 18));
+        chart.getTitle().setFont(new Font("Tahoma", Font.BOLD, 26));
         chart.setBackgroundPaint(Color.WHITE);
         plot.setBackgroundPaint(Color.WHITE);
         plot.setOutlineVisible(false);
