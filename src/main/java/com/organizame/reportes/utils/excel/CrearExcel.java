@@ -87,7 +87,7 @@ public class CrearExcel {
         return tabla.procesaTablaEstilo();
     }
 
-    public Posicion creaFila(XSSFSheet hoja, FilaTabla filaDatos, Posicion posicion, int ancho){
+    public Posicion creaFila(XSSFSheet hoja, FilaTabla filaDatos, Posicion posicion){
         Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
         return posicion;
     }

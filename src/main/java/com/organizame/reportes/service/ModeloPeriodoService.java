@@ -554,4 +554,14 @@ public class ModeloPeriodoService {
         return respuesta;
     }
 
+    // Rank
+
+    public List<VhcModeloperiodoindustria> findTotalUltimosMeses(LocalDate fechIni, LocalDate fechFin){
+        this.inicio = fechIni;
+        this.fechaFinal = fechFin;
+        int desde = Integer.parseInt(fechIni.format(toIntegerFormater));
+        int hasta = Integer.parseInt(fechFin.format(toIntegerFormater));
+        log.info("Desde {} Hasta {}", desde, hasta);
+        return repository.findTotalUltimosMeses(desde, hasta);
+    }
 }
