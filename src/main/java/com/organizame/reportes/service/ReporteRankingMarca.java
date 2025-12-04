@@ -123,20 +123,25 @@ public class ReporteRankingMarca {
         var acumuladosActual = this.service.getPortadaAcumulados(filtradoActual, totalActual,totalActual);
         var acumuladosAnterior = this.service.getPortadaAcumulados(filtradoAnterior, totalAnterior,totalAnterior);
 
-        var actualHeader = new FilaTabla("Encabezado",
-                List.of("RANKING " + periodoActual, "MARCA",
-                        "*AGENCIAS", "VENTAS " + periodoActual,
-                        "PROMEDIO DE VENTAS POR AGENCIA  MENSUAL " + periodoActual,
-                        "PROMEDIO DE VENTAS POR AGENCIA " + periodoActual,"","",
-                        "*AGENCIAS", "VENTAS " + periodoAnterior,
-                        "PROMEDIO DE VENTAS POR AGENCIA  MENSUAL " + periodoAnterior,
-                        "PROMEDIO DE VENTAS POR AGENCIA " + periodoAnterior,
-                        "RANKING " + periodoAnterior, "",
-                        "UNIDADES", "%")
-        );
+        List<Object> encabezado = List.of("RANKING " + periodoActual, "MARCA",
+                "*AGENCIAS", "VENTAS " + periodoActual,
+                "PROMEDIO DE VENTAS POR AGENCIA  MENSUAL " + periodoActual,
+                "PROMEDIO DE VENTAS POR AGENCIA " + periodoActual,"","",
+                "*AGENCIAS", "VENTAS " + periodoAnterior,
+                "PROMEDIO DE VENTAS POR AGENCIA  MENSUAL " + periodoAnterior,
+                "PROMEDIO DE VENTAS POR AGENCIA " + periodoAnterior,
+                "RANKING " + periodoAnterior, "");
+
+        var uno = new ArrayList<>(encabezado);
+        uno.add("DIFERENCIAS " + request.getAnio() + " Vs " + (request.getAnio() - 1));
+        var dos = new ArrayList<>(encabezado);
+        dos.add("UNIDADES");
+        dos.add("%");
+
+
         List<FilaTabla> filas = new ArrayList<>();
-        filas.add(actualHeader);
-        filas.add(actualHeader);
+        filas.add(new FilaTabla("Encabezado", uno));
+        filas.add(new FilaTabla("Encabezado", dos));
         var count = new AtomicInteger(1);
         var random = new Random(123456);
         filas.addAll(acumuladosActual.stream()
@@ -163,15 +168,15 @@ public class ReporteRankingMarca {
             hoja.addMergedRegion(new CellRangeAddress(portPos.getRow(), portPos.getRow()+1,
                     portPos.getCol()+i, portPos.getCol()+i));
         }
+
+        hoja.addMergedRegion(new CellRangeAddress(portPos.getRow(), portPos.getRow(),
+                16, 17));
         //fusionar celdas de separacion
         hoja.addMergedRegion(new CellRangeAddress(portPos.getRow()+2, portPos.getRow() +acumuladosActual.size(),
                 portPos.getCol()+7, portPos.getCol()+7));
         hoja.addMergedRegion(new CellRangeAddress(portPos.getRow()+2, portPos.getRow() +acumuladosActual.size(),
                 portPos.getCol()+13, portPos.getCol()+13));
 
-        //Resescribir el header
-        portPos.setCol(portPos.getCol()+14);
-        //excel.creaTexto(hoja,"DIFERENCIAS " + request.getAnio() + " Vs " + (request.getAnio() - 1), portPos, 1 );
 
         // Se colocan las flechas de estado
         this.semaforoFlechas(hoja, "I4:I50");
