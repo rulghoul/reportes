@@ -145,20 +145,25 @@ public class Tabla {
                 .filter(e -> e.getNombre().equalsIgnoreCase("Estandar")).findFirst().get());
         log.debug("Se recupero el estilo **{}** para la peticion de estilo {}", estilo.getNombre(), color);
         for (Object celda : fila) {
-            Cell cell = row.createCell(cellnum);
-            if (celda != null) {
-                if (primero) {
-                    cell.setCellStyle(encabezado);
-                } else {
-                    if ((elemento % 3) != 0) {
-                        cell.setCellStyle(estilo.getOdd());
+            try {
+                Cell cell = row.createCell(cellnum);
+                if (celda != null) {
+                    if (primero) {
+                        log.info("Celda {}", celda);
+                        cell.setCellStyle(encabezado);
                     } else {
-                        cell.setCellStyle(estilo.getNormal());
+                        if ((elemento % 3) != 0) {
+                            cell.setCellStyle(estilo.getOdd());
+                        } else {
+                            cell.setCellStyle(estilo.getNormal());
+                        }
                     }
                 }
+                this.trasnforma(cell, celda, ((elemento % 3) != 0), estilo);
+                cellnum++;
+            }catch (Exception e){
+                log.info("Fallo crear la celda {} por : {}", celda, e.getMessage());
             }
-            this.trasnforma(cell, celda, ((elemento % 3) != 0), estilo);
-            cellnum++;
         }
 
         //aplicar el autosize

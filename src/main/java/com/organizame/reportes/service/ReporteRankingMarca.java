@@ -3,15 +3,12 @@ package com.organizame.reportes.service;
 import com.organizame.reportes.dto.DaoResumenPeriodo;
 import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.dto.auxiliar.Acumulado;
-import com.organizame.reportes.dto.request.RequestOrigen;
 import com.organizame.reportes.dto.request.RequestRanking;
-import com.organizame.reportes.exceptions.ExcelException;
 import com.organizame.reportes.exceptions.SinDatos;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.utils.excel.ColorExcel;
 import com.organizame.reportes.utils.excel.CrearExcel;
 import com.organizame.reportes.utils.excel.dto.Posicion;
-import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
 import com.organizame.reportes.utils.graficas.graficas2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -29,8 +26,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static java.lang.Math.abs;
 
 @Slf4j
 @Service
@@ -104,8 +99,8 @@ public class ReporteRankingMarca {
         excel.agregaColor(new ColorExcel("Black","#000000", "#000000"));
 
 
-        String fecha = Month.of(1).getDisplayName(TextStyle.FULL, Locale.of("es", "MX")) + "-" +
-        Month.of(request.getMes()).getDisplayName(TextStyle.FULL, Locale.of("es", "MX"));
+        String fecha = (Month.of(1).getDisplayName(TextStyle.FULL, Locale.of("es", "MX")) + " - " +
+        Month.of(request.getMes()).getDisplayName(TextStyle.FULL, Locale.of("es", "MX"))).toUpperCase();
 
         this.crearRankingVs(filtradoActual, filtradoAnterior, totalActual, totalAnterior, excel, request, fecha);
         this.creaRanking(filtradoActual, totalActual, excel, request, fecha);
@@ -141,6 +136,7 @@ public class ReporteRankingMarca {
         );
         List<FilaTabla> filas = new ArrayList<>();
         filas.add(actualHeader);
+        filas.add(actualHeader);
         var count = new AtomicInteger(1);
         var random = new Random(123456);
         filas.addAll(acumuladosActual.stream()
@@ -160,24 +156,22 @@ public class ReporteRankingMarca {
                             request.getMes());
                 }
         ).toList());
-        var portPos = new Posicion(2,3);
+        var portPos = new Posicion(2,2);
         excel.creaTablaEstilo(hoja, filas, portPos);
         //modifica la fila de encabezados
         for(var i = 0; i < 14; i++){
-            hoja.addMergedRegion(new CellRangeAddress(portPos.getRow()-1, portPos.getRow(),
+            hoja.addMergedRegion(new CellRangeAddress(portPos.getRow(), portPos.getRow()+1,
                     portPos.getCol()+i, portPos.getCol()+i));
         }
         //fusionar celdas de separacion
-        hoja.addMergedRegion(new CellRangeAddress(portPos.getRow()+1, portPos.getRow() +acumuladosActual.size(),
+        hoja.addMergedRegion(new CellRangeAddress(portPos.getRow()+2, portPos.getRow() +acumuladosActual.size(),
                 portPos.getCol()+7, portPos.getCol()+7));
-        hoja.addMergedRegion(new CellRangeAddress(portPos.getRow()+1, portPos.getRow() +acumuladosActual.size(),
+        hoja.addMergedRegion(new CellRangeAddress(portPos.getRow()+2, portPos.getRow() +acumuladosActual.size(),
                 portPos.getCol()+13, portPos.getCol()+13));
 
         //Resescribir el header
-        portPos.setRow(portPos.getRow()-1);
-        excel.creaFila(hoja, actualHeader,portPos);
         portPos.setCol(portPos.getCol()+14);
-        excel.creaTexto(hoja,"DIFERENCIAS " + request.getAnio() + " Vs " + (request.getAnio() - 1), portPos, 2 );
+        //excel.creaTexto(hoja,"DIFERENCIAS " + request.getAnio() + " Vs " + (request.getAnio() - 1), portPos, 1 );
 
         // Se colocan las flechas de estado
         this.semaforoFlechas(hoja, "I4:I50");
