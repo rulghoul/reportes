@@ -14,6 +14,7 @@ import com.organizame.reportes.utils.graficas.graficas2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,15 +93,9 @@ public class ReporteRankingMarca {
 
         //Datos para hojas
         CrearExcel excel = new CrearExcel();
-        //Modifica los encabezados para este reporte
-        var encabezado = excel.getEncabezado();
-        encabezado.setWrapText(true);
-        encabezado.setAlignment(HorizontalAlignment.CENTER);
-        encabezado.setVerticalAlignment(VerticalAlignment.CENTER);
-        excel.setEncabezado(encabezado);
-        excel.agregaColor(new ColorExcel("Black","#000000", "#000000"));
-        excel.agregaColor(new ColorExcel("greyHeader","#BFBFBF", "#BFBFBF"));
-        excel.agregaColor(new ColorExcel("tile","#DEEBF7", "#DEEBF7"));
+
+        this.modifiStyle(excel);
+
         String fecha = (Month.of(1).getDisplayName(TextStyle.FULL, Locale.of("es", "MX")) + " - " +
         Month.of(request.getMes()).getDisplayName(TextStyle.FULL, Locale.of("es", "MX"))).toUpperCase();
 
@@ -115,6 +110,52 @@ public class ReporteRankingMarca {
 
         log.info("La creacion del excel fue: {} ms", duracionMillis);
         return excel.guardaExcel();
+    }
+
+    private void modifiStyle(CrearExcel excel){
+        //Modifica los encabezados para este reporte
+        var encabezado = excel.getEncabezado();
+        encabezado.setWrapText(true);
+        encabezado.setAlignment(HorizontalAlignment.CENTER);
+        encabezado.setVerticalAlignment(VerticalAlignment.CENTER);
+        excel.setEncabezado(encabezado);
+
+        var fuenteBlanca = excel.getWb().createFont();
+        fuenteBlanca.setColor(new XSSFColor(Utilidades.convierteRGB("FBFBFB"), null));
+        fuenteBlanca.setFontName(encabezado.getFont().getFontName());
+        fuenteBlanca.setFontHeight(encabezado.getFont().getFontHeight());
+        fuenteBlanca.setBold(true);
+        var fuenteNegra = excel.getWb().createFont();
+        fuenteNegra.setColor(new XSSFColor(Utilidades.convierteRGB("000000"), null));
+        fuenteNegra.setFontName(encabezado.getFont().getFontName());
+        fuenteNegra.setFontHeight(encabezado.getFont().getFontHeight());
+        fuenteNegra.setBold(true);
+        excel.agregaColor(new ColorExcel("Black","#000000", "#000000"));
+        excel.agregaColor(new ColorExcel("greyHeader","#BFBFBF", "#BFBFBF"));
+        excel.agregaColor(new ColorExcel("tile","#DEEBF7", "#DEEBF7"));
+        //Modifica Fuente
+        var nomEstilos = new ArrayList<>(Arrays.asList("greyHeader", "tile"));
+        excel.getEstilos().stream()
+                .filter(estilo -> nomEstilos.contains(estilo.getNombre()))
+                .forEach(estilo -> {
+                    estilo.getOdd().setBorderTop(BorderStyle.MEDIUM);
+                    estilo.getOdd().setBorderBottom(BorderStyle.MEDIUM);
+                    estilo.getOdd().setBorderLeft(BorderStyle.MEDIUM);
+                    estilo.getOdd().setBorderRight(BorderStyle.MEDIUM);
+                    estilo.getOdd().setWrapText(true);
+                    estilo.getOdd().setAlignment(HorizontalAlignment.CENTER);
+                    estilo.getOdd().setVerticalAlignment(VerticalAlignment.CENTER);
+                    estilo.getOdd().setFont(fuenteNegra);
+
+                    estilo.getNormal().setBorderTop(BorderStyle.MEDIUM);
+                    estilo.getNormal().setBorderBottom(BorderStyle.MEDIUM);
+                    estilo.getNormal().setBorderLeft(BorderStyle.MEDIUM);
+                    estilo.getNormal().setBorderRight(BorderStyle.MEDIUM);
+                    estilo.getNormal().setWrapText(true);
+                    estilo.getNormal().setAlignment(HorizontalAlignment.CENTER);
+                    estilo.getNormal().setVerticalAlignment(VerticalAlignment.CENTER);
+                    estilo.getNormal().setFont(fuenteNegra);
+                });
     }
 
     private void crearRankingVs(Set<DaoResumenPeriodo> filtradoActual, Set<DaoResumenPeriodo> filtradoAnterior, Integer totalActual, Integer totalAnterior, CrearExcel excel, RequestRanking request, String fecha) {
@@ -179,7 +220,7 @@ public class ReporteRankingMarca {
         List<Integer> separadores = Arrays.asList(portPos.getCol()+7, portPos.getCol()+13);
         this.changeStyleHeader(excel, hoja, portPos.getRow(), separadores, "black");
         List<Integer> grises = Arrays.asList(portPos.getCol(), portPos.getCol()+4, portPos.getCol()+5, portPos.getCol()+9, portPos.getCol()+10, portPos.getCol()+11);
-        this.changeStyleHeader(excel, hoja, portPos.getRow(), grises, "Stellantis");
+        this.changeStyleHeader(excel, hoja, portPos.getRow(), grises, "greyHeader");
         List<Integer> diferencias = Arrays.asList(portPos.getCol()+14, portPos.getCol()+15);
         this.changeStyleHeader(excel, hoja, portPos.getRow(), diferencias, "tile");
         this.changeStyleHeader(excel, hoja, portPos.getRow()+1, diferencias, "tile");
@@ -215,7 +256,7 @@ public class ReporteRankingMarca {
 
 
         // Se colocan las flechas de estado
-        this.semaforoFlechas(hoja, "I4:I50");
+        this.semaforoFlechas(hoja, "G4:G50");
         portPos.addRows(acumuladosActual.size() +2);
         this.creaNotaSemaforo(hoja, portPos, request.getAnio());
 
@@ -331,17 +372,14 @@ public class ReporteRankingMarca {
         cel2 = row.createCell(portPos.getCol()+1);
         cel2.setCellValue("AMDA: agencias de " + anio);
 
-        this.semaforoFlechas(hoja, "C"+ (portPos.getRow()+1) +":C" + (portPos.getRow() +3));
+        this.semaforoFlechas(hoja, "A"+ (portPos.getRow()+1) +":A" + (portPos.getRow() +3));
     }
 
     private void changeStyleHeader(CrearExcel excel,XSSFSheet hoja, Integer row, List<Integer> colums, String color){
         //Cambiar color de algunos encabezados
         var fila = hoja.getRow(row);
 
-        var estilo = excel.getEstilos().stream()
-                .filter(es -> es.getNombre().equalsIgnoreCase(color))
-                .map(es -> es.getNormal())
-                .findFirst().orElse(excel.getEncabezado());
+        var estilo = this.recuperaEstilo(excel, color);
 
         colums.forEach(colum -> {
             var celda = fila.getCell(colum);
@@ -349,6 +387,12 @@ public class ReporteRankingMarca {
         });
     }
 
+    private XSSFCellStyle recuperaEstilo(CrearExcel excel , String color){
+        return excel.getEstilos().stream()
+                .filter(es -> es.getNombre().equalsIgnoreCase(color))
+                .map(es -> es.getNormal())
+                .findFirst().orElse(excel.getEncabezado());
+    }
 
     public String getNombreArchivo() {
         return nombreArchivo;
