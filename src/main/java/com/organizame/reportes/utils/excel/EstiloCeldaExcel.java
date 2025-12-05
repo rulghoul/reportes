@@ -33,7 +33,7 @@ public class EstiloCeldaExcel {
 
     private final String nombre;
     private XSSFCellStyle normal;
-    private final XSSFCellStyle odd;
+    private XSSFCellStyle odd;
     private final XSSFCellStyle normalDate;
     private final XSSFCellStyle oddDate;
 

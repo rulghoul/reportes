@@ -5,7 +5,6 @@ import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.exceptions.ExcelException;
 import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.utils.SpringContext;
-import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.dto.Posicion;
 import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
 import lombok.Getter;
@@ -136,6 +135,9 @@ public class CrearExcel {
         resaltar.setFontHeightInPoints(fuenteSize.shortValue());
         resaltar.setBold(true);
         resaltar.setColor(IndexedColors.WHITE.getIndex());
+        encabezado.setWrapText(true);
+        encabezado.setAlignment(HorizontalAlignment.CENTER);
+        encabezado.setVerticalAlignment(VerticalAlignment.CENTER);
         encabezado.setFont(resaltar);
         encabezado.setBorderTop(BorderStyle.MEDIUM);
         encabezado.setBorderBottom(BorderStyle.MEDIUM);
@@ -155,6 +157,7 @@ public class CrearExcel {
         var colorEncabezado = new ColorExcel("Encabezado", "002B7F" ,"#002B7F");
         var estiloEncabezado = new EstiloCeldaExcel(colorEncabezado,wb);
         estiloEncabezado.setNormal(encabezado);
+        estiloEncabezado.setOdd(encabezado);
         estilos.add(estiloEncabezado);
         var colorTotal = new ColorExcel("Total", "00B050" ,"#00B050");
         var estiloTotal = new EstiloCeldaExcel(colorTotal,wb);

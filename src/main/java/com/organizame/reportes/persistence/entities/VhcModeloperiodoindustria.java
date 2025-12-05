@@ -33,6 +33,9 @@ public class VhcModeloperiodoindustria implements Serializable {
     @Column(name="PERIODOANIO", nullable=false)
     private int        periodoanio ;
 
+    @Column(name="PERIODO", nullable=false)
+    private int        periodo ;
+
     @Column(name="PERIODOMES", nullable=false)
     private int        periodomes ;
 

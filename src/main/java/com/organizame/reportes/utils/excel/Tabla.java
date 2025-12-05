@@ -185,7 +185,6 @@ public class Tabla {
                 case Double d -> {
                     cell.setCellValue(d);
                     if(Utilidades.evaluaNumero(d) == -1){
-                        log.info("Se cambia estilo a rojo par {}", d);
                         cell.setCellStyle(par ? rojo.getOddPorciento() : rojo.getNormalPorciento());
                     }else {
                         cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
@@ -198,7 +197,6 @@ public class Tabla {
                 case BigDecimal bd -> {
                     cell.setCellValue(bd.doubleValue());
                     if(Utilidades.evaluaNumero(bd.doubleValue()) == -1){
-                        log.info("Se cambia estilo a rojo par {}", bd);
                         cell.setCellStyle(par ? rojo.getOddPorciento() : rojo.getNormalPorciento());
                     }else {
                         cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
@@ -206,7 +204,6 @@ public class Tabla {
                 }
                 case Integer i -> {
                     if(Utilidades.evaluaNumero(i) == -1){
-                        log.info("Se cambia estilo a rojo par {}", i);
                         cell.setCellStyle(par ? rojo.getOdd() : rojo.getNormal());
                     }
                     cell.setCellValue(i);

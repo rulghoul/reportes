@@ -138,7 +138,7 @@ public class ReporteExcelService {
 
         var hoja = excel.CrearHoja("Top Líneas");
         //Tabla principal
-        var posicion = excel.creaTablaEstilo(hoja, top, 0, 0);
+        var posicion = excel.creaTablaEstilo(hoja, top, 2, 2);
 
         //Recuoerar solo los 10 modelos topo
         var totalOrigen =resumenDatos.getLast();
@@ -158,7 +158,7 @@ public class ReporteExcelService {
         posicion.setRow(posicion.getRow()+2);
         var posGrafica = new PosicionGrafica(posicion,1200, 800);
         //Tabla resumen
-        posicion = excel.creaTablaEstilo(hoja, resumen, 0, posicion.getRow());
+        posicion = excel.creaTablaEstilo(hoja, resumen, 2, posicion.getRow());
         var topGrafica = soloTop.subList(0,soloTop.size()-2);
 
         var grafica =graficas.createChart( topGrafica, "Stellantis",
@@ -176,12 +176,12 @@ public class ReporteExcelService {
         segmentos.forEach(segmento -> {
             var hoja = excel.CrearHoja(segmento.getNombreTabla());
             //Tabla principal
-            var posicion = excel.creaTablaEstilo(hoja, segmento.getDatos(), 0, 0);
+            var posicion = excel.creaTablaEstilo(hoja, segmento.getDatos(), 2, 2);
             var resumen = this.creaResumen(segmentoResumen.get(segmento.getNombreTabla()), fecha);
             posicion.setRow(posicion.getRow()+2);
             var posGrafica = new PosicionGrafica(posicion,1200, 800);
             //Tabla resumen
-            posicion = excel.creaTablaEstilo(hoja, resumen, 0, posicion.getRow());
+            posicion = excel.creaTablaEstilo(hoja, resumen, 2, posicion.getRow());
             var datosGrafica = graficas.generaDataset(segmentoResumen.get(segmento.getNombreTabla()));
             var grafica =graficas.graficaBarras("Segmento de " + segmento.getNombreTabla() + " - Origen " + request.getOrigen() + " fechas",
                     "Modelos" , "Participacion", datosGrafica);
@@ -200,12 +200,12 @@ public class ReporteExcelService {
         fabricantes.forEach(fabricante -> {
             var hoja = excel.CrearHoja(fabricante.getNombreTabla());
             //Tabla princial
-            var posicion = excel.creaTablaEstilo(hoja, fabricante.getDatos(), 0, 0);
+            var posicion = excel.creaTablaEstilo(hoja, fabricante.getDatos(), 2, 2);
             var resumen = this.creaResumen(fabricanteResumen.get(fabricante.getNombreTabla()), fecha);
             posicion.setRow(posicion.getRow()+2);
             var posGrafica = new PosicionGrafica(posicion,1200, 800);
             //Tabla resumen
-            posicion = excel.creaTablaEstilo(hoja, resumen, 0, posicion.getRow());
+            posicion = excel.creaTablaEstilo(hoja, resumen, 2, posicion.getRow());
             var datosGrafica = graficas.generaPieDataset(fabricanteResumen.get(fabricante.getNombreTabla()));
             var grafica = graficas.graficaDonut("Volumen de ventas, origen " + request.getOrigen() + " " + fecha,
                     datosGrafica);

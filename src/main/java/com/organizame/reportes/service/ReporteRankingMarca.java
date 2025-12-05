@@ -99,6 +99,8 @@ public class ReporteRankingMarca {
         encabezado.setVerticalAlignment(VerticalAlignment.CENTER);
         excel.setEncabezado(encabezado);
         excel.agregaColor(new ColorExcel("Black","#000000", "#000000"));
+        excel.agregaColor(new ColorExcel("greyHeader","#BFBFBF", "#BFBFBF"));
+        excel.agregaColor(new ColorExcel("tile","#DEEBF7", "#DEEBF7"));
         String fecha = (Month.of(1).getDisplayName(TextStyle.FULL, Locale.of("es", "MX")) + " - " +
         Month.of(request.getMes()).getDisplayName(TextStyle.FULL, Locale.of("es", "MX"))).toUpperCase();
 
@@ -119,10 +121,6 @@ public class ReporteRankingMarca {
         String nomHoja = "Ranking " + request.getAnio() + " Vs " + (request.getAnio() - 1);
         String periodoActual = fecha + " " +  request.getAnio();
         String periodoAnterior = fecha + " " +  ( request.getAnio() -1 );
-        var black = excel.getEstilos().stream()
-                .filter(es -> es.getNombre().equalsIgnoreCase("Black"))
-                .map(es -> es.getNormal())
-                .findFirst().orElse(excel.getEncabezado());
 
         var hoja =  excel.CrearHoja(nomHoja);
 
@@ -140,6 +138,7 @@ public class ReporteRankingMarca {
 
         var uno = new ArrayList<>(encabezado);
         uno.add("DIFERENCIAS " + request.getAnio() + " Vs " + (request.getAnio() - 1));
+        uno.add("");
         var dos = new ArrayList<>(encabezado);
         dos.add("UNIDADES");
         dos.add("%");
@@ -168,11 +167,23 @@ public class ReporteRankingMarca {
                 }
         ).toList());
 
-        var portPos = new Posicion(2,1);
+        var portPos = new Posicion(0,0);
         excel.creaTexto(hoja, "RANKING DE VENTAS POR AGENCIA DE MARCA", portPos, 6);
 
-        portPos.setRow(2);
+        portPos.setRow(1);
         excel.creaTablaEstilo(hoja, filas, portPos);
+
+
+        //Cambiar color de algunos encabezados
+        //estilo negro
+        List<Integer> separadores = Arrays.asList(portPos.getCol()+7, portPos.getCol()+13);
+        this.changeStyleHeader(excel, hoja, portPos.getRow(), separadores, "black");
+        List<Integer> grises = Arrays.asList(portPos.getCol(), portPos.getCol()+4, portPos.getCol()+5, portPos.getCol()+9, portPos.getCol()+10, portPos.getCol()+11);
+        this.changeStyleHeader(excel, hoja, portPos.getRow(), grises, "Stellantis");
+        List<Integer> diferencias = Arrays.asList(portPos.getCol()+14, portPos.getCol()+15);
+        this.changeStyleHeader(excel, hoja, portPos.getRow(), diferencias, "tile");
+        this.changeStyleHeader(excel, hoja, portPos.getRow()+1, diferencias, "tile");
+
 
         //Congelar filas y columnas
         hoja.createFreezePane(portPos.getCol()+2, portPos.getRow() +2);
@@ -207,6 +218,7 @@ public class ReporteRankingMarca {
         this.semaforoFlechas(hoja, "I4:I50");
         portPos.addRows(acumuladosActual.size() +2);
         this.creaNotaSemaforo(hoja, portPos, request.getAnio());
+
     }
 
     private void creaRanking(Set<DaoResumenPeriodo> filtradoActual, Integer totalActual, CrearExcel excel, RequestRanking request, String fecha) {
@@ -322,6 +334,20 @@ public class ReporteRankingMarca {
         this.semaforoFlechas(hoja, "C"+ (portPos.getRow()+1) +":C" + (portPos.getRow() +3));
     }
 
+    private void changeStyleHeader(CrearExcel excel,XSSFSheet hoja, Integer row, List<Integer> colums, String color){
+        //Cambiar color de algunos encabezados
+        var fila = hoja.getRow(row);
+
+        var estilo = excel.getEstilos().stream()
+                .filter(es -> es.getNombre().equalsIgnoreCase(color))
+                .map(es -> es.getNormal())
+                .findFirst().orElse(excel.getEncabezado());
+
+        colums.forEach(colum -> {
+            var celda = fila.getCell(colum);
+            celda.setCellStyle(estilo);
+        });
+    }
 
 
     public String getNombreArchivo() {
