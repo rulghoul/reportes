@@ -2,6 +2,7 @@ package com.organizame.reportes.utils.excel;
 
 import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.utils.SpringContext;
+import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.dto.Posicion;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.common.usermodel.HyperlinkType;
@@ -23,6 +24,8 @@ public class Tabla {
 
     private final List<EstiloCeldaExcel> estilos;
 
+    private final EstiloCeldaExcel rojo;
+
     private final XSSFCellStyle encabezado;
 
     private final XSSFSheet hoja;
@@ -43,6 +46,9 @@ public class Tabla {
         this.estilos = estilos;
         this.encabezado = encabezado;
         this.hoja = hoja;
+        this.rojo = estilos.stream().filter(est -> est.getNombre().equalsIgnoreCase("Rojo"))
+
+                .findFirst().orElse(estilos.get(0));
     }
 
 
@@ -145,11 +151,9 @@ public class Tabla {
                 .filter(e -> e.getNombre().equalsIgnoreCase("Estandar")).findFirst().get());
         log.debug("Se recupero el estilo **{}** para la peticion de estilo {}", estilo.getNombre(), color);
         for (Object celda : fila) {
-            try {
                 Cell cell = row.createCell(cellnum);
                 if (celda != null) {
                     if (primero) {
-                        log.info("Celda {}", celda);
                         cell.setCellStyle(encabezado);
                     } else {
                         if ((elemento % 3) != 0) {
@@ -161,9 +165,6 @@ public class Tabla {
                 }
                 this.trasnforma(cell, celda, ((elemento % 3) != 0), estilo);
                 cellnum++;
-            }catch (Exception e){
-                log.info("Fallo crear la celda {} por : {}", celda, e.getMessage());
-            }
         }
 
         //aplicar el autosize
@@ -183,7 +184,12 @@ public class Tabla {
                 case String s -> cell.setCellValue(s);
                 case Double d -> {
                     cell.setCellValue(d);
-                    cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
+                    if(Utilidades.evaluaNumero(d) == -1){
+                        log.info("Se cambia estilo a rojo par {}", d);
+                        cell.setCellStyle(par ? rojo.getOddPorciento() : rojo.getNormalPorciento());
+                    }else {
+                        cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
+                    }
                 }
                 case Date d -> {
                     cell.setCellValue(d);
@@ -191,9 +197,20 @@ public class Tabla {
                 }
                 case BigDecimal bd -> {
                     cell.setCellValue(bd.doubleValue());
-                    cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
+                    if(Utilidades.evaluaNumero(bd.doubleValue()) == -1){
+                        log.info("Se cambia estilo a rojo par {}", bd);
+                        cell.setCellStyle(par ? rojo.getOddPorciento() : rojo.getNormalPorciento());
+                    }else {
+                        cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
+                    }
                 }
-                case Integer i -> cell.setCellValue(i);
+                case Integer i -> {
+                    if(Utilidades.evaluaNumero(i) == -1){
+                        log.info("Se cambia estilo a rojo par {}", i);
+                        cell.setCellStyle(par ? rojo.getOdd() : rojo.getNormal());
+                    }
+                    cell.setCellValue(i);
+                }
                 case Boolean b -> cell.setCellValue(b ? "VERDADERO" : "FALSO");
                 case List<?> temp -> manejarArrayList(cell, temp);
                 case null, default -> {

@@ -5,6 +5,7 @@ import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.exceptions.ExcelException;
 import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.utils.SpringContext;
+import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.dto.Posicion;
 import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
 import lombok.Getter;
@@ -116,6 +117,17 @@ public class CrearExcel {
         Integer fuenteSize = env.getProperty("excel.font.size", Integer.class);
         //colores
         ColorExcel estandar = new ColorExcel("Estandar", "#FEFEFE", "F5F5F5");
+        ColorExcel rojo = new ColorExcel("Rojo", "#FEFEFE", "F5F5F5");
+        var estiloRojo = new EstiloCeldaExcel(rojo, wb);
+
+        var fuenteRojo = estiloRojo.getNormal().getFont();
+        fuenteRojo.setBold(true);
+        fuenteRojo.setColor(rojo.ConvierteRGB("#FF0000"));
+        estiloRojo.getNormal().setFont(fuenteRojo);
+        estiloRojo.getOdd().setFont(fuenteRojo);
+        estiloRojo.getOddPorciento().setFont(fuenteRojo);
+        estiloRojo.getNormalPorciento().setFont(fuenteRojo);
+
         XSSFColor azulObscuro = estandar.ConvierteRGB("002B7F");
 
         encabezado = wb.createCellStyle();
@@ -133,6 +145,7 @@ public class CrearExcel {
         encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         estilos.add(new EstiloCeldaExcel(estandar, wb));
+        estilos.add(estiloRojo);
         //Estilo Stellantis
         var colorEstellantis = new ColorExcel("Stellantis", "96938E" ,"#C7C5C2");
         var estiloEstellantis = new EstiloCeldaExcel(colorEstellantis, wb);

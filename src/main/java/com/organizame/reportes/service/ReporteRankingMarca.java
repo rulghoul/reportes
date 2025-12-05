@@ -6,6 +6,7 @@ import com.organizame.reportes.dto.auxiliar.Acumulado;
 import com.organizame.reportes.dto.request.RequestRanking;
 import com.organizame.reportes.exceptions.SinDatos;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
+import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.ColorExcel;
 import com.organizame.reportes.utils.excel.CrearExcel;
 import com.organizame.reportes.utils.excel.dto.Posicion;
@@ -13,6 +14,7 @@ import com.organizame.reportes.utils.graficas.graficas2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -72,11 +74,11 @@ public class ReporteRankingMarca {
                 .sum();
         long fin = System.nanoTime();
 
-
         long duracionNanos = fin - inicio;
         long duracionMillis = duracionNanos / 1_000_000;
 
         log.info("Recuperacion de datos fue: {} ms", duracionMillis);
+        inicio = System.nanoTime();
 
         if (resultadoActual.isEmpty()) {
             throw new SinDatos("No se encontraron datos para el origen el periodo de " +
@@ -97,8 +99,6 @@ public class ReporteRankingMarca {
         encabezado.setVerticalAlignment(VerticalAlignment.CENTER);
         excel.setEncabezado(encabezado);
         excel.agregaColor(new ColorExcel("Black","#000000", "#000000"));
-
-
         String fecha = (Month.of(1).getDisplayName(TextStyle.FULL, Locale.of("es", "MX")) + " - " +
         Month.of(request.getMes()).getDisplayName(TextStyle.FULL, Locale.of("es", "MX"))).toUpperCase();
 
@@ -106,6 +106,12 @@ public class ReporteRankingMarca {
         this.creaRanking(filtradoActual, totalActual, excel, request, fecha);
 
 
+        fin = System.nanoTime();
+
+        duracionNanos = fin - inicio;
+        duracionMillis = duracionNanos / 1_000_000;
+
+        log.info("La creacion del excel fue: {} ms", duracionMillis);
         return excel.guardaExcel();
     }
 
@@ -161,25 +167,46 @@ public class ReporteRankingMarca {
                             request.getMes());
                 }
         ).toList());
-        var portPos = new Posicion(2,2);
+
+        var portPos = new Posicion(2,1);
+        excel.creaTexto(hoja, "RANKING DE VENTAS POR AGENCIA DE MARCA", portPos, 6);
+
+        portPos.setRow(2);
         excel.creaTablaEstilo(hoja, filas, portPos);
-        //modifica la fila de encabezados
+
+        //Congelar filas y columnas
+        hoja.createFreezePane(portPos.getCol()+2, portPos.getRow() +2);
+
+        //modifica la fila de encabezados fucionando
         for(var i = 0; i < 14; i++){
-            hoja.addMergedRegion(new CellRangeAddress(portPos.getRow(), portPos.getRow()+1,
-                    portPos.getCol()+i, portPos.getCol()+i));
+            if(i == 7 || i == 13){
+                hoja.addMergedRegion(new CellRangeAddress(portPos.getRow(), portPos.getRow() + acumuladosActual.size(),
+                        portPos.getCol()+i, portPos.getCol()+i));
+            }else{
+                hoja.addMergedRegion(new CellRangeAddress(portPos.getRow(), portPos.getRow()+1,
+                        portPos.getCol()+i, portPos.getCol()+i));
+            }
         }
 
+        //Ajustar anchos
+        var anchos = List.of(25,60,20,30,40,30,5,1,20,30,40,30,25,1,15,20);
+        for(var i = 0; anchos.size() > i; i++ ){
+            hoja.setColumnWidth(portPos.getCol()+i, anchos.get(i)*150);
+        }
+
+        hoja.setColumnWidth(0, 1);
+        hoja.setColumnWidth(1, 1);
+
+
+        //Fucionar encabezado de diferencia
         hoja.addMergedRegion(new CellRangeAddress(portPos.getRow(), portPos.getRow(),
-                16, 17));
-        //fusionar celdas de separacion
-        hoja.addMergedRegion(new CellRangeAddress(portPos.getRow()+2, portPos.getRow() +acumuladosActual.size(),
-                portPos.getCol()+7, portPos.getCol()+7));
-        hoja.addMergedRegion(new CellRangeAddress(portPos.getRow()+2, portPos.getRow() +acumuladosActual.size(),
-                portPos.getCol()+13, portPos.getCol()+13));
+                portPos.getCol()+14, portPos.getCol()+15));
 
 
         // Se colocan las flechas de estado
         this.semaforoFlechas(hoja, "I4:I50");
+        portPos.addRows(acumuladosActual.size() +2);
+        this.creaNotaSemaforo(hoja, portPos, request.getAnio());
     }
 
     private void creaRanking(Set<DaoResumenPeriodo> filtradoActual, Integer totalActual, CrearExcel excel, RequestRanking request, String fecha) {
@@ -247,8 +274,8 @@ public class ReporteRankingMarca {
         var estilo = acumuladoActual.getFabricante().equalsIgnoreCase("Stellantis") ? "Stellantis" : "Estandar";
         estilo = acumuladoActual.getFabricante().equalsIgnoreCase("TOTAL") ? "TOTAL" : estilo;
         var diferenciaVolumen = acumuladoAnterior.getVolumen() - acumuladoActual.getVolumen();
-        var porcentajeDiferencia = acumuladoActual.getVolumen().doubleValue()/acumuladoAnterior.getVolumen().doubleValue();
-        var diferencia = evaluaNumero(diferenciaVolumen);
+        var porcentajeDiferencia = acumuladoActual.getVolumen().doubleValue()/acumuladoAnterior.getVolumen().doubleValue() * Utilidades.evaluaNumero(diferenciaVolumen);
+        var diferencia = Utilidades.evaluaNumero(diferenciaVolumen);
         return new FilaTabla(estilo, List.of(
                 rankingActual , acumuladoActual.getFabricante(),
                 agenciasActual, acumuladoActual.getVolumen(),
@@ -267,16 +294,34 @@ public class ReporteRankingMarca {
     }
 
 
+    private void creaNotaSemaforo(XSSFSheet hoja, Posicion portPos, Integer anio){
+        //Tabla de semaforo
 
-    private int evaluaNumero(int numero){
-        if(numero > 0){
-            return 1;
-        }
-        if(numero == 0){
-            return 0;
-        }
-        return -1;
+        var row = hoja.createRow(portPos.getRow());
+        var cel1 =  row.createCell(portPos.getCol());
+        cel1.setCellValue(-1);
+        var cel2 =  row.createCell(portPos.getCol()+1);
+        cel2.setCellValue("Bajo Volumen de ventas en " + anio + " en comparacion con el año anterior");
+        row = hoja.createRow(portPos.getRow()+1);
+        cel1 = row.createCell(portPos.getCol());
+        cel1.setCellValue(0);
+        cel2 =  row.createCell(portPos.getCol()+1);
+        cel2.setCellValue("Se mantiene Volumen de ventas en " + anio + " en comparacion con el año anterior");
+        row = hoja.createRow(portPos.getRow()+2);
+        cel1 = row.createCell(portPos.getCol());
+        cel1.setCellValue(1);
+        cel2 =  row.createCell(portPos.getCol()+1);
+        cel2.setCellValue("Sube Volumen de ventas en " + anio + " en comparacion con el año anterior");
+
+        row =  hoja.createRow(portPos.getRow()+3);
+        cel1 = row.createCell(portPos.getCol());
+        cel1.setCellValue("Fuente");
+        cel2 = row.createCell(portPos.getCol()+1);
+        cel2.setCellValue("AMDA: agencias de " + anio);
+
+        this.semaforoFlechas(hoja, "C"+ (portPos.getRow()+1) +":C" + (portPos.getRow() +3));
     }
+
 
 
     public String getNombreArchivo() {
