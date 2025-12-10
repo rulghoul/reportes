@@ -117,6 +117,7 @@ public class ReportePresentacionService {
         var acumuladoCorregido = portadaAcumulados.stream()
                 .map(acumulado -> {
                     return new Acumulado(
+                            acumulado.getMarca(),
                             acumulado.getFabricante(),
                             acumulado.getLineas(),
                             acumulado.getVolumen(),

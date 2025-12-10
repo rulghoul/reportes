@@ -9,8 +9,8 @@ import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.ColorExcel;
 import com.organizame.reportes.utils.excel.CrearExcel;
+import com.organizame.reportes.utils.excel.EstiloCeldaExcel;
 import com.organizame.reportes.utils.excel.dto.Posicion;
-import com.organizame.reportes.utils.graficas.graficas2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
@@ -38,22 +37,12 @@ public class ReporteRankingMarca {
 
     private final ModeloPeriodoService service;
 
-    private final graficas2 graficas;
-
-    private final DecimalFormat formatoSpanish;
-
-    private final DecimalFormat formatSinDecimales;
-
     private String nombreArchivo;
 
     @Autowired
-    public ReporteRankingMarca(ModeloPeriodoService service, graficas2 graficas) {
+    public ReporteRankingMarca(ModeloPeriodoService service) {
         this.service = service;
-        this.graficas = graficas;
         this.fechaSmall = DateTimeFormatter.ofPattern("MMMuu");
-        this.formatoSpanish = new DecimalFormat("#,##0.00");
-        this.formatSinDecimales = new DecimalFormat("#,##0");
-
     }
 
     public ByteArrayInputStream CrearExcelRanking(RequestRanking request) throws IOException {
@@ -67,11 +56,11 @@ public class ReporteRankingMarca {
 
         List<VhcModeloperiodoindustria> resultadoActual = service.findTotalUltimosMeses(eneroActual, mesActual);
         Integer totalActual = resultadoActual.stream()
-                .mapToInt(a -> a.getCantidad())
+                .mapToInt(VhcModeloperiodoindustria::getCantidad)
                 .sum();
         List<VhcModeloperiodoindustria> resultadoAnterior = service.findTotalUltimosMeses(eneroAnterior, mesAnterior);
         Integer totalAnterior = resultadoAnterior.stream()
-                .mapToInt(a -> a.getCantidad())
+                .mapToInt(VhcModeloperiodoindustria::getCantidad)
                 .sum();
         long fin = System.nanoTime();
 
@@ -194,13 +183,17 @@ public class ReporteRankingMarca {
                 .filter(acu -> !acu.getFabricante().equalsIgnoreCase("TOTAL"))
                 .map(acumulado -> {
                     var rankActual = count.getAndIncrement();
-                    var agenciaActual = random.nextInt(80, 150);
+                    var agenciaActual = this.getAgenciasPeriodo(acumulado,
+                            LocalDate.of(request.getAnio(), 1,1),
+                            LocalDate.of(request.getAnio(), 1,request.getMes()));
                     var acumuladoAnterior = acumuladosAnterior.stream()
                             .filter(acu -> acu.getFabricante().equalsIgnoreCase(acumulado.getFabricante()))
                             .findFirst();
                     Integer rankAnterior = acumuladoAnterior.isPresent() ? acumuladosAnterior.indexOf(acumuladoAnterior.get()) +1 : 99;
-                    var agenciaAnterior = random.nextInt(80, 150);
-                    var anterior = acumuladoAnterior.isPresent() ? acumuladoAnterior.get() : new Acumulado(acumulado.getFabricante(),0,0,0d,0d);
+                    var agenciaAnterior = this.getAgenciasPeriodo(acumulado,
+                            LocalDate.of(request.getAnio()-1, 1,1),
+                            LocalDate.of(request.getAnio()-1, 1,request.getMes()));
+                    var anterior = acumuladoAnterior.isPresent() ? acumuladoAnterior.get() : new Acumulado(null,"",0,0,0d,0d);
                     return this.getFilaTabla(acumulado, anterior,
                             agenciaActual, agenciaAnterior,
                             rankActual, rankAnterior,
@@ -240,6 +233,11 @@ public class ReporteRankingMarca {
             }
         }
 
+
+        //Fucionar encabezado de diferencia
+        hoja.addMergedRegion(new CellRangeAddress(portPos.getRow(), portPos.getRow(),
+                portPos.getCol()+14, portPos.getCol()+15));
+
         //Ajustar anchos
         var anchos = List.of(25,60,20,30,40,30,5,1,20,30,40,30,25,1,15,20);
         for(var i = 0; anchos.size() > i; i++ ){
@@ -250,9 +248,6 @@ public class ReporteRankingMarca {
         hoja.setColumnWidth(1, 1);
 
 
-        //Fucionar encabezado de diferencia
-        hoja.addMergedRegion(new CellRangeAddress(portPos.getRow(), portPos.getRow(),
-                portPos.getCol()+14, portPos.getCol()+15));
 
 
         // Se colocan las flechas de estado
@@ -260,6 +255,13 @@ public class ReporteRankingMarca {
         portPos.addRows(acumuladosActual.size() +2);
         this.creaNotaSemaforo(hoja, portPos, request.getAnio());
 
+    }
+
+
+    private Integer getAgenciasPeriodo(Acumulado acumulado, LocalDate inicio, LocalDate fin){
+        var resultado = this.service.findAgenciasMarca(inicio, fin, acumulado.getMarca());
+        return resultado.stream().mapToInt(res -> res.getCantidad())
+                .sum();
     }
 
     private void creaRanking(Set<DaoResumenPeriodo> filtradoActual, Integer totalActual, CrearExcel excel, RequestRanking request, String fecha) {
@@ -286,8 +288,13 @@ public class ReporteRankingMarca {
                     return this.getFilaTabla(acumulado, agencia, rank, request.getMes());
                 }
         ).toList());
-        var portPos = new Posicion(2,2);
+        var portPos = new Posicion(0,0);
         excel.creaTablaEstilo(hoja, filas, portPos);
+
+        var anchos = List.of(25,60,20,30,40,30,30);
+        for(var i = 0; anchos.size() > i; i++ ){
+            hoja.setColumnWidth(portPos.getCol()+i, anchos.get(i)*150);
+        }
 
     }
 
@@ -390,7 +397,7 @@ public class ReporteRankingMarca {
     private XSSFCellStyle recuperaEstilo(CrearExcel excel , String color){
         return excel.getEstilos().stream()
                 .filter(es -> es.getNombre().equalsIgnoreCase(color))
-                .map(es -> es.getNormal())
+                .map(EstiloCeldaExcel::getNormal)
                 .findFirst().orElse(excel.getEncabezado());
     }
 

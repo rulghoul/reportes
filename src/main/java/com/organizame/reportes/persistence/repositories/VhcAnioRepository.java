@@ -25,15 +25,5 @@ import com.organizame.reportes.persistence.entities.VhcAnio;
  */
 public interface VhcAnioRepository extends PagingAndSortingRepository<VhcAnio, byte[]> {
 
-	// Insert specific finders here 
 
-	//List<VhcAnio> findByXxx(String xxx);
-
-	//List<VhcAnio> findByXxxStartingWith(String xxx);
-
-	//List<VhcAnio> findByXxxContaining(String xxx);
-
-	//List<VhcAnio> findByYyy(BigDecimal yyy);
-
-	//List<VhcAnio> findByXxxContainingAndYyy(String xxx, BigDecimal yyy);
 }

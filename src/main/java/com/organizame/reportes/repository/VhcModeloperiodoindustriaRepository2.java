@@ -31,10 +31,11 @@ public interface VhcModeloperiodoindustriaRepository2 extends JpaRepository<VhcM
     @Query("""
                 select v 
                 from VhcModeloperiodoindustria v
-                where periodo between :desde and :hasta
+                where v.periodoanio = :anio and v.periodomes between :desde and :hasta
                 order by v.periodoanio, v.periodomes
             """)
     List<VhcModeloperiodoindustria> findTotalUltimosMeses(
+            @Param("anio") int anio,
             @Param("desde") int desde,
             @Param("hasta") int hasta
     );

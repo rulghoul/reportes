@@ -44,7 +44,10 @@ public class VhcMarca implements Serializable {
     private List<VhcMarcaplantilla> vhcmarcaplantillaList ; 
 
     @OneToMany(mappedBy="vhcmarca")
-    private List<VhcModelo> vhcmodeloList ; 
+    private List<VhcModelo> vhcmodeloList ;
+
+    @OneToMany(mappedBy="vhcmarca")
+    private List<VhcModelo> vhcmodeloperiodoindustriaList ;
 
     /**
      * Constructor

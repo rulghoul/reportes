@@ -6,6 +6,7 @@ package com.organizame.reportes.persistence.entities;
 
 import java.io.Serializable;
 import jakarta.persistence.*;
+import lombok.Data;
 
 /**
  * JPA entity class for "VhcModeloperiodoindustria"
@@ -13,6 +14,7 @@ import jakarta.persistence.*;
  * @author Telosys
  *
  */
+@Data
 @Entity
 @Table(name="vhc_modeloperiodoindustria", catalog="adistemdb" )
 public class VhcModeloperiodoindustria implements Serializable {
@@ -33,9 +35,6 @@ public class VhcModeloperiodoindustria implements Serializable {
     @Column(name="PERIODOANIO", nullable=false)
     private int        periodoanio ;
 
-    @Column(name="PERIODO", nullable=false)
-    private int        periodo ;
-
     @Column(name="PERIODOMES", nullable=false)
     private int        periodomes ;
 
@@ -54,13 +53,21 @@ public class VhcModeloperiodoindustria implements Serializable {
     @Column(name="MARCAARCHIVO", length=255)
     private String     marcaarchivo ;
 
+    @Lob
+    @Column(name="IDFABRICANTE")
+    private byte[]   idfabricante ;
+
     @Column(name="CANTIDAD", nullable=false)
     private int        cantidad ;
 
     //--- LINKS ( RELATIONSHIPS )
     @ManyToOne
     @JoinColumn(name="IDMODELO", referencedColumnName="IDMODELO", insertable=false, updatable=false)
-    private VhcModelo  vhcmodelo ; 
+    private VhcModelo  vhcmodelo ;
+
+    @ManyToOne
+    @JoinColumn(name="IDFABRICANTE", referencedColumnName="IDFABRICANTE", insertable=false, updatable=false)
+    private VhcFabricante  vhcFabricante ;
 
     /**
      * Constructor
@@ -68,80 +75,7 @@ public class VhcModeloperiodoindustria implements Serializable {
     public VhcModeloperiodoindustria() {
 		super();
     }
-    
-    public void setIdmodeloperiodoindustria( byte[] idmodeloperiodoindustria ) {
-        this.idmodeloperiodoindustria = idmodeloperiodoindustria ;
-    }
-    public byte[] getIdmodeloperiodoindustria() {
-        return this.idmodeloperiodoindustria;
-    }
 
-    public void setIdmodelo( byte[] idmodelo ) {
-        this.idmodelo = idmodelo ;
-    }
-    public byte[] getIdmodelo() {
-        return this.idmodelo;
-    }
-
-    public void setPeriodoanio( int periodoanio ) {
-        this.periodoanio = periodoanio ;
-    }
-    public int getPeriodoanio() {
-        return this.periodoanio;
-    }
-
-    public void setPeriodomes( int periodomes ) {
-        this.periodomes = periodomes ;
-    }
-    public int getPeriodomes() {
-        return this.periodomes;
-    }
-
-    public void setSegmentoarchivo( String segmentoarchivo ) {
-        this.segmentoarchivo = segmentoarchivo ;
-    }
-    public String getSegmentoarchivo() {
-        return this.segmentoarchivo;
-    }
-
-    public void setModeloarchivo( String modeloarchivo ) {
-        this.modeloarchivo = modeloarchivo ;
-    }
-    public String getModeloarchivo() {
-        return this.modeloarchivo;
-    }
-
-    public void setFabricantearchivo( String fabricantearchivo ) {
-        this.fabricantearchivo = fabricantearchivo ;
-    }
-    public String getFabricantearchivo() {
-        return this.fabricantearchivo;
-    }
-
-    public void setOrigenarchivo( String origenarchivo ) {
-        this.origenarchivo = origenarchivo ;
-    }
-    public String getOrigenarchivo() {
-        return this.origenarchivo;
-    }
-
-    public void setMarcaarchivo( String marcaarchivo ) {
-        this.marcaarchivo = marcaarchivo ;
-    }
-    public String getMarcaarchivo() {
-        return this.marcaarchivo;
-    }
-
-    public void setCantidad( int cantidad ) {
-        this.cantidad = cantidad ;
-    }
-    public int getCantidad() {
-        return this.cantidad;
-    }
-
-    public VhcModelo getVhcmodelo() {
-        return this.vhcmodelo;
-    } 
 
 	@Override
 	public String toString() { 
