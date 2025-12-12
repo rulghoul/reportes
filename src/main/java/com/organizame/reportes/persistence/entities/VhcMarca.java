@@ -4,9 +4,13 @@
  */
 package com.organizame.reportes.persistence.entities;
 
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
+
 import java.io.Serializable;
 import java.util.List;
-import jakarta.persistence.*;
+import java.util.Objects;
 
 /**
  * JPA entity class for "VhcMarca"
@@ -14,6 +18,10 @@ import jakarta.persistence.*;
  * @author Telosys
  *
  */
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Entity
 @Table(name="vhc_marca", catalog="adistemdb" )
 public class VhcMarca implements Serializable {
@@ -34,75 +42,23 @@ public class VhcMarca implements Serializable {
     private int        orden ;
 
     //--- LINKS ( RELATIONSHIPS )
-    @OneToMany(mappedBy="vhcmarca")
-    private List<VhcMarcaarchivo> vhcmarcaarchivoList ; 
+    @OneToMany(mappedBy="vhcmarca", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private List<VhcMarcaarchivo> vhcmarcaarchivoList ;
 
-    @OneToMany(mappedBy="vhcmarca")
-    private List<VhcMarcaperiodo> vhcmarcaperiodoList ; 
-
-    @OneToMany(mappedBy="vhcmarca")
-    private List<VhcMarcaplantilla> vhcmarcaplantillaList ; 
-
-    @OneToMany(mappedBy="vhcmarca")
-    private List<VhcModelo> vhcmodeloList ;
-
-    @OneToMany(mappedBy="vhcmarca")
-    private List<VhcModelo> vhcmodeloperiodoindustriaList ;
-
-    /**
-     * Constructor
-     */
-    public VhcMarca() {
-		super();
-    }
-    
-    public void setIdmarca( byte[] idmarca ) {
-        this.idmarca = idmarca ;
-    }
-    public byte[] getIdmarca() {
-        return this.idmarca;
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        VhcMarca vhcMarca = (VhcMarca) o;
+        return getIdmarca() != null && Objects.equals(getIdmarca(), vhcMarca.getIdmarca());
     }
 
-    public void setNombre( String nombre ) {
-        this.nombre = nombre ;
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
-    public String getNombre() {
-        return this.nombre;
-    }
-
-    public void setOrden( int orden ) {
-        this.orden = orden ;
-    }
-    public int getOrden() {
-        return this.orden;
-    }
-
-    public List<VhcMarcaarchivo> getVhcmarcaarchivoList() {
-        return this.vhcmarcaarchivoList;
-    } 
-
-    public List<VhcMarcaperiodo> getVhcmarcaperiodoList() {
-        return this.vhcmarcaperiodoList;
-    } 
-
-    public List<VhcMarcaplantilla> getVhcmarcaplantillaList() {
-        return this.vhcmarcaplantillaList;
-    } 
-
-    public List<VhcModelo> getVhcmodeloList() {
-        return this.vhcmodeloList;
-    } 
-
-	@Override
-	public String toString() { 
-		String separator = "|";
-		StringBuilder sb = new StringBuilder();
-		sb.append("VhcMarca[");
-		// attribute 'idmarca' (type byte[]) not usable in toString() 
-		sb.append("nombre=").append(nombre);
-		sb.append(separator).append("orden=").append(orden);
-		sb.append("]");
-		return sb.toString();
-	}
-
 }

@@ -3,7 +3,10 @@ package com.organizame.reportes.service;
 import com.organizame.reportes.dto.DaoResumenPeriodo;
 import com.organizame.reportes.dto.request.RequestRanking;
 import com.organizame.reportes.exceptions.SinDatos;
+import com.organizame.reportes.persistence.entities.BnkEstadofinanciero;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
+import com.organizame.reportes.repository.BnkEstadofinancieroRepository;
+import com.organizame.reportes.repository.service.EstadoFinancieroService;
 import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.ColorExcel;
 import com.organizame.reportes.utils.excel.CrearExcel;
@@ -30,12 +33,12 @@ public class ReporteFinaciero {
 
     private final DateTimeFormatter fechaSmall;
 
-    private final ModeloPeriodoService service;
+    private final EstadoFinancieroService service;
 
     private String nombreArchivo;
 
     @Autowired
-    public ReporteFinaciero(ModeloPeriodoService service) {
+    public ReporteFinaciero(EstadoFinancieroService service) {
         this.service = service;
         this.fechaSmall = DateTimeFormatter.ofPattern("MMMuu");
     }
@@ -49,14 +52,10 @@ public class ReporteFinaciero {
         var mesAnterior = LocalDate.of(request.getAnio() - 1, request.getMes(), 1);
         long inicio = System.nanoTime();
 
-        List<VhcModeloperiodoindustria> resultadoActual = service.findTotalUltimosMeses(eneroActual, mesActual);
-        Integer totalActual = resultadoActual.stream()
-                .mapToInt(VhcModeloperiodoindustria::getCantidad)
-                .sum();
-        List<VhcModeloperiodoindustria> resultadoAnterior = service.findTotalUltimosMeses(eneroAnterior, mesAnterior);
-        Integer totalAnterior = resultadoAnterior.stream()
-                .mapToInt(VhcModeloperiodoindustria::getCantidad)
-                .sum();
+        List<BnkEstadofinanciero> resultadoActual = service.findEstadoFechas(eneroActual, mesActual);
+
+        List<BnkEstadofinanciero> resultadoAnterior = service.findEstadoFechas(eneroAnterior, mesAnterior);
+
         long fin = System.nanoTime();
 
         long duracionNanos = fin - inicio;
@@ -72,8 +71,6 @@ public class ReporteFinaciero {
 
         this.nombreArchivo = "Ranking " + request.getAnio() + " Vs " + (request.getAnio() - 1);
         //Datos resumidos
-        Set<DaoResumenPeriodo> filtradoActual = service.ResumeData(resultadoActual);
-        Set<DaoResumenPeriodo> filtradoAnterior = service.ResumeData(resultadoAnterior);
 
         //Datos para hojas
         CrearExcel excel = new CrearExcel();
@@ -83,8 +80,7 @@ public class ReporteFinaciero {
         String fecha = (Month.of(1).getDisplayName(TextStyle.FULL, Locale.of("es", "MX")) + " - " +
                 Month.of(request.getMes()).getDisplayName(TextStyle.FULL, Locale.of("es", "MX"))).toUpperCase();
 
-        this.mensual(filtradoActual, filtradoAnterior, totalActual, totalAnterior, excel, request, fecha);
-        this.acumulado(filtradoActual, totalActual, excel, request, fecha);
+
 
 
         fin = System.nanoTime();

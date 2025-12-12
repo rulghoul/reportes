@@ -5,7 +5,10 @@ import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.dto.auxiliar.Acumulado;
 import com.organizame.reportes.dto.request.RequestRanking;
 import com.organizame.reportes.exceptions.SinDatos;
+import com.organizame.reportes.persistence.entities.VhcGrupo;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
+import com.organizame.reportes.repository.service.GruposService;
+import com.organizame.reportes.repository.service.ModeloPeriodoService;
 import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.ColorExcel;
 import com.organizame.reportes.utils.excel.CrearExcel;
@@ -37,11 +40,14 @@ public class ReporteRankingMarca {
 
     private final ModeloPeriodoService service;
 
+    private final GruposService grupoService;
+
     private String nombreArchivo;
 
     @Autowired
-    public ReporteRankingMarca(ModeloPeriodoService service) {
+    public ReporteRankingMarca(ModeloPeriodoService service, GruposService gruposService) {
         this.service = service;
+        this.grupoService = gruposService;
         this.fechaSmall = DateTimeFormatter.ofPattern("MMMuu");
     }
 
@@ -62,6 +68,9 @@ public class ReporteRankingMarca {
         Integer totalAnterior = resultadoAnterior.stream()
                 .mapToInt(VhcModeloperiodoindustria::getCantidad)
                 .sum();
+
+        var grupos = this.grupoService.findAll();
+
         long fin = System.nanoTime();
 
         long duracionNanos = fin - inicio;
@@ -88,8 +97,8 @@ public class ReporteRankingMarca {
         String fecha = (Month.of(1).getDisplayName(TextStyle.FULL, Locale.of("es", "MX")) + " - " +
         Month.of(request.getMes()).getDisplayName(TextStyle.FULL, Locale.of("es", "MX"))).toUpperCase();
 
-        this.crearRankingVs(filtradoActual, filtradoAnterior, totalActual, totalAnterior, excel, request, fecha);
-        this.creaRanking(filtradoActual, totalActual, excel, request, fecha);
+        this.crearRankingVs(filtradoActual, filtradoAnterior, grupos, totalActual, totalAnterior, excel, request, fecha);
+        this.creaRanking(filtradoActual, grupos, totalActual, excel, request, fecha);
 
 
         fin = System.nanoTime();
@@ -147,7 +156,9 @@ public class ReporteRankingMarca {
                 });
     }
 
-    private void crearRankingVs(Set<DaoResumenPeriodo> filtradoActual, Set<DaoResumenPeriodo> filtradoAnterior, Integer totalActual, Integer totalAnterior, CrearExcel excel, RequestRanking request, String fecha) {
+    private void crearRankingVs(Set<DaoResumenPeriodo> filtradoActual, Set<DaoResumenPeriodo> filtradoAnterior,
+                                List<VhcGrupo> grupos, Integer totalActual, Integer totalAnterior,
+                                CrearExcel excel, RequestRanking request, String fecha) {
         String nomHoja = "Ranking " + request.getAnio() + " Vs " + (request.getAnio() - 1);
         String periodoActual = fecha + " " +  request.getAnio();
         String periodoAnterior = fecha + " " +  ( request.getAnio() -1 );
@@ -185,14 +196,14 @@ public class ReporteRankingMarca {
                     var rankActual = count.getAndIncrement();
                     var agenciaActual = this.getAgenciasPeriodo(acumulado,
                             LocalDate.of(request.getAnio(), 1,1),
-                            LocalDate.of(request.getAnio(), 1,request.getMes()));
+                            LocalDate.of(request.getAnio(), request.getMes(),1));
                     var acumuladoAnterior = acumuladosAnterior.stream()
                             .filter(acu -> acu.getFabricante().equalsIgnoreCase(acumulado.getFabricante()))
                             .findFirst();
                     Integer rankAnterior = acumuladoAnterior.isPresent() ? acumuladosAnterior.indexOf(acumuladoAnterior.get()) +1 : 99;
                     var agenciaAnterior = this.getAgenciasPeriodo(acumulado,
                             LocalDate.of(request.getAnio()-1, 1,1),
-                            LocalDate.of(request.getAnio()-1, 1,request.getMes()));
+                            LocalDate.of(request.getAnio()-1, request.getMes(), 1));
                     var anterior = acumuladoAnterior.isPresent() ? acumuladoAnterior.get() : new Acumulado(null,"",0,0,0d,0d);
                     return this.getFilaTabla(acumulado, anterior,
                             agenciaActual, agenciaAnterior,
@@ -260,16 +271,17 @@ public class ReporteRankingMarca {
 
     private Integer getAgenciasPeriodo(Acumulado acumulado, LocalDate inicio, LocalDate fin){
         var resultado = this.service.findAgenciasMarca(inicio, fin, acumulado.getMarca());
-        return resultado.stream().mapToInt(res -> res.getCantidad())
+        return resultado.stream().mapToInt(res -> res.getVentapuntos())
                 .sum();
     }
 
-    private void creaRanking(Set<DaoResumenPeriodo> filtradoActual, Integer totalActual, CrearExcel excel, RequestRanking request, String fecha) {
+    private void creaRanking(Set<DaoResumenPeriodo> filtradoActual, List<VhcGrupo> grupos,
+                             Integer totalActual, CrearExcel excel, RequestRanking request, String fecha) {
 
         String nomHoja = "Ranking " + request.getAnio();
         String periodo = fecha + " " +  request.getAnio();
         XSSFSheet hoja = excel.CrearHoja(nomHoja);
-        var acumulados = this.service.getPortadaAcumulados(filtradoActual, totalActual,totalActual);
+        var acumuladosporGrupo = this.service.getPortadaAcumulados(filtradoActual, totalActual,totalActual);
 
         var portHeader = new FilaTabla("Encabezado",
                 List.of("RANKING " + periodo, "MARCA", "*AGENCIAS", "VENTAS " + periodo,
@@ -280,7 +292,7 @@ public class ReporteRankingMarca {
         filas.add(portHeader);
         var count = new AtomicInteger(1);
         var random = new Random(123456);
-        filas.addAll(acumulados.stream()
+        filas.addAll(acumuladosporGrupo.stream()
                 .filter(acu -> !acu.getFabricante().equalsIgnoreCase("TOTAL"))
                 .map(acumulado -> {
                     var rank = count.getAndIncrement();

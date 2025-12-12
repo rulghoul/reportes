@@ -6,6 +6,7 @@ package com.organizame.reportes.persistence.entities;
 
 import java.io.Serializable;
 import jakarta.persistence.*;
+import lombok.Data;
 
 /**
  * JPA entity class for "VhcMarcaperiodo"
@@ -13,6 +14,7 @@ import jakarta.persistence.*;
  * @author Telosys
  *
  */
+@Data
 @Entity
 @Table(name="vhc_marcaperiodo", catalog="adistemdb" )
 public class VhcMarcaperiodo implements Serializable {
@@ -42,66 +44,8 @@ public class VhcMarcaperiodo implements Serializable {
     //--- LINKS ( RELATIONSHIPS )
     @ManyToOne
     @JoinColumn(name="IDMARCA", referencedColumnName="IDMARCA", insertable=false, updatable=false)
-    private VhcMarca   vhcmarca ; 
+    private VhcMarca   vhcmarca ;
 
-    /**
-     * Constructor
-     */
-    public VhcMarcaperiodo() {
-		super();
-    }
-    
-    public void setIdmarcaperiodo( byte[] idmarcaperiodo ) {
-        this.idmarcaperiodo = idmarcaperiodo ;
-    }
-    public byte[] getIdmarcaperiodo() {
-        return this.idmarcaperiodo;
-    }
 
-    public void setIdmarca( byte[] idmarca ) {
-        this.idmarca = idmarca ;
-    }
-    public byte[] getIdmarca() {
-        return this.idmarca;
-    }
-
-    public void setPeriodoanio( int periodoanio ) {
-        this.periodoanio = periodoanio ;
-    }
-    public int getPeriodoanio() {
-        return this.periodoanio;
-    }
-
-    public void setPeriodomes( int periodomes ) {
-        this.periodomes = periodomes ;
-    }
-    public int getPeriodomes() {
-        return this.periodomes;
-    }
-
-    public void setVentapuntos( int ventapuntos ) {
-        this.ventapuntos = ventapuntos ;
-    }
-    public int getVentapuntos() {
-        return this.ventapuntos;
-    }
-
-    public VhcMarca getVhcmarca() {
-        return this.vhcmarca;
-    } 
-
-	@Override
-	public String toString() { 
-		String separator = "|";
-		StringBuilder sb = new StringBuilder();
-		sb.append("VhcMarcaperiodo[");
-		// attribute 'idmarcaperiodo' (type byte[]) not usable in toString() 
-		// attribute 'idmarca' (type byte[]) not usable in toString() 
-		sb.append("periodoanio=").append(periodoanio);
-		sb.append(separator).append("periodomes=").append(periodomes);
-		sb.append(separator).append("ventapuntos=").append(ventapuntos);
-		sb.append("]");
-		return sb.toString();
-	}
 
 }

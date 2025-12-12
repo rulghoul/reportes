@@ -1,4 +1,4 @@
-package com.organizame.reportes.service;
+package com.organizame.reportes.repository.service;
 
 
 import com.organizame.reportes.dto.DaoPeriodo;
@@ -9,8 +9,11 @@ import com.organizame.reportes.dto.auxiliar.Acumulado;
 import com.organizame.reportes.dto.auxiliar.PortadaTotales;
 import com.organizame.reportes.dto.auxiliar.ResumenHelp;
 import com.organizame.reportes.dto.request.RequestOrigen;
+import com.organizame.reportes.persistence.entities.VhcGrupo;
 import com.organizame.reportes.persistence.entities.VhcMarca;
+import com.organizame.reportes.persistence.entities.VhcMarcaperiodo;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
+import com.organizame.reportes.persistence.repositories.VhcGrupoRepository;
 import com.organizame.reportes.persistence.repositories.VhcMarcaperiodoRepository;
 import com.organizame.reportes.repository.VhcModeloperiodoindustriaRepository2;
 import com.organizame.reportes.utils.Utilidades;
@@ -35,6 +38,8 @@ public class ModeloPeriodoService {
 
     private final VhcMarcaperiodoRepository marcaRepository;
 
+    private final VhcGrupoRepository grupoRepository;
+
     private final DateTimeFormatter toIntegerFormater;
     private final DateTimeFormatter mesAnioFormatter;
     private final static Pattern patternSegmento = Pattern.compile("(?<segmento2>.+)");
@@ -44,9 +49,11 @@ public class ModeloPeriodoService {
     private LocalDate inicio;
 
     @Autowired
-    public  ModeloPeriodoService(VhcModeloperiodoindustriaRepository2 repository, VhcMarcaperiodoRepository marcaRepository){
+    public ModeloPeriodoService(VhcModeloperiodoindustriaRepository2 repository, VhcMarcaperiodoRepository marcaRepository
+            , VhcGrupoRepository grupoRepository){
         this.repository = repository;
         this.marcaRepository = marcaRepository;
+        this.grupoRepository = grupoRepository;
         this.toIntegerFormater = DateTimeFormatter.ofPattern("yyyyMM");
         this.mesAnioFormatter = DateTimeFormatter.ofPattern("MMM-yyyy");
     }
@@ -70,18 +77,33 @@ public class ModeloPeriodoService {
     }
 
     public Set<DaoResumenPeriodo> ResumeData(Collection<VhcModeloperiodoindustria> datos){
+        var grupos = grupoRepository.findAll();
         return datos.stream()
-                .map( dato ->
-                        new DaoResumenPeriodo(
-                                dato.getVhcmodelo(),
-                                dato.getModeloarchivo(),
-                                dato.getCantidad(),
-                                this.recuperaMesAnioLabel(dato.getPeriodoanio(), dato.getPeriodomes()),
-                                this.recuperaMesAnioDate(dato.getPeriodoanio(), dato.getPeriodomes()),
-                                dato.getVhcFabricante(),
-                                dato.getMarcaarchivo(),
-                                dato.getFabricantearchivo(),
-                                Utilidades.sanitizeSheetName(dato.getSegmentoarchivo())) )
+                .map( dato -> {
+
+                    var grupo = grupos.stream()
+                            .filter(grup ->
+                                    grup.getVhcgrupomarcaList().stream()
+                                            //.peek(marc -> log.info("Probar marca {} es parte del grupo {}", dato.getVhcmodelo().getVhcmarca().getNombre(), marc.getVhcgrupo().getNombre()))
+                                            .filter(marc -> marc.getVhcMarca().equals(dato.getVhcmodelo().getVhcmarca()))
+                                            .findFirst().isPresent()
+                            )
+                            .peek(grup -> log.info("La marca {} es parte del grupo {}", dato.getVhcmodelo().getVhcmarca().getNombre(), grup.getNombre()))
+                            .findFirst();
+                    String nombre = grupo.isPresent()
+                            ? grupo.get().getNombre()
+                            : dato.getFabricantearchivo();
+                    return new DaoResumenPeriodo(
+                            dato.getVhcmodelo(),
+                            dato.getModeloarchivo(),
+                            dato.getCantidad(),
+                            this.recuperaMesAnioLabel(dato.getPeriodoanio(), dato.getPeriodomes()),
+                            this.recuperaMesAnioDate(dato.getPeriodoanio(), dato.getPeriodomes()),
+                            dato.getVhcFabricante(),
+                            dato.getMarcaarchivo(),
+                            nombre,
+                            Utilidades.sanitizeSheetName(dato.getSegmentoarchivo()));
+                })
                 .collect(Collectors.toSet());
     }
 
@@ -573,7 +595,7 @@ public class ModeloPeriodoService {
         return repository.findTotalUltimosMeses(fechIni.getYear(), fechIni.getMonth().getValue(), fechFin.getMonth().getValue());
     }
 
-    public List<VhcModeloperiodoindustria> findAgenciasMarca(LocalDate fechIni, LocalDate fechFin, VhcMarca marca){
+    public List<VhcMarcaperiodo> findAgenciasMarca(LocalDate fechIni, LocalDate fechFin, VhcMarca marca){
         this.inicio = fechIni;
         this.fechaFinal = fechFin;
         int desde = Integer.parseInt(fechIni.format(toIntegerFormater));

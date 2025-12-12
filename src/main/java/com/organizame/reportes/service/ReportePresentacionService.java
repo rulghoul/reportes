@@ -8,6 +8,7 @@ import com.organizame.reportes.dto.request.RequestOrigen;
 import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.exceptions.SinDatos;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
+import com.organizame.reportes.repository.service.ModeloPeriodoService;
 import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
 import com.organizame.reportes.utils.graficas.Images;

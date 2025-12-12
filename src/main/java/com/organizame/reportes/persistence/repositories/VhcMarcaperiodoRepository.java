@@ -38,7 +38,7 @@ public interface VhcMarcaperiodoRepository extends PagingAndSortingRepository<Vh
                 v.periodoanio = :anio and v.periodomes between :desde and :hasta
                 order by v.periodoanio, v.periodomes
             """)
-    List<VhcModeloperiodoindustria> findTotalUltimosMeses(
+    List<VhcMarcaperiodo> findTotalUltimosMeses(
             @Param("marca") VhcMarca marca,
             @Param("anio") int anio,
             @Param("desde") int desde,

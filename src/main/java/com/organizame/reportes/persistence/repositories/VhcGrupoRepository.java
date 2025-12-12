@@ -8,6 +8,8 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.organizame.reportes.persistence.entities.VhcGrupo;
 
+import java.util.List;
+
 /**
  * Spring Data JPA repository for entity "VhcGrupo" <br> 
  * 
@@ -24,16 +26,6 @@ import com.organizame.reportes.persistence.entities.VhcGrupo;
  *
  */
 public interface VhcGrupoRepository extends PagingAndSortingRepository<VhcGrupo, byte[]> {
+    List<VhcGrupo> findAll();
 
-	// Insert specific finders here 
-
-	//List<VhcGrupo> findByXxx(String xxx);
-
-	//List<VhcGrupo> findByXxxStartingWith(String xxx);
-
-	//List<VhcGrupo> findByXxxContaining(String xxx);
-
-	//List<VhcGrupo> findByYyy(BigDecimal yyy);
-
-	//List<VhcGrupo> findByXxxContainingAndYyy(String xxx, BigDecimal yyy);
 }
