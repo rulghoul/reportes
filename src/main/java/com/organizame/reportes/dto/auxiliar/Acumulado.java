@@ -1,9 +1,9 @@
 package com.organizame.reportes.dto.auxiliar;
 
 import com.organizame.reportes.dto.FilaTabla;
+import com.organizame.reportes.persistence.entities.VhcMarca;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.DecimalFormat;
@@ -13,6 +13,7 @@ import java.util.*;
 @Data
 @AllArgsConstructor
 public class Acumulado {
+    private VhcMarca marca;
     private String fabricante;
     private Integer lineas;
     private Integer volumen;

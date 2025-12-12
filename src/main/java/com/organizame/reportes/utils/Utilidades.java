@@ -1,11 +1,13 @@
 package com.organizame.reportes.utils;
 
 import com.organizame.reportes.exceptions.ColorExcepcion;
+import lombok.extern.slf4j.Slf4j;
 
 import java.awt.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class Utilidades {
     private static final Pattern rgb = Pattern
             .compile("(?i)\\#*(?<r>[0-9|a-f]{2})(?<g>[0-9|a-f]{2})(?<b>[0-9|a-f]{2})");
@@ -98,4 +100,15 @@ public class Utilidades {
 
         return sanitized;
     }
+
+    public static int evaluaNumero(Number numero){
+        if(numero.doubleValue() > 0d){
+            return 1;
+        }
+        if(numero.doubleValue() == 0d){
+            return 0;
+        }
+        return -1;
+    }
+
 }

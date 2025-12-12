@@ -4,9 +4,15 @@
  */
 package com.organizame.reportes.persistence.repositories;
 
+import com.organizame.reportes.persistence.entities.VhcMarca;
+import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.organizame.reportes.persistence.entities.VhcMarcaperiodo;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 /**
  * Spring Data JPA repository for entity "VhcMarcaperiodo" <br> 
@@ -25,15 +31,17 @@ import com.organizame.reportes.persistence.entities.VhcMarcaperiodo;
  */
 public interface VhcMarcaperiodoRepository extends PagingAndSortingRepository<VhcMarcaperiodo, byte[]> {
 
-	// Insert specific finders here 
-
-	//List<VhcMarcaperiodo> findByXxx(String xxx);
-
-	//List<VhcMarcaperiodo> findByXxxStartingWith(String xxx);
-
-	//List<VhcMarcaperiodo> findByXxxContaining(String xxx);
-
-	//List<VhcMarcaperiodo> findByYyy(BigDecimal yyy);
-
-	//List<VhcMarcaperiodo> findByXxxContainingAndYyy(String xxx, BigDecimal yyy);
+    @Query("""
+                select v 
+                from VhcMarcaperiodo v
+                where v.vhcmarca = :marca and  
+                v.periodoanio = :anio and v.periodomes between :desde and :hasta
+                order by v.periodoanio, v.periodomes
+            """)
+    List<VhcMarcaperiodo> findTotalUltimosMeses(
+            @Param("marca") VhcMarca marca,
+            @Param("anio") int anio,
+            @Param("desde") int desde,
+            @Param("hasta") int hasta
+    );
 }

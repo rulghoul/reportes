@@ -7,6 +7,7 @@ package com.organizame.reportes.persistence.entities;
 import java.io.Serializable;
 import java.util.List;
 import jakarta.persistence.*;
+import lombok.Data;
 
 /**
  * JPA entity class for "VhcModelo"
@@ -14,19 +15,18 @@ import jakarta.persistence.*;
  * @author Telosys
  *
  */
+@Data
 @Entity
 @Table(name="vhc_modelo", catalog="adistemdb" )
 public class VhcModelo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- PRIMARY KEY 
     @Id
     @Lob
     @Column(name="IDMODELO", nullable=false)
     private byte[]     idmodelo ;
 
-    //--- OTHER DATA FIELDS 
     @Column(name="NOMBRE", nullable=false, length=255)
     private String     nombre ;
 
@@ -34,7 +34,6 @@ public class VhcModelo implements Serializable {
     @Column(name="IDMARCA")
     private byte[]     idmarca ;
 
-    //--- LINKS ( RELATIONSHIPS )
     @ManyToOne
     @JoinColumn(name="IDMARCA", referencedColumnName="IDMARCA", insertable=false, updatable=false)
     private VhcMarca   vhcmarca ; 
@@ -55,63 +54,7 @@ public class VhcModelo implements Serializable {
     private List<VhcModeloperiodoventausa> vhcmodeloperiodoventausaList ; 
 
     @OneToMany(mappedBy="vhcmodelo")
-    private List<VhcVersion> vhcversionList ; 
-
-    /**
-     * Constructor
-     */
-    public VhcModelo() {
-		super();
-    }
-    
-    public void setIdmodelo( byte[] idmodelo ) {
-        this.idmodelo = idmodelo ;
-    }
-    public byte[] getIdmodelo() {
-        return this.idmodelo;
-    }
-
-    public void setNombre( String nombre ) {
-        this.nombre = nombre ;
-    }
-    public String getNombre() {
-        return this.nombre;
-    }
-
-    public void setIdmarca( byte[] idmarca ) {
-        this.idmarca = idmarca ;
-    }
-    public byte[] getIdmarca() {
-        return this.idmarca;
-    }
-
-    public VhcMarca getVhcmarca() {
-        return this.vhcmarca;
-    } 
-
-    public List<VhcModeloalias> getVhcmodeloaliasList() {
-        return this.vhcmodeloaliasList;
-    } 
-
-    public List<VhcModeloperiodo> getVhcmodeloperiodoList() {
-        return this.vhcmodeloperiodoList;
-    } 
-
-    public List<VhcModeloperiodoindustria> getVhcmodeloperiodoindustriaList() {
-        return this.vhcmodeloperiodoindustriaList;
-    } 
-
-    public List<VhcModeloperiodoinegi> getVhcmodeloperiodoinegiList() {
-        return this.vhcmodeloperiodoinegiList;
-    } 
-
-    public List<VhcModeloperiodoventausa> getVhcmodeloperiodoventausaList() {
-        return this.vhcmodeloperiodoventausaList;
-    } 
-
-    public List<VhcVersion> getVhcversionList() {
-        return this.vhcversionList;
-    } 
+    private List<VhcVersion> vhcversionList ;
 
 	@Override
 	public String toString() { 

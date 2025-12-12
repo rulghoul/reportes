@@ -1,10 +1,12 @@
 package com.organizame.reportes.controller;
 
 import com.organizame.reportes.dto.request.RequestOrigen;
+import com.organizame.reportes.dto.request.RequestRanking;
 import com.organizame.reportes.exceptions.SinDatos;
 import com.organizame.reportes.service.ReporteExcelService;
 import com.organizame.reportes.service.ReportePDFService;
 import com.organizame.reportes.service.ReportePresentacionService;
+import com.organizame.reportes.service.ReporteRankingMarca;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,12 +32,14 @@ public class ReporteController {
     private final ReporteExcelService serviceLibro;
     private final ReportePresentacionService servicePresentacion;
     private final ReportePDFService pdfService;
+    private final ReporteRankingMarca serviceRanking;
 
     public ReporteController(ReporteExcelService service, ReportePresentacionService servicePresentacion,
-                             ReportePDFService pdfService){
+                             ReportePDFService pdfService, ReporteRankingMarca serviceRanking){
         this.serviceLibro = service;
         this.servicePresentacion = servicePresentacion;
         this.pdfService = pdfService;
+        this.serviceRanking = serviceRanking;
     }
 
     @Operation(summary = "regresa reporte Excel")
@@ -127,6 +131,39 @@ public class ReporteController {
             log.error("Error al generar la Presentacion", e);
             Map<String, String> error = new HashMap<>();
             error.put("mensaje", "No se pudo generar el archivo de Presentacion");
+            error.put("detalle", e.getMessage());
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(error);
+        }catch (SinDatos e){
+            return ResponseEntity.badRequest().body("Error en la petición: " + e.getMessage());
+        }
+    }
+
+
+    @Operation(summary = "regresa reporte Ranking")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
+    @PostMapping("/ranking")
+    @ResponseBody
+    public ResponseEntity<?>  reporteRanking(@RequestBody RequestRanking request){
+        try {
+            ByteArrayInputStream resultado = serviceRanking.CrearExcelRanking(request);
+            var archivo = serviceRanking.getNombreArchivo();
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + archivo + ".xlsx")
+                    .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+                    .body(new InputStreamResource(resultado, "reporte"));
+        } catch (IOException e) {
+
+            log.error("Error al generar el Excel", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("mensaje", "No se pudo generar el archivo Excel");
             error.put("detalle", e.getMessage());
 
             return ResponseEntity

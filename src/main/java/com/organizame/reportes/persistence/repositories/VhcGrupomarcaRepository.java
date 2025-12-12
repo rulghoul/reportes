@@ -25,15 +25,4 @@ import com.organizame.reportes.persistence.entities.VhcGrupomarca;
  */
 public interface VhcGrupomarcaRepository extends PagingAndSortingRepository<VhcGrupomarca, byte[]> {
 
-	// Insert specific finders here 
-
-	//List<VhcGrupomarca> findByXxx(String xxx);
-
-	//List<VhcGrupomarca> findByXxxStartingWith(String xxx);
-
-	//List<VhcGrupomarca> findByXxxContaining(String xxx);
-
-	//List<VhcGrupomarca> findByYyy(BigDecimal yyy);
-
-	//List<VhcGrupomarca> findByXxxContainingAndYyy(String xxx, BigDecimal yyy);
 }
