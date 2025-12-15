@@ -5,6 +5,7 @@ import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.exceptions.ExcelException;
 import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.utils.SpringContext;
+import com.organizame.reportes.utils.excel.dto.ColumnaFila;
 import com.organizame.reportes.utils.excel.dto.Posicion;
 import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
 import lombok.Getter;
@@ -39,6 +40,7 @@ public class CrearExcel {
     private final CrearGrafica graficas;
 
     private XSSFCellStyle encabezado;
+    private EstiloCeldaExcel rojo;
 
 
     public CrearExcel() {
@@ -67,12 +69,6 @@ public class CrearExcel {
     }
 
 
-    public Posicion creaTabla(XSSFSheet hoja, List<List<Object>> datos, Integer columna, Integer  fila){
-        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
-        tabla.tablaFromList(datos, columna, fila);
-        var resultado = tabla.procesaTabla();
-        return resultado;
-    }
 
     public Posicion creaTablaEstilo(XSSFSheet hoja, List<FilaTabla> datos, Integer columna, Integer  fila){
         Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
@@ -87,10 +83,7 @@ public class CrearExcel {
         return tabla.procesaTablaEstilo();
     }
 
-    public Posicion creaFila(XSSFSheet hoja, FilaTabla filaDatos, Posicion posicion){
-        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
-        return posicion;
-    }
+
 
     public Posicion creaTexto(XSSFSheet hoja, String valor, Posicion posicion, int ancho){
         Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
@@ -148,6 +141,7 @@ public class CrearExcel {
 
         estilos.add(new EstiloCeldaExcel(estandar, wb));
         estilos.add(estiloRojo);
+        this.rojo = estiloRojo;
         //Estilo Stellantis
         var colorEstellantis = new ColorExcel("Stellantis", "96938E" ,"#C7C5C2");
         var estiloEstellantis = new EstiloCeldaExcel(colorEstellantis, wb);
@@ -176,19 +170,18 @@ public class CrearExcel {
         }
     }
 
-    public void TestGrafica(PosicionGrafica posicion,  XSSFSheet hoja) throws GraficaException {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.addValue(23, "JFreeSVG", "Warm-up");
-        dataset.addValue(11, "Batik", "Warm-up");
-        dataset.addValue(42, "JFreeSVG", "Test");
-        dataset.addValue(21, "Batik", "Test");
-
-        this.agregarGrafica(posicion, "ejemplo", "x", "y", hoja, dataset);
+    public Posicion creaFila(XSSFSheet hoja, ColumnaFila filaDatos){
+        var filasColumnas = new FilasColumnas(wb, hoja, this.estilos, this.estilos.get(0), this.rojo );
+        filasColumnas.DibujaFila(filaDatos);
+        return filaDatos.getPosicion();
     }
 
-    public void agregarGrafica(PosicionGrafica posicion, String titulo, String xAxis, String yAxis , XSSFSheet hoja, DefaultCategoryDataset datos) throws GraficaException {
-        graficas.insertarImagenBarras(hoja, posicion, datos, titulo, xAxis, yAxis );
+    public Posicion creaColumna(XSSFSheet hoja, ColumnaFila filaDatos){
+        var filasColumnas = new FilasColumnas(wb, hoja, this.estilos, this.estilos.get(0), this.rojo );
+        filasColumnas.DibujaColumna(filaDatos);
+        return filaDatos.getPosicion();
     }
+
 
     public ByteArrayInputStream guardaExcel() throws IOException {
         var out = new ByteArrayOutputStream();

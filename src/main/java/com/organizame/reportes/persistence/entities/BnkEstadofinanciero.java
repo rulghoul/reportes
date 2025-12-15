@@ -4,10 +4,13 @@
  */
 package com.organizame.reportes.persistence.entities;
 
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
-import jakarta.persistence.*;
-import lombok.Data;
+import java.util.Objects;
 
 /**
  * JPA entity class for "BnkEstadofinanciero"
@@ -15,7 +18,10 @@ import lombok.Data;
  * @author Telosys
  *
  */
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Entity
 @Table(name="bnk_estadofinanciero", catalog="adistemdb" )
 public class BnkEstadofinanciero implements Serializable {
@@ -206,74 +212,21 @@ public class BnkEstadofinanciero implements Serializable {
     @Column(name="UTILIDADTOTAL", nullable=false)
     private BigDecimal utilidadtotal ;
 
-    
-      //--- toString specific method
-	@Override
-	public String toString() { 
-		String separator = "|";
-		StringBuilder sb = new StringBuilder();
-		sb.append("BnkEstadofinanciero[");
-		// attribute 'idestadofinanciero' (type byte[]) not usable in toString() 
-		sb.append("periodoanio=").append(periodoanio);
-		sb.append(separator).append("periodomes=").append(periodomes);
-		sb.append(separator).append("ventamuestra=").append(ventamuestra);
-		sb.append(separator).append("ventaautosnuevosmenudeo=").append(ventaautosnuevosmenudeo);
-		sb.append(separator).append("ventaautosnuevosflotilla=").append(ventaautosnuevosflotilla);
-		sb.append(separator).append("ventamercanciasvariasotros=").append(ventamercanciasvariasotros);
-		sb.append(separator).append("ventatotalautosnuevos=").append(ventatotalautosnuevos);
-		sb.append(separator).append("ventaautosusados=").append(ventaautosusados);
-		sb.append(separator).append("ventacontratosservicionuevosusados=").append(ventacontratosservicionuevosusados);
-		sb.append(separator).append("ventamecanica=").append(ventamecanica);
-		sb.append(separator).append("ventahojalateriapintura=").append(ventahojalateriapintura);
-		sb.append(separator).append("ventarefacciones=").append(ventarefacciones);
-		sb.append(separator).append("ventaventastotales=").append(ventaventastotales);
-		sb.append(separator).append("ventaventatotalesautosnuevosunidades=").append(ventaventatotalesautosnuevosunidades);
-		sb.append(separator).append("ventapreciopromediounidadmezcla=").append(ventapreciopromediounidadmezcla);
-		sb.append(separator).append("utilidadbrutaautosnuevosmenudeo=").append(utilidadbrutaautosnuevosmenudeo);
-		sb.append(separator).append("utilidadbrutaautosnuevosflotilla=").append(utilidadbrutaautosnuevosflotilla);
-		sb.append(separator).append("utilidadbrutabonosplanta=").append(utilidadbrutabonosplanta);
-		sb.append(separator).append("utilidadbrutatransferenciasbonosincentivosfinancieras=").append(utilidadbrutatransferenciasbonosincentivosfinancieras);
-		sb.append(separator).append("utilidadbrutatotalautosnuevos=").append(utilidadbrutatotalautosnuevos);
-		sb.append(separator).append("utilidadbrutaautosusados=").append(utilidadbrutaautosusados);
-		sb.append(separator).append("utilidadbrutacontratosservicionuevosusados=").append(utilidadbrutacontratosservicionuevosusados);
-		sb.append(separator).append("utilidadbrutamecanica=").append(utilidadbrutamecanica);
-		sb.append(separator).append("utilidadbrutahojalateriapintura=").append(utilidadbrutahojalateriapintura);
-		sb.append(separator).append("utilidadbrutarefacciones=").append(utilidadbrutarefacciones);
-		sb.append(separator).append("utilidadbrutautilidadbrutatotal=").append(utilidadbrutautilidadbrutatotal);
-		sb.append(separator).append("gastovariablesnuevos=").append(gastovariablesnuevos);
-		sb.append(separator).append("gastovariablesusados=").append(gastovariablesusados);
-		sb.append(separator).append("gastoplanpiso=").append(gastoplanpiso);
-		sb.append(separator).append("gastoventamecanica=").append(gastoventamecanica);
-		sb.append(separator).append("gastoventahojalateriapintura=").append(gastoventahojalateriapintura);
-		sb.append(separator).append("gastoventarefacciones=").append(gastoventarefacciones);
-		sb.append(separator).append("gastofijos=").append(gastofijos);
-		sb.append(separator).append("gastosueldospropietariosfuncionarios=").append(gastosueldospropietariosfuncionarios);
-		sb.append(separator).append("gastogastostotalessinrentaequivalentes=").append(gastogastostotalessinrentaequivalentes);
-		sb.append(separator).append("utilidadnetautilidadoperacionsinrentassindepreciacion=").append(utilidadnetautilidadoperacionsinrentassindepreciacion);
-		sb.append(separator).append("utilidadnetabienesinmueblesrentaequivalentes=").append(utilidadnetabienesinmueblesrentaequivalentes);
-		sb.append(separator).append("utilidadnetautilidadoperacion=").append(utilidadnetautilidadoperacion);
-		sb.append(separator).append("utilidadnetaotrosingresosdeducciones=").append(utilidadnetaotrosingresosdeducciones);
-		sb.append(separator).append("utilidadnetautilidadnetareportada=").append(utilidadnetautilidadnetareportada);
-		sb.append(separator).append("utilidaddealersreportaronutilidad=").append(utilidaddealersreportaronutilidad);
-		sb.append(separator).append("utilidadporcentajedealersconutilidad=").append(utilidadporcentajedealersconutilidad);
-		sb.append(separator).append("utilidadutilidadnetaentreventastotales=").append(utilidadutilidadnetaentreventastotales);
-		sb.append(separator).append("utilidadebitdaentreventastotales=").append(utilidadebitdaentreventastotales);
-		sb.append(separator).append("utilidadabsorcionservicio=").append(utilidadabsorcionservicio);
-		sb.append(separator).append("utilidadroiporcentaje=").append(utilidadroiporcentaje);
-		sb.append(separator).append("utilidadroioperativoporcentaje=").append(utilidadroioperativoporcentaje);
-		sb.append(separator).append("utilidadmargenbruto=").append(utilidadmargenbruto);
-		sb.append(separator).append("utilidadplanpisoutilidadbruta=").append(utilidadplanpisoutilidadbruta);
-		sb.append(separator).append("utilidadautosnuevosmenudeo=").append(utilidadautosnuevosmenudeo);
-		sb.append(separator).append("utilidadautosnuevosflotillas=").append(utilidadautosnuevosflotillas);
-		sb.append(separator).append("utilidadautosnuevosbonosplanta=").append(utilidadautosnuevosbonosplanta);
-		sb.append(separator).append("utilidadautosnuevostotalsinflotillas=").append(utilidadautosnuevostotalsinflotillas);
-		sb.append(separator).append("utilidadautosusados=").append(utilidadautosusados);
-		sb.append(separator).append("utilidadcontratosservicio=").append(utilidadcontratosservicio);
-		sb.append(separator).append("utilidadmecanica=").append(utilidadmecanica);
-		sb.append(separator).append("utilidadhojalateriapintura=").append(utilidadhojalateriapintura);
-		sb.append(separator).append("utilidadrefacciones=").append(utilidadrefacciones);
-		sb.append(separator).append("utilidadtotal=").append(utilidadtotal);
-		sb.append("]");
-		return sb.toString();
-	}
+
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        BnkEstadofinanciero that = (BnkEstadofinanciero) o;
+        return getIdestadofinanciero() != null && Objects.equals(getIdestadofinanciero(), that.getIdestadofinanciero());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
 }

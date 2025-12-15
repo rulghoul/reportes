@@ -1,9 +1,19 @@
 package com.organizame.reportes.utils;
 
 import com.organizame.reportes.exceptions.ColorExcepcion;
+import com.organizame.reportes.utils.excel.EstiloCeldaExcel;
+import com.organizame.reportes.utils.excel.dto.LinkExcel;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.awt.*;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,6 +21,60 @@ import java.util.regex.Pattern;
 public class Utilidades {
     private static final Pattern rgb = Pattern
             .compile("(?i)\\#*(?<r>[0-9|a-f]{2})(?<g>[0-9|a-f]{2})(?<b>[0-9|a-f]{2})");
+
+
+    public static void trasnforma(XSSFWorkbook wb,Cell cell, Object valor, boolean par, EstiloCeldaExcel estilo, EstiloCeldaExcel rojo) {
+        try {
+            switch (valor) {
+                case String s -> cell.setCellValue(s);
+                case Double d -> {
+                    cell.setCellValue(d);
+                    if(Utilidades.evaluaNumero(d) == -1){
+                        cell.setCellStyle(par ? rojo.getOddPorciento() : rojo.getNormalPorciento());
+                    }else {
+                        cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
+                    }
+                }
+                case Date d -> {
+                    cell.setCellValue(d);
+                    cell.setCellStyle(par ? estilo.getOddDate() : estilo.getNormalDate());
+                }
+                case BigDecimal bd -> {
+                    cell.setCellValue(bd.doubleValue());
+                    if(Utilidades.evaluaNumero(bd.doubleValue()) == -1){
+                        cell.setCellStyle(par ? rojo.getOddPorciento() : rojo.getNormalPorciento());
+                    }else {
+                        cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
+                    }
+                }
+                case Integer i -> {
+                    if(Utilidades.evaluaNumero(i) == -1){
+                        cell.setCellStyle(par ? rojo.getOdd() : rojo.getNormal());
+                    }
+                    cell.setCellValue(i);
+                }
+                case Boolean b -> cell.setCellValue(b ? "VERDADERO" : "FALSO");
+                case LinkExcel temp -> manejarArrayList(wb, cell, temp);
+                case null, default -> {
+                    System.out.println("No ESTIPULADO: " +
+                            (valor != null ? valor.getClass().getTypeName() : "null"));
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Fallo al colocar el valor por {}", e.getMessage());
+            cell.setCellValue("");
+        }
+    }
+
+    private static void manejarArrayList(XSSFWorkbook wb, Cell cell, LinkExcel temp) {
+        if (!Objects.isNull(temp) && !Objects.isNull(temp.getUrl())
+                && !Objects.isNull(temp.getLabel())) {
+            cell.setCellValue(temp.getLabel());
+            Hyperlink href = wb.getCreationHelper().createHyperlink(HyperlinkType.URL);
+            href.setAddress(temp.getUrl());
+            cell.setHyperlink(href);
+        }
+    }
 
     public static Color convierteRGB(String valor) throws ColorExcepcion {
         try{

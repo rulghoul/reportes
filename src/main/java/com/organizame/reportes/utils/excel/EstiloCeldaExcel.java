@@ -4,12 +4,13 @@ package com.organizame.reportes.utils.excel;
 import com.organizame.reportes.utils.SpringContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.env.Environment;
+
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
@@ -32,8 +33,10 @@ public class EstiloCeldaExcel {
     private String borderType;
 
     private final String nombre;
+
     private XSSFCellStyle normal;
     private XSSFCellStyle odd;
+
     private final XSSFCellStyle normalDate;
     private final XSSFCellStyle oddDate;
 
@@ -56,7 +59,28 @@ public class EstiloCeldaExcel {
     }
 
 
+    public EstiloCeldaExcel(ColorExcel color, XSSFWorkbook libro, Integer fontSize,
+                            Optional<HorizontalAlignment> horizontal, Optional<VerticalAlignment> verticalAlignment,
+                            Optional<Short> rotacion) {
+        Environment env = SpringContext.getContext().getEnvironment();
+        this.fuenteNombre = env.getProperty("excel.font.name");
+        this.fuenteSize = fontSize;
+        this.borderType = env.getProperty("excel.border.type");
+        this.nombre = color.getNombre();
+        this.normal = creaEstilo(libro, color, false, TipoDato.TEXTO, horizontal, verticalAlignment, rotacion);
+        this.odd = creaEstilo(libro, color, true, TipoDato.TEXTO, horizontal, verticalAlignment, rotacion);
+        this.normalDate = creaEstilo(libro, color, false, TipoDato.FECHA, horizontal, verticalAlignment, rotacion);
+        this.oddDate = creaEstilo(libro, color, true, TipoDato.FECHA, horizontal, verticalAlignment, rotacion);
+        this.normalPorciento = creaEstilo(libro, color, false, TipoDato.PORCENTAJE, horizontal, verticalAlignment, rotacion);
+        this.oddPorciento = creaEstilo(libro, color, true, TipoDato.PORCENTAJE, horizontal, verticalAlignment, rotacion);
+    }
+
     private XSSFCellStyle creaEstilo(XSSFWorkbook libro, ColorExcel color, boolean odd, TipoDato tipo){
+        return this.creaEstilo(libro, color,odd, tipo, Optional.empty(), Optional.empty(), Optional.empty());
+    }
+
+    private XSSFCellStyle creaEstilo(XSSFWorkbook libro, ColorExcel color, boolean odd, TipoDato tipo
+    ,Optional<HorizontalAlignment> horizontal, Optional<VerticalAlignment> verticalAlignment, Optional<Short> rotacion){
         BorderStyle borde;
         try {
             borde = BorderStyle.valueOf(borderType.toUpperCase().trim());
@@ -70,6 +94,16 @@ public class EstiloCeldaExcel {
         fuente.setFontHeightInPoints(fuenteSize.shortValue());
 
         XSSFCellStyle temp = libro.createCellStyle();
+
+        if(horizontal.isPresent()){
+            temp.setAlignment(horizontal.get());
+        }
+        if(verticalAlignment.isPresent()){
+            temp.setVerticalAlignment(verticalAlignment.get());
+        }
+        if(rotacion.isPresent()) {
+            temp.setRotation(rotacion.get());
+        }
         temp.setBorderTop(borde);
         temp.setBorderBottom(borde);
         temp.setBorderLeft(borde);
@@ -83,15 +117,19 @@ public class EstiloCeldaExcel {
         }
 
         switch (tipo) {
-            case FECHA -> temp.setDataFormat(libro.getCreationHelper()
+            case FECHA -> {
+                temp.setDataFormat(libro.getCreationHelper()
                     .createDataFormat().getFormat("dd/mm/yyyy"));
-            case PORCENTAJE -> temp.setDataFormat(libro.createDataFormat().getFormat("0.00%"));
+            }
+            case PORCENTAJE -> {
+                temp.setDataFormat(libro.createDataFormat().getFormat("0.00%"));
+            }
             case TEXTO, BOOLEANO -> {
-                // No se aplica formato especial
             }
         }
         temp.setFont(fuente);
         return temp;
     }
+
 
 }
