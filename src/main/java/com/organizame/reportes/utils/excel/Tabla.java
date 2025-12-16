@@ -178,56 +178,8 @@ public class Tabla {
         rownum++;
     }
 
-    private void trasnforma(Cell cell, Object valor, boolean par, EstiloCeldaExcel estilo) {
-        try {
-            switch (valor) {
-                case String s -> cell.setCellValue(s);
-                case Double d -> {
-                    cell.setCellValue(d);
-                    if(Utilidades.evaluaNumero(d) == -1){
-                        cell.setCellStyle(par ? rojo.getOddPorciento() : rojo.getNormalPorciento());
-                    }else {
-                        cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
-                    }
-                }
-                case Date d -> {
-                    cell.setCellValue(d);
-                    cell.setCellStyle(par ? estilo.getOddDate() : estilo.getNormalDate());
-                }
-                case BigDecimal bd -> {
-                    cell.setCellValue(bd.doubleValue());
-                    if(Utilidades.evaluaNumero(bd.doubleValue()) == -1){
-                        cell.setCellStyle(par ? rojo.getOddPorciento() : rojo.getNormalPorciento());
-                    }else {
-                        cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
-                    }
-                }
-                case Integer i -> {
-                    if(Utilidades.evaluaNumero(i) == -1){
-                        cell.setCellStyle(par ? rojo.getOdd() : rojo.getNormal());
-                    }
-                    cell.setCellValue(i);
-                }
-                case Boolean b -> cell.setCellValue(b ? "VERDADERO" : "FALSO");
-                case List<?> temp -> manejarArrayList(cell, temp);
-                case null, default -> {
-                    System.out.println("No ESTIPULADO: " +
-                            (valor != null ? valor.getClass().getTypeName() : "null"));
-                }
-            }
-        } catch (Exception e) {
-            cell.setCellValue("");
-        }
+    private void trasnforma(Cell cell, Object celda, boolean ispar, EstiloCeldaExcel estilo) {
+        Utilidades.trasnforma(this.wb, cell, celda, ispar, estilo, this.rojo);
     }
-
-    private void manejarArrayList(Cell cell, List<?> temp) {
-        if (temp.size() >= 2 && temp.get(0) instanceof String && temp.get(1) instanceof String) {
-            cell.setCellValue((String) temp.get(0));
-            Hyperlink href = this.wb.getCreationHelper().createHyperlink(HyperlinkType.URL);
-            href.setAddress((String) temp.get(1));
-            cell.setHyperlink(href);
-        }
-    }
-
 
 }

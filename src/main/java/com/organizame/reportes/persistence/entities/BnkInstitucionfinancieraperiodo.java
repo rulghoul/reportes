@@ -4,8 +4,13 @@
  */
 package com.organizame.reportes.persistence.entities;
 
-import java.io.Serializable;
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * JPA entity class for "BnkInstitucionfinancieraperiodo"
@@ -13,11 +18,16 @@ import jakarta.persistence.*;
  * @author Telosys
  *
  */
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Entity
 @Table(name="bnk_institucionfinancieraperiodo", catalog="adistemdb" )
 public class BnkInstitucionfinancieraperiodo implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    @Serial
+    private static final long serialVersionUID = 7525502835743716929L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
@@ -49,74 +59,19 @@ public class BnkInstitucionfinancieraperiodo implements Serializable {
     private BnkInstitucionfinanciera bnkinstitucionfinanciera ; 
 
 
-    /**
-     * Constructor
-     */
-    public BnkInstitucionfinancieraperiodo() {
-		super();
-    }
-    
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setIdinstitucionfinancieraperiodo( byte[] idinstitucionfinancieraperiodo ) {
-        this.idinstitucionfinancieraperiodo = idinstitucionfinancieraperiodo ;
-    }
-    public byte[] getIdinstitucionfinancieraperiodo() {
-        return this.idinstitucionfinancieraperiodo;
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        BnkInstitucionfinancieraperiodo that = (BnkInstitucionfinancieraperiodo) o;
+        return getIdinstitucionfinancieraperiodo() != null && Arrays.equals(getIdinstitucionfinancieraperiodo(), that.getIdinstitucionfinancieraperiodo());
     }
 
-    public void setIdinstitucionfinanciera( byte[] idinstitucionfinanciera ) {
-        this.idinstitucionfinanciera = idinstitucionfinanciera ;
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
-    public byte[] getIdinstitucionfinanciera() {
-        return this.idinstitucionfinanciera;
-    }
-
-    public void setPeriodoanio( int periodoanio ) {
-        this.periodoanio = periodoanio ;
-    }
-    public int getPeriodoanio() {
-        return this.periodoanio;
-    }
-
-    public void setPeriodomes( int periodomes ) {
-        this.periodomes = periodomes ;
-    }
-    public int getPeriodomes() {
-        return this.periodomes;
-    }
-
-    public void setUnidadesfinanciadas( int unidadesfinanciadas ) {
-        this.unidadesfinanciadas = unidadesfinanciadas ;
-    }
-    public int getUnidadesfinanciadas() {
-        return this.unidadesfinanciadas;
-    }
-
-    public void setVentas( int ventas ) {
-        this.ventas = ventas ;
-    }
-    public int getVentas() {
-        return this.ventas;
-    }
-
-    //--- GETTERS FOR LINKS
-    public BnkInstitucionfinanciera getBnkinstitucionfinanciera() {
-        return this.bnkinstitucionfinanciera;
-    } 
-
-    //--- toString specific method
-	@Override
-	public String toString() { 
-		String separator = "|";
-		StringBuilder sb = new StringBuilder();
-		sb.append("BnkInstitucionfinancieraperiodo[");
-		// attribute 'idinstitucionfinancieraperiodo' (type byte[]) not usable in toString() 
-		// attribute 'idinstitucionfinanciera' (type byte[]) not usable in toString() 
-		sb.append("periodoanio=").append(periodoanio);
-		sb.append(separator).append("periodomes=").append(periodomes);
-		sb.append(separator).append("unidadesfinanciadas=").append(unidadesfinanciadas);
-		sb.append(separator).append("ventas=").append(ventas);
-		sb.append("]");
-		return sb.toString();
-	}
 }
