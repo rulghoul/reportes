@@ -6,16 +6,14 @@ import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.dto.auxiliar.Acumulado;
 import com.organizame.reportes.dto.auxiliar.PortadaTotales;
 import com.organizame.reportes.dto.request.RequestOrigen;
-import com.organizame.reportes.exceptions.ExcelException;
 import com.organizame.reportes.exceptions.SinDatos;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
+import com.organizame.reportes.repository.service.ModeloPeriodoService;
 import com.organizame.reportes.utils.excel.CrearExcel;
 import com.organizame.reportes.utils.excel.dto.Posicion;
 import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
-import com.organizame.reportes.utils.graficas.Graficas;
 import com.organizame.reportes.utils.graficas.graficas2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -26,6 +24,7 @@ import java.util.*;
 
 @Service
 public class ReporteExcelService {
+
 
     private final DateTimeFormatter fechaSmall;
 
@@ -59,7 +58,7 @@ public class ReporteExcelService {
         String fecha = fechaSmall.format(fechaInicial) + "-" + fechaSmall.format(request.getMesFinal());
 
         this.crearPortada(filtrado, excel, request, fecha);
-        this.creaVolumenPorMarca(filtrado, excel);
+        this.creaVolumenPorMarca(filtrado, excel,request, fecha);
         this.crearHojasPorSegmento(filtrado, excel, request, fecha);
         this.crearTopLineas(filtrado, excel, request, fecha);
         this.creaHojasporMarca(filtrado, excel, request, fecha);
@@ -76,7 +75,7 @@ public class ReporteExcelService {
         var portadaTotales = service.getPortadaTotales(filtrado);
         // Genera portada
 
-        var portada = excel.CrearHoja(fecha);
+        var portada = excel.CrearHoja(request.getOrigen());
         var portPos = new Posicion(2,2);
         portPos = excel.creaTexto(portada, "Acumulado " + fecha, portPos, 4);
         portPos.setCol(2);
@@ -109,21 +108,27 @@ public class ReporteExcelService {
         portPos.setRow(2);
         portPos.setCol(8);
 
-        var tituloGrafica = "Ventas por Origen " + request.getOrigen() + ", Industria y Market Share";
+        var tituloGrafica = "Ventas por Origen " + request.getOrigen() + ", Industria y Market Share para el periodo " + fecha;
         excel.InsertarGrafica(portada, graficas.createComboChart(tituloGrafica, portadaTotales, request.getOrigen()), new PosicionGrafica(portPos, 1600, 1000));
 
     }
 
-    private void creaVolumenPorMarca(Set<DaoResumenPeriodo> filtrado, CrearExcel excel){
+    private void creaVolumenPorMarca(Set<DaoResumenPeriodo> filtrado, CrearExcel excel,RequestOrigen request, String fecha){
         var contraPortada = service.getVolumenMarca(filtrado);
+        // solo se recupera el top 6 para graficar
+        int endIndex = Math.min(7, contraPortada.size());
+        var top = contraPortada.subList(0, endIndex);
+
         // Volumen por Marca
 
-        var contra = excel.CrearHoja("contra");
+        var contra = excel.CrearHoja(fecha);
         Posicion posContra = excel.creaTablaEstilo(contra, contraPortada, 2, 2);
 
         posContra.setCol(2);
         posContra.addRows(2);
-        excel.InsertarGrafica(contra, graficas.LineChartFabricantes(contraPortada), new PosicionGrafica(posContra, 2400, 800));
+        var titulo ="Top " + (endIndex -1)
+                + " de marcas que comercializan modelos provenientes de " + request.getOrigen() + " del periodo "  + fecha;
+        excel.InsertarGrafica(contra, graficas.generarGraficaLineasMarcas(titulo, top), new PosicionGrafica(posContra, 2400, 800));
 
     }
 
@@ -134,16 +139,16 @@ public class ReporteExcelService {
 
         var hoja = excel.CrearHoja("Top Líneas");
         //Tabla principal
-        var posicion = excel.creaTablaEstilo(hoja, top, 0, 0);
+        var posicion = excel.creaTablaEstilo(hoja, top, 2, 2);
 
         //Recuoerar solo los 10 modelos topo
         var totalOrigen =resumenDatos.getLast();
-        var cuerpo = resumenDatos.subList(0,9);
+        var cuerpo = resumenDatos.subList(0,10);
         Integer totalTop = cuerpo.stream()
                 .mapToInt(dP -> dP.getTotal())
                 .sum();
         var porcentajeTop = totalTop.doubleValue() / totalOrigen.getTotal().doubleValue() ;
-        var topTotal = new DaoPeriodo("Total Top",totalTop,porcentajeTop, "Encabezado");
+        var topTotal = new DaoPeriodo("TotalTop","Total Top",totalTop,porcentajeTop, "Encabezado");
 
         List<DaoPeriodo> soloTop = new ArrayList<>(cuerpo);
         soloTop.add(topTotal);
@@ -154,7 +159,7 @@ public class ReporteExcelService {
         posicion.setRow(posicion.getRow()+2);
         var posGrafica = new PosicionGrafica(posicion,1200, 800);
         //Tabla resumen
-        posicion = excel.creaTablaEstilo(hoja, resumen, 0, posicion.getRow());
+        posicion = excel.creaTablaEstilo(hoja, resumen, 2, posicion.getRow());
         var topGrafica = soloTop.subList(0,soloTop.size()-2);
 
         var grafica =graficas.createChart( topGrafica, "Stellantis",
@@ -172,12 +177,12 @@ public class ReporteExcelService {
         segmentos.forEach(segmento -> {
             var hoja = excel.CrearHoja(segmento.getNombreTabla());
             //Tabla principal
-            var posicion = excel.creaTablaEstilo(hoja, segmento.getDatos(), 0, 0);
+            var posicion = excel.creaTablaEstilo(hoja, segmento.getDatos(), 2, 2);
             var resumen = this.creaResumen(segmentoResumen.get(segmento.getNombreTabla()), fecha);
             posicion.setRow(posicion.getRow()+2);
             var posGrafica = new PosicionGrafica(posicion,1200, 800);
             //Tabla resumen
-            posicion = excel.creaTablaEstilo(hoja, resumen, 0, posicion.getRow());
+            posicion = excel.creaTablaEstilo(hoja, resumen, 2, posicion.getRow());
             var datosGrafica = graficas.generaDataset(segmentoResumen.get(segmento.getNombreTabla()));
             var grafica =graficas.graficaBarras("Segmento de " + segmento.getNombreTabla() + " - Origen " + request.getOrigen() + " fechas",
                     "Modelos" , "Participacion", datosGrafica);
@@ -196,15 +201,15 @@ public class ReporteExcelService {
         fabricantes.forEach(fabricante -> {
             var hoja = excel.CrearHoja(fabricante.getNombreTabla());
             //Tabla princial
-            var posicion = excel.creaTablaEstilo(hoja, fabricante.getDatos(), 0, 0);
+            var posicion = excel.creaTablaEstilo(hoja, fabricante.getDatos(), 2, 2);
             var resumen = this.creaResumen(fabricanteResumen.get(fabricante.getNombreTabla()), fecha);
             posicion.setRow(posicion.getRow()+2);
             var posGrafica = new PosicionGrafica(posicion,1200, 800);
             //Tabla resumen
-            posicion = excel.creaTablaEstilo(hoja, resumen, 0, posicion.getRow());
-            var datosGrafica = graficas.generaDataset(fabricanteResumen.get(fabricante.getNombreTabla()));
-            var grafica = graficas.graficaBarras("Volumen de ventas, origen " + request.getOrigen() + "fechas",
-                    "Modelos" , "Participacion", datosGrafica);
+            posicion = excel.creaTablaEstilo(hoja, resumen, 2, posicion.getRow());
+            var datosGrafica = graficas.generaPieDataset(fabricanteResumen.get(fabricante.getNombreTabla()));
+            var grafica = graficas.graficaDonut("Volumen de ventas, origen " + request.getOrigen() + " " + fecha,
+                    datosGrafica);
             posGrafica.setCol(posicion.getCol() + 2);
             excel.InsertarGrafica(hoja, grafica, posGrafica);
         });

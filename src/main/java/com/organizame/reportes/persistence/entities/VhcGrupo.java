@@ -7,6 +7,7 @@ package com.organizame.reportes.persistence.entities;
 import java.io.Serializable;
 import java.util.List;
 import jakarta.persistence.*;
+import lombok.Data;
 
 /**
  * JPA entity class for "VhcGrupo"
@@ -14,6 +15,7 @@ import jakarta.persistence.*;
  * @author Telosys
  *
  */
+@Data
 @Entity
 @Table(name="vhc_grupo", catalog="adistemdb" )
 public class VhcGrupo implements Serializable {
@@ -37,54 +39,9 @@ public class VhcGrupo implements Serializable {
     private int        orden ;
 
     //--- LINKS ( RELATIONSHIPS )
-    @OneToMany(mappedBy="vhcgrupo")
+    @OneToMany(mappedBy="vhcgrupo", fetch = FetchType.LAZY)
     private List<VhcGrupomarca> vhcgrupomarcaList ; 
 
-    @OneToMany(mappedBy="vhcgrupo")
-    private List<VhcGrupoperiodoventausa> vhcgrupoperiodoventausaList ; 
-
-    /**
-     * Constructor
-     */
-    public VhcGrupo() {
-		super();
-    }
-    
-    public void setIdgrupo( byte[] idgrupo ) {
-        this.idgrupo = idgrupo ;
-    }
-    public byte[] getIdgrupo() {
-        return this.idgrupo;
-    }
-
-    public void setNombre( String nombre ) {
-        this.nombre = nombre ;
-    }
-    public String getNombre() {
-        return this.nombre;
-    }
-
-    public void setClave( String clave ) {
-        this.clave = clave ;
-    }
-    public String getClave() {
-        return this.clave;
-    }
-
-    public void setOrden( int orden ) {
-        this.orden = orden ;
-    }
-    public int getOrden() {
-        return this.orden;
-    }
-
-    public List<VhcGrupomarca> getVhcgrupomarcaList() {
-        return this.vhcgrupomarcaList;
-    } 
-
-    public List<VhcGrupoperiodoventausa> getVhcgrupoperiodoventausaList() {
-        return this.vhcgrupoperiodoventausaList;
-    } 
 
 	@Override
 	public String toString() { 

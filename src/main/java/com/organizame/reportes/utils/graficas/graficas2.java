@@ -2,7 +2,9 @@ package com.organizame.reportes.utils.graficas;
 
 import com.organizame.reportes.dto.DaoPeriodo;
 import com.organizame.reportes.dto.FilaTabla;
+import com.organizame.reportes.dto.VentasPorMes;
 import com.organizame.reportes.dto.auxiliar.PortadaTotales;
+import com.organizame.reportes.utils.Utilidades;
 import jakarta.validation.OverridesAttribute;
 import lombok.extern.slf4j.Slf4j;
 import org.jfree.chart.ChartFactory;
@@ -50,9 +52,9 @@ public class graficas2 {
         tema.setRangeGridlinePaint(Color.LIGHT_GRAY);
 
         // 🔠 Fuentes
-        tema.setExtraLargeFont(new Font("Tahoma", Font.BOLD, 16)); // título
-        tema.setLargeFont(new Font("Tahoma", Font.PLAIN, 14));     // ejes
-        tema.setRegularFont(new Font("Tahoma", Font.PLAIN, 12));   // etiquetas
+        tema.setExtraLargeFont(new Font("Tahoma", Font.BOLD, 18)); // título
+        tema.setLargeFont(new Font("Tahoma", Font.PLAIN, 16));     // ejes
+        tema.setRegularFont(new Font("Tahoma", Font.PLAIN, 14));   // etiquetas
 
         // 🎯 Colores de las series
 
@@ -82,7 +84,7 @@ public class graficas2 {
                 .filter(dato -> !dato.getModelo().equalsIgnoreCase("TOTAL"))
                 .filter(dato -> dato.getPorcentaje() > 0.02)
                 .forEach(dato ->
-                dataset.addValue(dato.getPorcentaje() , dato.getModelo(), "Participacion")
+                dataset.addValue(dato.getPorcentaje() * 100 , dato.getModelo(), "Participacion")
         );
         return dataset;
     }
@@ -92,9 +94,10 @@ public class graficas2 {
         datos.stream()
                 .filter(dato -> !dato.getModelo().equalsIgnoreCase("TOTAL"))
                 .filter(dato -> dato.getPorcentaje() > 0.02)
-                .forEach(dato ->
-                        dataset.setValue(dato.getModelo(), dato.getPorcentaje())
-                );
+                .forEach(dato -> {
+                        dataset.setValue(dato.getModelo(),  dato.getPorcentaje() * 100);
+                       dataset.setValue(dato.getModelo(),  dato.getTotal());
+                });
         return dataset;
     }
 
@@ -123,6 +126,55 @@ public class graficas2 {
         Stroke grosor = new BasicStroke(3.5f);
         renderer.setDefaultStroke(grosor);
         plot.setRenderer(0, renderer);
+        return chart;
+    }
+
+    public JFreeChart generarGraficaLineasMarcas(String titulo, List<FilaTabla> tabla) {
+        DefaultCategoryDataset dataset = createDataset(tabla);
+
+        JFreeChart chart = ChartFactory.createLineChart(
+                titulo, "Mes", "Unidades Vendidas", dataset,
+                PlotOrientation.VERTICAL, true, true, false
+        );
+
+        this.tema.apply(chart);
+        chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(
+                org.jfree.chart.axis.CategoryLabelPositions.UP_45
+        );
+
+        CategoryPlot plot = chart.getCategoryPlot();
+        LineAndShapeRenderer renderer = new LineAndShapeRenderer();
+
+        // ✅Se coloca el estilo por default de las lineas
+        renderer.setDefaultShapesVisible(true);
+        renderer.setDefaultShapesFilled(true);
+        renderer.setDefaultItemLabelsVisible(true);
+        renderer.setDefaultItemLabelGenerator(
+                new StandardCategoryItemLabelGenerator("{2}", new DecimalFormat("#,##0"))
+        );
+        renderer.setDefaultPositiveItemLabelPosition(
+                new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BOTTOM_CENTER)
+        );
+        renderer.setDefaultStroke(new BasicStroke(5.0f));
+
+        // ✅ Estilos: Stellantis más gruesa y punteada
+
+        int indiceResaltado = dataset.getRowIndex("STELLANTIS");
+        // ✅ Aplicar estilo específico a la serie resaltada
+        if (Objects.nonNull(indiceResaltado) && indiceResaltado >= 0) {
+            renderer.setSeriesStroke(indiceResaltado, new BasicStroke(
+                    6.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0f,
+                    new float[]{10.0f, 6.0f}, 0.0f  // Línea punteada más gruesa
+            ));
+            renderer.setSeriesPaint(indiceResaltado, Utilidades.convierteRGB("002B7F")); // Azul Stellantis
+            renderer.setSeriesShapesVisible(indiceResaltado, true); // Asegurar que los puntos sean visibles
+        }
+
+        plot.setRenderer(renderer);
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+        plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
+
         return chart;
     }
 
@@ -212,17 +264,17 @@ public class graficas2 {
         );
     }
 
-    public  JFreeChart createComboChart(String titulo, List<PortadaTotales> datos, String origen) {
+    public JFreeChart createComboChart(String titulo, List<PortadaTotales> datos, String origen) {
         // Crear datasets separados
-        DefaultCategoryDataset datasetBar = createBarDataset(datos, origen );
-        DefaultCategoryDataset datasetLine = createLineDataset( datos );
+        DefaultCategoryDataset datasetBar = createBarDataset(datos, origen);
+        DefaultCategoryDataset datasetLine = createLineDataset(datos);
 
         // Crear gráfico base con barras
         JFreeChart chart = ChartFactory.createBarChart(
                 titulo,
                 "Periodo",
                 "Ventas",
-                datasetBar, // solo las barras aquí
+                datasetBar,
                 PlotOrientation.VERTICAL,
                 true, true, false
         );
@@ -231,32 +283,58 @@ public class graficas2 {
 
         // --- Eje secundario para %
         NumberAxis rangeAxis2 = new NumberAxis("% Market Share");
-        rangeAxis2.setNumberFormatOverride(new DecimalFormat("0.00%", DecimalFormatSymbols.getInstance(Locale.US)));
+        rangeAxis2.setNumberFormatOverride(new DecimalFormat("0.00%", DecimalFormatSymbols.getInstance(Locale.of("ES","mx"))));
         plot.setRangeAxis(1, rangeAxis2);
+        rangeAxis2.setVisible(false);
 
         // Asignar el dataset del % al segundo rango
         plot.setDataset(1, datasetLine);
         plot.mapDatasetToRangeAxis(1, 1);
 
-        // --- Renderer de barras (usa dataset 0)
+        // --- Renderer de barras
         BarRenderer barRenderer = (BarRenderer) plot.getRenderer();
-        barRenderer.setSeriesPaint(0, Color.BLUE);   // Origen
+        barRenderer.setSeriesPaint(0, Utilidades.convierteRGB("4E95D9"));   // Origen
         barRenderer.setSeriesPaint(1, Color.BLACK);  // Industria
         barRenderer.setItemMargin(0.05);
 
-        // --- Renderer de línea (usa dataset 1)
+        // --- Configurar labels de barras: VERTICALES (90°)
+        barRenderer.setDefaultItemLabelsVisible(true);
+        barRenderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator("{2}", new DecimalFormat("#,##0")));
+
+        // Rotación vertical: 90 grados (de izquierda a derecha)
+        TextAnchor textBlockAnchor = TextAnchor.TOP_CENTER; // Etiqueta arriba del punto, girada
+        double rotationRadians = Math.toRadians(180.0); // 90 grados en radianes
+
+        // Aplicar rotación específica por serie si lo deseas, o global:
+        ItemLabelPosition positionVertical = new ItemLabelPosition(
+                ItemLabelAnchor.CENTER,
+                TextAnchor.TOP_CENTER,
+                textBlockAnchor,
+                rotationRadians
+        );
+
+        // Aplicar posición con rotación a ambas series de barras
+        barRenderer.setSeriesPositiveItemLabelPosition(0, positionVertical);
+        //barRenderer.setSeriesPositiveItemLabelPosition(1, positionVertical);
+
+        // --- Renderer de línea
         LineAndShapeRenderer lineRenderer = new LineAndShapeRenderer();
         lineRenderer.setSeriesPaint(0, Color.RED);
-        lineRenderer.setSeriesStroke(0, new BasicStroke(2.5f));
+        lineRenderer.setSeriesStroke(0, new BasicStroke(3.0f));
         lineRenderer.setDefaultShapesVisible(true);
         lineRenderer.setDefaultShapesFilled(true);
+
+        // Labels en la línea: sin rotación, sobre el punto
+        lineRenderer.setDefaultItemLabelsVisible(true);
+        lineRenderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator("{2}%", new DecimalFormat("0.00")));
+        lineRenderer.setDefaultPositiveItemLabelPosition(
+                new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BOTTOM_CENTER)
+        );
+
         plot.setRenderer(1, lineRenderer);
 
-        // Rotar etiquetas
         plot.getDomainAxis().setCategoryLabelPositions(
                 org.jfree.chart.axis.CategoryLabelPositions.UP_45);
-
-        //chart.getLegend().setItemFont(new Font("SansSerif", Font.BOLD, 12));
 
         return chart;
     }
@@ -275,7 +353,7 @@ public class graficas2 {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
         datos.forEach(dato ->
-                dataset.addValue(dato.getPorcentaje(), "% Part. Ventas origen Brasil", dato.getMes())
+                dataset.addValue(dato.getPorcentaje() *100, "% Part. Ventas origen Brasil", dato.getMes())
         );
 
         return dataset;
@@ -333,7 +411,7 @@ public class graficas2 {
         renderer.setDefaultItemLabelPaint(Color.WHITE);
         renderer.setDefaultPositiveItemLabelPosition(
                 new ItemLabelPosition(ItemLabelAnchor.CENTER, TextAnchor.CENTER));
-        renderer.setDrawBarOutline(false);
+        //renderer.setDrawBarOutline(false);
 
         plot.setRenderer(renderer);
 
@@ -360,7 +438,7 @@ public class graficas2 {
                 new DecimalFormat("#,##0"),
                 new DecimalFormat("0%")
         ));
-        plot.setLabelFont(new Font("Tahoma", Font.BOLD, 12));
+        plot.setLabelFont(new Font("Tahoma", Font.BOLD, 18));
         plot.setLabelPaint(Color.BLACK);
         plot.setLabelBackgroundPaint(null);
         plot.setLabelOutlinePaint(null);
@@ -368,7 +446,7 @@ public class graficas2 {
 
 
         // ✅ Estilo general
-        chart.getTitle().setFont(new Font("Tahoma", Font.BOLD, 18));
+        chart.getTitle().setFont(new Font("Tahoma", Font.BOLD, 26));
         chart.setBackgroundPaint(Color.WHITE);
         plot.setBackgroundPaint(Color.WHITE);
         plot.setOutlineVisible(false);

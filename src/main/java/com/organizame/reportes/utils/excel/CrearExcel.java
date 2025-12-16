@@ -5,6 +5,7 @@ import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.exceptions.ExcelException;
 import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.utils.SpringContext;
+import com.organizame.reportes.utils.excel.dto.ColumnaFila;
 import com.organizame.reportes.utils.excel.dto.Posicion;
 import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
 import lombok.Getter;
@@ -39,6 +40,7 @@ public class CrearExcel {
     private final CrearGrafica graficas;
 
     private XSSFCellStyle encabezado;
+    private EstiloCeldaExcel rojo;
 
 
     public CrearExcel() {
@@ -58,7 +60,7 @@ public class CrearExcel {
         if (hoja == null || hoja.isBlank()) {
             nombreHoja = "Nombre vacío";
         } else {
-            nombreHoja = hoja.trim().length() < 30 ? hoja.trim() : hoja.substring(0, 30).trim();
+            nombreHoja = hoja.trim().length() < 31 ? hoja.trim() : hoja.substring(0, 31).trim();
         }
 
         XSSFSheet sheet = wb.createSheet(nombreHoja);
@@ -67,12 +69,6 @@ public class CrearExcel {
     }
 
 
-    public Posicion creaTabla(XSSFSheet hoja, List<List<Object>> datos, Integer columna, Integer  fila){
-        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
-        tabla.tablaFromList(datos, columna, fila);
-        var resultado = tabla.procesaTabla();
-        return resultado;
-    }
 
     public Posicion creaTablaEstilo(XSSFSheet hoja, List<FilaTabla> datos, Integer columna, Integer  fila){
         Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
@@ -87,10 +83,7 @@ public class CrearExcel {
         return tabla.procesaTablaEstilo();
     }
 
-    public Posicion creaFila(XSSFSheet hoja, FilaTabla filaDatos, Posicion posicion, int ancho){
-        Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
-        return posicion;
-    }
+
 
     public Posicion creaTexto(XSSFSheet hoja, String valor, Posicion posicion, int ancho){
         Tabla tabla = new Tabla(wb, estilos, encabezado, hoja);
@@ -116,6 +109,17 @@ public class CrearExcel {
         Integer fuenteSize = env.getProperty("excel.font.size", Integer.class);
         //colores
         ColorExcel estandar = new ColorExcel("Estandar", "#FEFEFE", "F5F5F5");
+        ColorExcel rojo = new ColorExcel("Rojo", "#FEFEFE", "F5F5F5");
+        var estiloRojo = new EstiloCeldaExcel(rojo, wb);
+
+        var fuenteRojo = estiloRojo.getNormal().getFont();
+        fuenteRojo.setBold(true);
+        fuenteRojo.setColor(rojo.ConvierteRGB("#FF0000"));
+        estiloRojo.getNormal().setFont(fuenteRojo);
+        estiloRojo.getOdd().setFont(fuenteRojo);
+        estiloRojo.getOddPorciento().setFont(fuenteRojo);
+        estiloRojo.getNormalPorciento().setFont(fuenteRojo);
+
         XSSFColor azulObscuro = estandar.ConvierteRGB("002B7F");
 
         encabezado = wb.createCellStyle();
@@ -124,6 +128,9 @@ public class CrearExcel {
         resaltar.setFontHeightInPoints(fuenteSize.shortValue());
         resaltar.setBold(true);
         resaltar.setColor(IndexedColors.WHITE.getIndex());
+        encabezado.setWrapText(true);
+        encabezado.setAlignment(HorizontalAlignment.CENTER);
+        encabezado.setVerticalAlignment(VerticalAlignment.CENTER);
         encabezado.setFont(resaltar);
         encabezado.setBorderTop(BorderStyle.MEDIUM);
         encabezado.setBorderBottom(BorderStyle.MEDIUM);
@@ -133,6 +140,8 @@ public class CrearExcel {
         encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         estilos.add(new EstiloCeldaExcel(estandar, wb));
+        estilos.add(estiloRojo);
+        this.rojo = estiloRojo;
         //Estilo Stellantis
         var colorEstellantis = new ColorExcel("Stellantis", "96938E" ,"#C7C5C2");
         var estiloEstellantis = new EstiloCeldaExcel(colorEstellantis, wb);
@@ -142,6 +151,7 @@ public class CrearExcel {
         var colorEncabezado = new ColorExcel("Encabezado", "002B7F" ,"#002B7F");
         var estiloEncabezado = new EstiloCeldaExcel(colorEncabezado,wb);
         estiloEncabezado.setNormal(encabezado);
+        estiloEncabezado.setOdd(encabezado);
         estilos.add(estiloEncabezado);
         var colorTotal = new ColorExcel("Total", "00B050" ,"#00B050");
         var estiloTotal = new EstiloCeldaExcel(colorTotal,wb);
@@ -160,19 +170,18 @@ public class CrearExcel {
         }
     }
 
-    public void TestGrafica(PosicionGrafica posicion,  XSSFSheet hoja) throws GraficaException {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.addValue(23, "JFreeSVG", "Warm-up");
-        dataset.addValue(11, "Batik", "Warm-up");
-        dataset.addValue(42, "JFreeSVG", "Test");
-        dataset.addValue(21, "Batik", "Test");
-
-        this.agregarGrafica(posicion, "ejemplo", "x", "y", hoja, dataset);
+    public Posicion creaFila(XSSFSheet hoja, ColumnaFila filaDatos){
+        var filasColumnas = new FilasColumnas(wb, hoja, this.estilos, this.estilos.get(0), this.rojo );
+        filasColumnas.DibujaFila(filaDatos);
+        return filaDatos.getPosicion();
     }
 
-    public void agregarGrafica(PosicionGrafica posicion, String titulo, String xAxis, String yAxis , XSSFSheet hoja, DefaultCategoryDataset datos) throws GraficaException {
-        graficas.insertarImagenBarras(hoja, posicion, datos, titulo, xAxis, yAxis );
+    public Posicion creaColumna(XSSFSheet hoja, ColumnaFila filaDatos){
+        var filasColumnas = new FilasColumnas(wb, hoja, this.estilos, this.estilos.get(0), this.rojo );
+        filasColumnas.DibujaColumna(filaDatos);
+        return filaDatos.getPosicion();
     }
+
 
     public ByteArrayInputStream guardaExcel() throws IOException {
         var out = new ByteArrayOutputStream();

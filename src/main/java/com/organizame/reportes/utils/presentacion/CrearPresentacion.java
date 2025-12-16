@@ -15,9 +15,7 @@ import org.springframework.core.io.Resource;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -136,11 +134,16 @@ public class CrearPresentacion {
             run.setFontColor(estilo.getFontColor());
             run.setBold(estilo.isBold());
 
+            if(col != 0){
+                paragraph.setTextAlign(TextParagraph.TextAlign.RIGHT);
+            }
+
             // Aplicar bordes negros finos
             cell.setBorderCap(TableCell.BorderEdge.bottom, StrokeStyle.LineCap.FLAT);
             cell.setBorderCap(TableCell.BorderEdge.top, StrokeStyle.LineCap.FLAT);
             cell.setBorderCap(TableCell.BorderEdge.left, StrokeStyle.LineCap.FLAT);
             cell.setBorderCap(TableCell.BorderEdge.right, StrokeStyle.LineCap.FLAT);
+
         }
     }
 
@@ -165,6 +168,15 @@ public class CrearPresentacion {
 
     public void insertarImagen(XSLFSlide diapositiva, PosicionGrafica posicionGrafica, byte[] byteArray) {
         XSLFPictureData pictureData = diapositiva.getSlideShow().addPicture(byteArray, PictureData.PictureType.PNG);
+
+        var picture = diapositiva.createPicture(pictureData);
+        // Definir posición y tamaño
+        picture.setAnchor(this.getRectangle(posicionGrafica));
+    }
+
+    public void insertarImagen(XSLFSlide diapositiva, PosicionGrafica posicionGrafica, File imagen) throws IOException {
+        FileInputStream inputStream = new FileInputStream(imagen);
+        XSLFPictureData pictureData = diapositiva.getSlideShow().addPicture(inputStream.readAllBytes(), PictureData.PictureType.PNG);
 
         var picture = diapositiva.createPicture(pictureData);
         // Definir posición y tamaño

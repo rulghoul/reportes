@@ -2,6 +2,7 @@ package com.organizame.reportes.utils.excel;
 
 import com.organizame.reportes.dto.FilaTabla;
 import com.organizame.reportes.utils.SpringContext;
+import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.dto.Posicion;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.common.usermodel.HyperlinkType;
@@ -23,6 +24,8 @@ public class Tabla {
 
     private final List<EstiloCeldaExcel> estilos;
 
+    private final EstiloCeldaExcel rojo;
+
     private final XSSFCellStyle encabezado;
 
     private final XSSFSheet hoja;
@@ -43,6 +46,9 @@ public class Tabla {
         this.estilos = estilos;
         this.encabezado = encabezado;
         this.hoja = hoja;
+        this.rojo = estilos.stream().filter(est -> est.getNombre().equalsIgnoreCase("Rojo"))
+
+                .findFirst().orElse(estilos.get(0));
     }
 
 
@@ -145,20 +151,20 @@ public class Tabla {
                 .filter(e -> e.getNombre().equalsIgnoreCase("Estandar")).findFirst().get());
         log.debug("Se recupero el estilo **{}** para la peticion de estilo {}", estilo.getNombre(), color);
         for (Object celda : fila) {
-            Cell cell = row.createCell(cellnum);
-            if (celda != null) {
-                if (primero) {
-                    cell.setCellStyle(encabezado);
-                } else {
-                    if ((elemento % 3) != 0) {
-                        cell.setCellStyle(estilo.getOdd());
+                Cell cell = row.createCell(cellnum);
+                if (celda != null) {
+                    if (primero) {
+                        cell.setCellStyle(encabezado);
                     } else {
-                        cell.setCellStyle(estilo.getNormal());
+                        if ((elemento % 3) != 0) {
+                            cell.setCellStyle(estilo.getOdd());
+                        } else {
+                            cell.setCellStyle(estilo.getNormal());
+                        }
                     }
                 }
-            }
-            this.trasnforma(cell, celda, ((elemento % 3) != 0), estilo);
-            cellnum++;
+                this.trasnforma(cell, celda, ((elemento % 3) != 0), estilo);
+                cellnum++;
         }
 
         //aplicar el autosize
@@ -172,43 +178,8 @@ public class Tabla {
         rownum++;
     }
 
-    private void trasnforma(Cell cell, Object valor, boolean par, EstiloCeldaExcel estilo) {
-        try {
-            switch (valor) {
-                case String s -> cell.setCellValue(s);
-                case Double d -> {
-                    cell.setCellValue(d);
-                    cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
-                }
-                case Date d -> {
-                    cell.setCellValue(d);
-                    cell.setCellStyle(par ? estilo.getOddDate() : estilo.getNormalDate());
-                }
-                case BigDecimal bd -> {
-                    cell.setCellValue(bd.doubleValue());
-                    cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
-                }
-                case Integer i -> cell.setCellValue(i);
-                case Boolean b -> cell.setCellValue(b ? "VERDADERO" : "FALSO");
-                case List<?> temp -> manejarArrayList(cell, temp);
-                case null, default -> {
-                    System.out.println("No ESTIPULADO: " +
-                            (valor != null ? valor.getClass().getTypeName() : "null"));
-                }
-            }
-        } catch (Exception e) {
-            cell.setCellValue("");
-        }
+    private void trasnforma(Cell cell, Object celda, boolean ispar, EstiloCeldaExcel estilo) {
+        Utilidades.trasnforma(this.wb, cell, celda, ispar, estilo, this.rojo);
     }
-
-    private void manejarArrayList(Cell cell, List<?> temp) {
-        if (temp.size() >= 2 && temp.get(0) instanceof String && temp.get(1) instanceof String) {
-            cell.setCellValue((String) temp.get(0));
-            Hyperlink href = this.wb.getCreationHelper().createHyperlink(HyperlinkType.URL);
-            href.setAddress((String) temp.get(1));
-            cell.setHyperlink(href);
-        }
-    }
-
 
 }

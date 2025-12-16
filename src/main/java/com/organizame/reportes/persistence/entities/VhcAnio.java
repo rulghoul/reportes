@@ -44,7 +44,6 @@ public class VhcAnio implements Serializable {
     @Column(name="IDVERSION")
     private byte[]     idversion ;
 
-    //--- LINKS ( RELATIONSHIPS )
     @ManyToOne
     @JoinColumn(name="IDVERSION", referencedColumnName="IDVERSION", insertable=false, updatable=false)
     private VhcVersion vhcversion ; 

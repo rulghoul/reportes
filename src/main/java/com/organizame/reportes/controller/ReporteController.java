@@ -1,9 +1,9 @@
 package com.organizame.reportes.controller;
 
 import com.organizame.reportes.dto.request.RequestOrigen;
+import com.organizame.reportes.dto.request.RequestRanking;
 import com.organizame.reportes.exceptions.SinDatos;
-import com.organizame.reportes.service.ReporteExcelService;
-import com.organizame.reportes.service.ReportePresentacionService;
+import com.organizame.reportes.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,10 +28,18 @@ public class ReporteController {
 
     private final ReporteExcelService serviceLibro;
     private final ReportePresentacionService servicePresentacion;
+    private final ReportePDFService pdfService;
+    private final ReporteRankingMarca serviceRanking;
+    private final ReporteFinaciero serviceFinanciero;
 
-    public ReporteController(ReporteExcelService service, ReportePresentacionService servicePresentacion){
+    public ReporteController(ReporteExcelService service, ReportePresentacionService servicePresentacion,
+                             ReportePDFService pdfService, ReporteRankingMarca serviceRanking,
+                             ReporteFinaciero serviceFinanciero){
         this.serviceLibro = service;
         this.servicePresentacion = servicePresentacion;
+        this.pdfService = pdfService;
+        this.serviceRanking = serviceRanking;
+        this.serviceFinanciero = serviceFinanciero;
     }
 
     @Operation(summary = "regresa reporte Excel")
@@ -89,6 +97,106 @@ public class ReporteController {
             log.error("Error al generar la Presentacion", e);
             Map<String, String> error = new HashMap<>();
             error.put("mensaje", "No se pudo generar el archivo de Presentacion");
+            error.put("detalle", e.getMessage());
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(error);
+        }catch (SinDatos e){
+            return ResponseEntity.badRequest().body("Error en la petición: " + e.getMessage());
+        }
+    }
+
+    @Operation(summary = "regresa reporte en formato PDF")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
+    @PostMapping("/pdf")
+    @ResponseBody
+    public ResponseEntity<?>  reportePDF(@RequestBody RequestOrigen request){
+        try {
+            ByteArrayInputStream presentacion = servicePresentacion.CrearPresentacionOrigen(request);
+            var resultado = pdfService.ConviertePPTtoPDF(presentacion);
+            //Codigo para convertir en base64 String base64String = convertToBase64(resultado);
+            var archivo = servicePresentacion.getNombreArchivo();
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + archivo + ".pdf")
+                    .contentType(MediaType.parseMediaType("application/pdf"))
+                    .body(new InputStreamResource(resultado, "reporte"));
+        } catch (IOException e) {
+
+            log.error("Error al generar la Presentacion", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("mensaje", "No se pudo generar el archivo de Presentacion");
+            error.put("detalle", e.getMessage());
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(error);
+        }catch (SinDatos e){
+            return ResponseEntity.badRequest().body("Error en la petición: " + e.getMessage());
+        }
+    }
+
+
+    @Operation(summary = "regresa reporte Ranking")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
+    @PostMapping("/ranking")
+    @ResponseBody
+    public ResponseEntity<?>  reporteRanking(@RequestBody RequestRanking request){
+        try {
+            ByteArrayInputStream resultado = serviceRanking.CrearExcelRanking(request);
+            var archivo = serviceRanking.getNombreArchivo();
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + archivo + ".xlsx")
+                    .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+                    .body(new InputStreamResource(resultado, "reporte"));
+        } catch (IOException e) {
+
+            log.error("Error al generar el Excel", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("mensaje", "No se pudo generar el archivo Excel");
+            error.put("detalle", e.getMessage());
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(error);
+        }catch (SinDatos e){
+            return ResponseEntity.badRequest().body("Error en la petición: " + e.getMessage());
+        }
+    }
+
+
+    @Operation(summary = "regresa reporte Financiero")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cargo exitoso", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))}),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
+    @PostMapping("/financiero")
+    @ResponseBody
+    public ResponseEntity<?>  reporteFinanciero(@RequestBody RequestRanking request){
+        try {
+            ByteArrayInputStream resultado = serviceFinanciero.CrearExcelFinanciero(request);
+            var archivo = serviceFinanciero.getNombreArchivo();
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + archivo + ".xlsx")
+                    .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+                    .body(new InputStreamResource(resultado, "reporte"));
+        } catch (IOException e) {
+
+            log.error("Error al generar el Excel", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("mensaje", "No se pudo generar el archivo Excel");
             error.put("detalle", e.getMessage());
 
             return ResponseEntity

@@ -29,6 +29,18 @@ public interface VhcModeloperiodoindustriaRepository2 extends JpaRepository<VhcM
     );
 
     @Query("""
+                select v 
+                from VhcModeloperiodoindustria v
+                where v.periodoanio = :anio and v.periodomes between :desde and :hasta
+                order by v.periodoanio, v.periodomes
+            """)
+    List<VhcModeloperiodoindustria> findTotalUltimosMeses(
+            @Param("anio") int anio,
+            @Param("desde") int desde,
+            @Param("hasta") int hasta
+    );
+
+    @Query("""
                 select sum(v.cantidad) 
                 from VhcModeloperiodoindustria v
                 where v.origenarchivo = :origen
@@ -48,6 +60,18 @@ public interface VhcModeloperiodoindustriaRepository2 extends JpaRepository<VhcM
     Optional<Integer> findSumaTotalCantidadGlobalPorFechas(
             @Param("desde") int desde,
             @Param("hasta") int hasta
+    );
+
+    @Query("""
+                select sum(v.cantidad) 
+                from VhcModeloperiodoindustria v
+                where  (v.periodoanio * 100 + v.periodomes) between :desde and :hasta
+                and v.fabricantearchivo = :marca
+            """)
+    Optional<Integer> findSumaTotalCantidadMarcaPorFechas(
+            @Param("desde") int desde,
+            @Param("hasta") int hasta,
+            @Param("marca") String marca
     );
 
 
