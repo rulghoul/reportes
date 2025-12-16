@@ -190,7 +190,7 @@ public class ReporteRankingMarca {
         filas.add(new FilaTabla("Encabezado", dos));
         var count = new AtomicInteger(1);
         var random = new Random(123456);
-        filas.addAll(acumuladosActual.stream()
+        filas.addAll(acumuladosActual.subList(0,15).stream()
                 .filter(acu -> !acu.getFabricante().equalsIgnoreCase("TOTAL"))
                 .map(acumulado -> {
                     var rankActual = count.getAndIncrement();
@@ -292,8 +292,7 @@ public class ReporteRankingMarca {
         filas.add(portHeader);
         var count = new AtomicInteger(1);
         var random = new Random(123456);
-        filas.addAll(acumuladosporGrupo.stream()
-                .filter(acu -> !acu.getFabricante().equalsIgnoreCase("TOTAL"))
+        filas.addAll(acumuladosporGrupo.subList(0,15).stream()
                 .map(acumulado -> {
                     var rank = count.getAndIncrement();
                     var agencia = random.nextInt(80, 150);
