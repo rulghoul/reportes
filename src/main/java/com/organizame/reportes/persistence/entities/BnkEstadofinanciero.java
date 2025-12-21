@@ -11,6 +11,7 @@ import org.hibernate.proxy.HibernateProxy;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.List;
@@ -441,60 +442,214 @@ public class BnkEstadofinanciero implements Serializable {
                         .add(nvl(otro.utilidaddealersreportaronutilidad)));
         resultado.setUtilidadporcentajedealersconutilidad(
                 nvl(this.utilidadporcentajedealersconutilidad)
-                        .add(nvl(otro.utilidadporcentajedealersconutilidad)).divide(dos));
+                        .add(nvl(otro.utilidadporcentajedealersconutilidad)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadutilidadnetaentreventastotales(
                 nvl(this.utilidadutilidadnetaentreventastotales)
-                        .add(nvl(otro.utilidadutilidadnetaentreventastotales)).divide(dos));
+                        .add(nvl(otro.utilidadutilidadnetaentreventastotales)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadebitdaentreventastotales(
                 nvl(this.utilidadebitdaentreventastotales)
-                        .add(nvl(otro.utilidadebitdaentreventastotales)).divide(dos));
+                        .add(nvl(otro.utilidadebitdaentreventastotales)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadabsorcionservicio(
                 nvl(this.utilidadabsorcionservicio)
-                        .add(nvl(otro.utilidadabsorcionservicio)).divide(dos));
+                        .add(nvl(otro.utilidadabsorcionservicio)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadroiporcentaje(
                 nvl(this.utilidadroiporcentaje)
-                        .add(nvl(otro.utilidadroiporcentaje)).divide(dos));
+                        .add(nvl(otro.utilidadroiporcentaje)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadroioperativoporcentaje(
                 nvl(this.utilidadroioperativoporcentaje)
-                        .add(nvl(otro.utilidadroioperativoporcentaje)).divide(dos));
+                        .add(nvl(otro.utilidadroioperativoporcentaje)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadmargenbruto(
                 nvl(this.utilidadmargenbruto)
-                        .add(nvl(otro.utilidadmargenbruto)).divide(dos));
+                        .add(nvl(otro.utilidadmargenbruto)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadplanpisoutilidadbruta(
                 nvl(this.utilidadplanpisoutilidadbruta)
-                        .add(nvl(otro.utilidadplanpisoutilidadbruta)).divide(dos));
+                        .add(nvl(otro.utilidadplanpisoutilidadbruta)).divide(dos, MathContext.DECIMAL32));
 
         // UTILIDAD POR ÁREA
         resultado.setUtilidadautosnuevosmenudeo(
                 nvl(this.utilidadautosnuevosmenudeo)
-                        .add(nvl(otro.utilidadautosnuevosmenudeo)).divide(dos));
+                        .add(nvl(otro.utilidadautosnuevosmenudeo)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadautosnuevosflotillas(
                 nvl(this.utilidadautosnuevosflotillas)
-                        .add(nvl(otro.utilidadautosnuevosflotillas)).divide(dos));
+                        .add(nvl(otro.utilidadautosnuevosflotillas)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadautosnuevosbonosplanta(
                 nvl(this.utilidadautosnuevosbonosplanta)
-                        .add(nvl(otro.utilidadautosnuevosbonosplanta)).divide(dos));
+                        .add(nvl(otro.utilidadautosnuevosbonosplanta)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadautosnuevostotalsinflotillas(
                 nvl(this.utilidadautosnuevostotalsinflotillas)
-                        .add(nvl(otro.utilidadautosnuevostotalsinflotillas)).divide(dos));
+                        .add(nvl(otro.utilidadautosnuevostotalsinflotillas)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadautosusados(
                 nvl(this.utilidadautosusados)
-                        .add(nvl(otro.utilidadautosusados)).divide(dos));
+                        .add(nvl(otro.utilidadautosusados)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadcontratosservicio(
                 nvl(this.utilidadcontratosservicio)
-                        .add(nvl(otro.utilidadcontratosservicio)).divide(dos));
+                        .add(nvl(otro.utilidadcontratosservicio)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadmecanica(
                 nvl(this.utilidadmecanica)
-                        .add(nvl(otro.utilidadmecanica)).divide(dos));
+                        .add(nvl(otro.utilidadmecanica)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadhojalateriapintura(
                 nvl(this.utilidadhojalateriapintura)
-                        .add(nvl(otro.utilidadhojalateriapintura)).divide(dos));
+                        .add(nvl(otro.utilidadhojalateriapintura)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadrefacciones(
                 nvl(this.utilidadrefacciones)
-                        .add(nvl(otro.utilidadrefacciones)).divide(dos));
+                        .add(nvl(otro.utilidadrefacciones)).divide(dos, MathContext.DECIMAL32));
         resultado.setUtilidadtotal(
                 nvl(this.utilidadtotal)
-                        .add(nvl(otro.utilidadtotal)).divide(dos));
+                        .add(nvl(otro.utilidadtotal)).divide(dos, MathContext.DECIMAL32));
+
+        return resultado;
+    }
+
+    private BigDecimal variacion(BigDecimal actual, BigDecimal anterior) {
+        return actual.divide(anterior, MathContext.DECIMAL32).subtract(BigDecimal.ONE);
+    }
+
+    public List<Celda> variacionCon(BnkEstadofinanciero otro) {
+        List<Celda> resultado = new ArrayList<>();
+
+        // VENTAS
+        resultado.add(new Celda(
+                this.variacion(this.ventaautosnuevosmenudeo, otro.ventaautosnuevosmenudeo), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventaautosnuevosflotilla, otro.ventaautosnuevosflotilla), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventamercanciasvariasotros, otro.ventamercanciasvariasotros), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventatotalautosnuevos, otro.ventatotalautosnuevos), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventaautosusados, otro.ventaautosusados), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventacontratosservicionuevosusados,
+                        otro.ventacontratosservicionuevosusados), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventamecanica,
+                        otro.ventamecanica)
+                , "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventahojalateriapintura, otro.ventahojalateriapintura),
+                "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventarefacciones, otro.ventarefacciones),
+                "normal", 1));
+        resultado.add(
+                new Celda(this.variacion(this.ventaventastotales, otro.ventaventastotales),
+                        "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventaventatotalesautosnuevosunidades,
+                        otro.ventaventatotalesautosnuevosunidades),
+                "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventapreciopromediounidadmezcla,
+                        otro.ventapreciopromediounidadmezcla),
+                "normal", 1));
+
+        // UTILIDAD BRUTA
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutaautosnuevosmenudeo,
+                        otro.utilidadbrutaautosnuevosmenudeo),
+                "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutaautosnuevosflotilla,
+                        otro.utilidadbrutaautosnuevosflotilla),
+                "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutabonosplanta,
+                        otro.utilidadbrutabonosplanta),
+                "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutatransferenciasbonosincentivosfinancieras,
+                        otro.utilidadbrutatransferenciasbonosincentivosfinancieras), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutatotalautosnuevos,
+                        otro.utilidadbrutatotalautosnuevos), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutaautosusados,
+                        otro.utilidadbrutaautosusados), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutacontratosservicionuevosusados,
+                        otro.utilidadbrutacontratosservicionuevosusados), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutamecanica,
+                        otro.utilidadbrutamecanica), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutahojalateriapintura,
+                        otro.utilidadbrutahojalateriapintura), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutarefacciones,
+                        otro.utilidadbrutarefacciones), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutautilidadbrutatotal,
+                        otro.utilidadbrutautilidadbrutatotal), "normal", 1));
+
+        // GASTOS
+        resultado.add(new Celda(
+                this.variacion(this.gastovariablesnuevos,
+                        otro.gastovariablesnuevos), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastovariablesusados,
+                        otro.gastovariablesusados), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastoplanpiso,
+                        otro.gastoplanpiso), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastoventamecanica,
+                        otro.gastoventamecanica), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastoventahojalateriapintura,
+                        otro.gastoventahojalateriapintura), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastoventarefacciones,
+                        otro.gastoventarefacciones), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastofijos,
+                        otro.gastofijos), "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastosueldospropietariosfuncionarios,
+                        otro.gastosueldospropietariosfuncionarios)
+                , "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastogastostotalessinrentaequivalentes,
+                        otro.gastogastostotalessinrentaequivalentes)
+                , "normal", 1));
+
+        // UTILIDAD NETA
+        resultado.add(new Celda(
+                this.variacion(this.utilidadnetautilidadoperacionsinrentassindepreciacion,
+                        otro.utilidadnetautilidadoperacionsinrentassindepreciacion)
+                , "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadnetabienesinmueblesrentaequivalentes,
+                        otro.utilidadnetabienesinmueblesrentaequivalentes)
+                , "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadnetautilidadoperacion,
+                        otro.utilidadnetautilidadoperacion)
+                , "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadnetaotrosingresosdeducciones,
+                        otro.utilidadnetaotrosingresosdeducciones)
+                , "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadnetautilidadnetareportada,
+                        otro.utilidadnetautilidadnetareportada),
+                "normal", 1));
+
+        resultado.add(new Celda("", "normal", 1));
+
+        // INDICADORES
+        resultado.add(new Celda(
+                this.variacion(this.utilidaddealersreportaronutilidad
+                        , otro.utilidaddealersreportaronutilidad),
+                "normal", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadporcentajedealersconutilidad,
+                        nvl(otro.utilidadporcentajedealersconutilidad)),
+                "normal", 1));
+        resultado.add(new Celda(
+                nvl(this.utilidadutilidadnetaentreventastotales)
+                        .subtract(nvl(otro.utilidadutilidadnetaentreventastotales)),
+                "normal", 1));
+
 
         return resultado;
     }

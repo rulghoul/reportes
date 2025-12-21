@@ -104,20 +104,30 @@ public class ReporteFinaciero {
         var mesActual = filtradoActual.getLast();
         var mesAnterior = filtradoAnterior.getLast();
 
-        excel.creaColumna(hoja, new ColumnaFila(new Posicion(3,2), mesActual.toCeldas(request.getAnio().toString(), mesCadena)));
-        excel.creaColumna(hoja, new ColumnaFila(new Posicion(4,2), mesAnterior.toCeldas(request.getAnio().toString(), mesCadena)));
+        excel.creaColumna(hoja, new ColumnaFila(new Posicion(3,2), mesActual.toCeldas(request.getAnio().toString(), mesCadena.toUpperCase())));
+        excel.creaColumna(hoja, new ColumnaFila(new Posicion(4,2), mesAnterior.toCeldas(String.valueOf(request.getAnio()-1), mesCadena.toUpperCase())));
 
+        excel.creaColumna(hoja, new ColumnaFila(new Posicion(5,5), mesActual.variacionCon(mesAnterior)));
+        //Divisor
         excel.creaColumna(hoja, new ColumnaFila(new Posicion(6,2), List.of(new Celda("", "encabezado", 67))));
 
         var consolidadoActual = filtradoActual.stream().reduce(new BnkEstadofinanciero(), BnkEstadofinanciero::sumarCon);
+        consolidadoActual.setVentamuestra(mesActual.getVentamuestra());
         consolidadoActual.setUtilidaddealersreportaronutilidad(mesActual.getUtilidaddealersreportaronutilidad());
         consolidadoActual.setPeriodomes(mesActual.getPeriodomes());
-        var consolidadoAnterior = filtradoActual.stream().reduce(new BnkEstadofinanciero(), BnkEstadofinanciero::sumarCon);
+        var consolidadoAnterior = filtradoAnterior.stream().reduce(new BnkEstadofinanciero(), BnkEstadofinanciero::sumarCon);
+        consolidadoAnterior.setVentamuestra(mesAnterior.getVentamuestra());
         consolidadoAnterior.setUtilidaddealersreportaronutilidad(mesAnterior.getUtilidaddealersreportaronutilidad());
         consolidadoAnterior.setPeriodomes(mesAnterior.getPeriodomes());
 
         excel.creaColumna(hoja, new ColumnaFila(new Posicion(7,2), consolidadoActual.toCeldas(request.getAnio().toString(), fecha)));
-        excel.creaColumna(hoja, new ColumnaFila(new Posicion(8,2), consolidadoAnterior.toCeldas(request.getAnio().toString(), fecha)));
+        excel.creaColumna(hoja, new ColumnaFila(new Posicion(8,2), consolidadoAnterior.toCeldas(String.valueOf(request.getAnio()-1), fecha)));
+        excel.creaColumna(hoja, new ColumnaFila(new Posicion(9,5), consolidadoActual.variacionCon(consolidadoAnterior)));
+
+        var anchos = List.of(2,10,75,35,35,35,2,35,35,35);
+        for(var i = 0; anchos.size() > i; i++ ){
+            hoja.setColumnWidth(i, anchos.get(i)*150);
+        }
     }
 
     private void encabezadosYtitiulos(CrearExcel excel, XSSFSheet hoja){
