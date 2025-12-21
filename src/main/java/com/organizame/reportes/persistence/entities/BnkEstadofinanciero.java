@@ -4,13 +4,16 @@
  */
 package com.organizame.reportes.persistence.entities;
 
+import com.organizame.reportes.utils.excel.dto.Celda;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.List;
 
 /**
  * JPA entity class for "BnkEstadofinanciero"
@@ -229,4 +232,234 @@ public class BnkEstadofinanciero implements Serializable {
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
+
+    public List<Celda> toCeldas(String anio, String mes) {
+        List<Celda> resultado = new ArrayList<>();
+
+        resultado.add(new Celda(anio, "grisEncabezado", 1));
+        resultado.add(new Celda(mes, "grisEncabezado", 1));
+
+        resultado.add(new Celda(this.ventamuestra.intValue(), "Encabezado", 1));
+        resultado.add(new Celda(this.ventaautosnuevosmenudeo.intValue(), "normal", 1));
+        resultado.add(new Celda(this.ventaautosnuevosflotilla.intValue(), "normal", 1));
+        resultado.add(new Celda(this.ventamercanciasvariasotros.intValue(), "normal", 1));
+
+        //Ventas
+        resultado.add(new Celda(this.ventatotalautosnuevos.intValue(), "normal", 1));
+        resultado.add(new Celda(this.ventaautosusados.intValue(), "normal", 1));
+        resultado.add(new Celda(this.ventacontratosservicionuevosusados.intValue(), "normal", 1));
+        resultado.add(new Celda(this.ventamecanica.intValue(), "normal", 1));
+        resultado.add(new Celda(this.ventahojalateriapintura.intValue(), "normal", 1));
+        resultado.add(new Celda(this.ventarefacciones.intValue(), "normal", 1));
+        resultado.add(new Celda(this.ventaventastotales.intValue(), "normal", 1));
+        resultado.add(new Celda(this.ventaventatotalesautosnuevosunidades.intValue(), "normal", 1));
+        resultado.add(new Celda(this.ventapreciopromediounidadmezcla.intValue(), "normal", 1));
+
+        resultado.add(new Celda(this.utilidadbrutaautosnuevosmenudeo.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadbrutaautosnuevosflotilla.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadbrutabonosplanta.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadbrutatransferenciasbonosincentivosfinancieras.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadbrutatotalautosnuevos.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadbrutaautosusados.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadbrutacontratosservicionuevosusados.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadbrutamecanica.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadbrutahojalateriapintura.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadbrutarefacciones.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadbrutautilidadbrutatotal.intValue(), "normal", 1));
+
+
+        //Gastos
+        resultado.add(new Celda(this.gastovariablesnuevos.intValue(), "normal", 1));
+        resultado.add(new Celda(this.gastovariablesusados.intValue(), "normal", 1));
+        resultado.add(new Celda(this.gastoplanpiso.intValue(), "normal", 1));
+        resultado.add(new Celda(this.gastoventamecanica.intValue(), "normal", 1));
+        resultado.add(new Celda(this.gastoventahojalateriapintura.intValue(), "normal", 1));
+        resultado.add(new Celda(this.gastoventarefacciones.intValue(), "normal", 1));
+        resultado.add(new Celda(this.gastofijos.intValue(), "normal", 1));
+        resultado.add(new Celda(this.gastosueldospropietariosfuncionarios.intValue(), "normal", 1));
+        resultado.add(new Celda(this.gastogastostotalessinrentaequivalentes.intValue(), "normal", 1));
+
+
+        resultado.add(new Celda(this.utilidadnetautilidadoperacionsinrentassindepreciacion.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadnetabienesinmueblesrentaequivalentes.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadnetautilidadoperacion.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadnetaotrosingresosdeducciones.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadnetautilidadnetareportada.intValue(), "normal", 1));
+
+        resultado.add(new Celda("", "normal", 1));
+
+        resultado.add(new Celda(this.utilidaddealersreportaronutilidad.intValue(), "encabezado", 1));
+        resultado.add(new Celda(this.utilidadporcentajedealersconutilidad, "normal", 1));
+        resultado.add(new Celda(this.utilidadutilidadnetaentreventastotales, "normal", 1));
+
+        resultado.add(new Celda("", "normal", 1));
+        resultado.add(new Celda("", "normal", 1));
+        resultado.add(new Celda("", "normal", 1));
+
+        resultado.add(new Celda(this.utilidadebitdaentreventastotales, "gris", 1));
+        resultado.add(new Celda(this.utilidadabsorcionservicio, "normal", 1));
+        resultado.add(new Celda(this.utilidadroiporcentaje, "normal", 1));
+        resultado.add(new Celda(this.utilidadroioperativoporcentaje, "normal", 1));
+
+        resultado.add(new Celda("", "normal", 1));
+
+        resultado.add(new Celda(this.utilidadmargenbruto, "azul", 1));
+        resultado.add(new Celda(this.utilidadplanpisoutilidadbruta, "azul", 1));
+        resultado.add(new Celda(this.utilidadautosnuevosmenudeo, "normal", 1));
+        resultado.add(new Celda(this.utilidadautosnuevosflotillas, "normal", 1));
+        resultado.add(new Celda(this.utilidadautosnuevosbonosplanta, "normal", 1));
+        resultado.add(new Celda(this.utilidadautosnuevostotalsinflotillas, "normal", 1));
+        resultado.add(new Celda(this.utilidadautosusados, "normal", 1));
+        resultado.add(new Celda(this.utilidadcontratosservicio, "normal", 1));
+        resultado.add(new Celda(this.utilidadmecanica, "normal", 1));
+        resultado.add(new Celda(this.utilidadhojalateriapintura, "normal", 1));
+        resultado.add(new Celda(this.utilidadrefacciones, "normal", 1));
+        resultado.add(new Celda(this.utilidadtotal, "encabezado", 1));
+
+
+        resultado.add(new Celda("", "normal", 1));
+        resultado.add(new Celda("", "normal", 1));
+
+        resultado.add(new Celda(this.periodomes, "normal", 1));
+        return resultado;
+    }
+
+
+    private static BigDecimal nvl(BigDecimal v) {
+        return v != null ? v : BigDecimal.ZERO;
+    }
+
+    public BnkEstadofinanciero sumarCon(BnkEstadofinanciero otro) {
+        BnkEstadofinanciero r = new BnkEstadofinanciero();
+
+        // Ventas
+        r.setVentamuestra(nvl(this.ventamuestra).add(nvl(otro.ventamuestra)));
+        r.setVentaautosnuevosmenudeo(nvl(this.ventaautosnuevosmenudeo).add(nvl(otro.ventaautosnuevosmenudeo)));
+        r.setVentaautosnuevosflotilla(nvl(this.ventaautosnuevosflotilla).add(nvl(otro.ventaautosnuevosflotilla)));
+        r.setVentamercanciasvariasotros(nvl(this.ventamercanciasvariasotros).add(nvl(otro.ventamercanciasvariasotros)));
+        r.setVentatotalautosnuevos(nvl(this.ventatotalautosnuevos).add(nvl(otro.ventatotalautosnuevos)));
+        r.setVentaautosusados(nvl(this.ventaautosusados).add(nvl(otro.ventaautosusados)));
+        r.setVentacontratosservicionuevosusados(nvl(this.ventacontratosservicionuevosusados).add(nvl(otro.ventacontratosservicionuevosusados)));
+        r.setVentamecanica(nvl(this.ventamecanica).add(nvl(otro.ventamecanica)));
+        r.setVentahojalateriapintura(nvl(this.ventahojalateriapintura).add(nvl(otro.ventahojalateriapintura)));
+        r.setVentarefacciones(nvl(this.ventarefacciones).add(nvl(otro.ventarefacciones)));
+        r.setVentaventastotales(nvl(this.ventaventastotales).add(nvl(otro.ventaventastotales)));
+        r.setVentaventatotalesautosnuevosunidades(nvl(this.ventaventatotalesautosnuevosunidades).add(nvl(otro.ventaventatotalesautosnuevosunidades)));
+        r.setVentapreciopromediounidadmezcla(nvl(this.ventapreciopromediounidadmezcla).add(nvl(otro.ventapreciopromediounidadmezcla)));
+
+        // Utilidad bruta
+        r.setUtilidadbrutaautosnuevosmenudeo(nvl(this.utilidadbrutaautosnuevosmenudeo).add(nvl(otro.utilidadbrutaautosnuevosmenudeo)));
+        r.setUtilidadbrutaautosnuevosflotilla(nvl(this.utilidadbrutaautosnuevosflotilla).add(nvl(otro.utilidadbrutaautosnuevosflotilla)));
+        r.setUtilidadbrutabonosplanta(nvl(this.utilidadbrutabonosplanta).add(nvl(otro.utilidadbrutabonosplanta)));
+        r.setUtilidadbrutatransferenciasbonosincentivosfinancieras(
+                nvl(this.utilidadbrutatransferenciasbonosincentivosfinancieras)
+                        .add(nvl(otro.utilidadbrutatransferenciasbonosincentivosfinancieras)));
+        r.setUtilidadbrutatotalautosnuevos(nvl(this.utilidadbrutatotalautosnuevos).add(nvl(otro.utilidadbrutatotalautosnuevos)));
+        r.setUtilidadbrutaautosusados(nvl(this.utilidadbrutaautosusados).add(nvl(otro.utilidadbrutaautosusados)));
+        r.setUtilidadbrutacontratosservicionuevosusados(
+                nvl(this.utilidadbrutacontratosservicionuevosusados)
+                        .add(nvl(otro.utilidadbrutacontratosservicionuevosusados)));
+        r.setUtilidadbrutamecanica(nvl(this.utilidadbrutamecanica).add(nvl(otro.utilidadbrutamecanica)));
+        r.setUtilidadbrutahojalateriapintura(nvl(this.utilidadbrutahojalateriapintura).add(nvl(otro.utilidadbrutahojalateriapintura)));
+        r.setUtilidadbrutarefacciones(nvl(this.utilidadbrutarefacciones).add(nvl(otro.utilidadbrutarefacciones)));
+        r.setUtilidadbrutautilidadbrutatotal(
+                nvl(this.utilidadbrutautilidadbrutatotal).add(nvl(otro.utilidadbrutautilidadbrutatotal)));
+
+        // Gastos
+        r.setGastovariablesnuevos(nvl(this.gastovariablesnuevos).add(nvl(otro.gastovariablesnuevos)));
+        r.setGastovariablesusados(nvl(this.gastovariablesusados).add(nvl(otro.gastovariablesusados)));
+        r.setGastoplanpiso(nvl(this.gastoplanpiso).add(nvl(otro.gastoplanpiso)));
+        r.setGastoventamecanica(nvl(this.gastoventamecanica).add(nvl(otro.gastoventamecanica)));
+        r.setGastoventahojalateriapintura(nvl(this.gastoventahojalateriapintura).add(nvl(otro.gastoventahojalateriapintura)));
+        r.setGastoventarefacciones(nvl(this.gastoventarefacciones).add(nvl(otro.gastoventarefacciones)));
+        r.setGastofijos(nvl(this.gastofijos).add(nvl(otro.gastofijos)));
+        r.setGastosueldospropietariosfuncionarios(
+                nvl(this.gastosueldospropietariosfuncionarios)
+                        .add(nvl(otro.gastosueldospropietariosfuncionarios)));
+        r.setGastogastostotalessinrentaequivalentes(
+                nvl(this.gastogastostotalessinrentaequivalentes)
+                        .add(nvl(otro.gastogastostotalessinrentaequivalentes)));
+
+        // Utilidad neta
+        r.setUtilidadnetautilidadoperacionsinrentassindepreciacion(
+                nvl(this.utilidadnetautilidadoperacionsinrentassindepreciacion)
+                        .add(nvl(otro.utilidadnetautilidadoperacionsinrentassindepreciacion)));
+        r.setUtilidadnetabienesinmueblesrentaequivalentes(
+                nvl(this.utilidadnetabienesinmueblesrentaequivalentes)
+                        .add(nvl(otro.utilidadnetabienesinmueblesrentaequivalentes)));
+        r.setUtilidadnetautilidadoperacion(
+                nvl(this.utilidadnetautilidadoperacion)
+                        .add(nvl(otro.utilidadnetautilidadoperacion)));
+        r.setUtilidadnetaotrosingresosdeducciones(
+                nvl(this.utilidadnetaotrosingresosdeducciones)
+                        .add(nvl(otro.utilidadnetaotrosingresosdeducciones)));
+        r.setUtilidadnetautilidadnetareportada(
+                nvl(this.utilidadnetautilidadnetareportada)
+                        .add(nvl(otro.utilidadnetautilidadnetareportada)));
+
+        // Indicadores finales
+        r.setUtilidaddealersreportaronutilidad(
+                nvl(this.utilidaddealersreportaronutilidad)
+                        .add(nvl(otro.utilidaddealersreportaronutilidad)));
+        r.setUtilidadporcentajedealersconutilidad(
+                nvl(this.utilidadporcentajedealersconutilidad)
+                        .add(nvl(otro.utilidadporcentajedealersconutilidad)));
+        r.setUtilidadutilidadnetaentreventastotales(
+                nvl(this.utilidadutilidadnetaentreventastotales)
+                        .add(nvl(otro.utilidadutilidadnetaentreventastotales)));
+        r.setUtilidadebitdaentreventastotales(
+                nvl(this.utilidadebitdaentreventastotales)
+                        .add(nvl(otro.utilidadebitdaentreventastotales)));
+        r.setUtilidadabsorcionservicio(
+                nvl(this.utilidadabsorcionservicio)
+                        .add(nvl(otro.utilidadabsorcionservicio)));
+        r.setUtilidadroiporcentaje(
+                nvl(this.utilidadroiporcentaje)
+                        .add(nvl(otro.utilidadroiporcentaje)));
+        r.setUtilidadroioperativoporcentaje(
+                nvl(this.utilidadroioperativoporcentaje)
+                        .add(nvl(otro.utilidadroioperativoporcentaje)));
+        r.setUtilidadmargenbruto(
+                nvl(this.utilidadmargenbruto)
+                        .add(nvl(otro.utilidadmargenbruto)));
+        r.setUtilidadplanpisoutilidadbruta(
+                nvl(this.utilidadplanpisoutilidadbruta)
+                        .add(nvl(otro.utilidadplanpisoutilidadbruta)));
+
+        // Utilidades por área
+        r.setUtilidadautosnuevosmenudeo(
+                nvl(this.utilidadautosnuevosmenudeo)
+                        .add(nvl(otro.utilidadautosnuevosmenudeo)));
+        r.setUtilidadautosnuevosflotillas(
+                nvl(this.utilidadautosnuevosflotillas)
+                        .add(nvl(otro.utilidadautosnuevosflotillas)));
+        r.setUtilidadautosnuevosbonosplanta(
+                nvl(this.utilidadautosnuevosbonosplanta)
+                        .add(nvl(otro.utilidadautosnuevosbonosplanta)));
+        r.setUtilidadautosnuevostotalsinflotillas(
+                nvl(this.utilidadautosnuevostotalsinflotillas)
+                        .add(nvl(otro.utilidadautosnuevostotalsinflotillas)));
+        r.setUtilidadautosusados(
+                nvl(this.utilidadautosusados)
+                        .add(nvl(otro.utilidadautosusados)));
+        r.setUtilidadcontratosservicio(
+                nvl(this.utilidadcontratosservicio)
+                        .add(nvl(otro.utilidadcontratosservicio)));
+        r.setUtilidadmecanica(
+                nvl(this.utilidadmecanica)
+                        .add(nvl(otro.utilidadmecanica)));
+        r.setUtilidadhojalateriapintura(
+                nvl(this.utilidadhojalateriapintura)
+                        .add(nvl(otro.utilidadhojalateriapintura)));
+        r.setUtilidadrefacciones(
+                nvl(this.utilidadrefacciones)
+                        .add(nvl(otro.utilidadrefacciones)));
+        r.setUtilidadtotal(
+                nvl(this.utilidadtotal)
+                        .add(nvl(otro.utilidadtotal)));
+
+        return r;
+    }
+
+
 }

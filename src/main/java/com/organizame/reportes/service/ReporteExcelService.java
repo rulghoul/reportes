@@ -12,7 +12,7 @@ import com.organizame.reportes.repository.service.ModeloPeriodoService;
 import com.organizame.reportes.utils.excel.CrearExcel;
 import com.organizame.reportes.utils.excel.dto.Posicion;
 import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
-import com.organizame.reportes.utils.graficas.graficas2;
+import com.organizame.reportes.utils.graficas.Graficas;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,12 +30,12 @@ public class ReporteExcelService {
 
     private final ModeloPeriodoService service;
 
-    private final graficas2 graficas;
+    private final Graficas graficas;
 
     private String nombreArchivo;
 
     @Autowired
-    public ReporteExcelService(ModeloPeriodoService service, graficas2 graficas){
+    public ReporteExcelService(ModeloPeriodoService service, Graficas graficas){
         this.service = service;
         this.graficas = graficas;
         this.fechaSmall = DateTimeFormatter.ofPattern("MMMuu");

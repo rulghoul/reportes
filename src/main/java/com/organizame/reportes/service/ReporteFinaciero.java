@@ -101,6 +101,16 @@ public class ReporteFinaciero {
 
         this.encabezadosYtitiulos(excel, hoja);
 
+        var mesActual = filtradoActual.getLast();
+        var mesAnterior = filtradoAnterior.getLast();
+
+        excel.creaColumna(hoja, new ColumnaFila(new Posicion(3,2), mesActual.toCeldas(request.getAnio().toString(), mesCadena)));
+        excel.creaColumna(hoja, new ColumnaFila(new Posicion(4,2), mesAnterior.toCeldas(request.getAnio().toString(), mesCadena)));
+
+        excel.creaColumna(hoja, new ColumnaFila(new Posicion(6,2), List.of(new Celda("", "encabezado", 67))));
+
+        excel.creaColumna(hoja, new ColumnaFila(new Posicion(7,2), mesActual.toCeldas(request.getAnio().toString(), fecha)));
+        excel.creaColumna(hoja, new ColumnaFila(new Posicion(8,2), mesAnterior.toCeldas(request.getAnio().toString(), fecha)));
     }
 
     private void encabezadosYtitiulos(CrearExcel excel, XSSFSheet hoja){

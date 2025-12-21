@@ -12,7 +12,7 @@ import com.organizame.reportes.repository.service.ModeloPeriodoService;
 import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
 import com.organizame.reportes.utils.graficas.Images;
-import com.organizame.reportes.utils.graficas.graficas2;
+import com.organizame.reportes.utils.graficas.Graficas;
 import com.organizame.reportes.utils.presentacion.CrearPresentacion;
 import com.organizame.reportes.utils.presentacion.TipoDiapositiva;
 import com.organizame.reportes.utils.presentacion.dto.ColorPresentacion;
@@ -56,14 +56,14 @@ public class ReportePresentacionService {
 
     private final Images images;
 
-    private  final graficas2 graficas;
+    private  final Graficas graficas;
 
     private String nombreArchivo;
     
     private final String STELANTIS = "Stellantis";
 
     @Autowired
-    public ReportePresentacionService(ModeloPeriodoService service, graficas2 graficas,
+    public ReportePresentacionService(ModeloPeriodoService service, Graficas graficas,
                                       ResourceLoader resourceLoader, Images images){
         this.service = service;
         this.graficas = graficas;
