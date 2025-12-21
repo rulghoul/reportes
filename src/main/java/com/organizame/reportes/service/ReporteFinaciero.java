@@ -109,8 +109,15 @@ public class ReporteFinaciero {
 
         excel.creaColumna(hoja, new ColumnaFila(new Posicion(6,2), List.of(new Celda("", "encabezado", 67))));
 
-        excel.creaColumna(hoja, new ColumnaFila(new Posicion(7,2), mesActual.toCeldas(request.getAnio().toString(), fecha)));
-        excel.creaColumna(hoja, new ColumnaFila(new Posicion(8,2), mesAnterior.toCeldas(request.getAnio().toString(), fecha)));
+        var consolidadoActual = filtradoActual.stream().reduce(new BnkEstadofinanciero(), BnkEstadofinanciero::sumarCon);
+        consolidadoActual.setUtilidaddealersreportaronutilidad(mesActual.getUtilidaddealersreportaronutilidad());
+        consolidadoActual.setPeriodomes(mesActual.getPeriodomes());
+        var consolidadoAnterior = filtradoActual.stream().reduce(new BnkEstadofinanciero(), BnkEstadofinanciero::sumarCon);
+        consolidadoAnterior.setUtilidaddealersreportaronutilidad(mesAnterior.getUtilidaddealersreportaronutilidad());
+        consolidadoAnterior.setPeriodomes(mesAnterior.getPeriodomes());
+
+        excel.creaColumna(hoja, new ColumnaFila(new Posicion(7,2), consolidadoActual.toCeldas(request.getAnio().toString(), fecha)));
+        excel.creaColumna(hoja, new ColumnaFila(new Posicion(8,2), consolidadoAnterior.toCeldas(request.getAnio().toString(), fecha)));
     }
 
     private void encabezadosYtitiulos(CrearExcel excel, XSSFSheet hoja){

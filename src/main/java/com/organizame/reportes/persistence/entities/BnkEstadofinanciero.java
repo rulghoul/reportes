@@ -26,7 +26,7 @@ import java.util.List;
 @ToString
 @RequiredArgsConstructor
 @Entity
-@Table(name="bnk_estadofinanciero", catalog="adistemdb" )
+@Table(name = "bnk_estadofinanciero", catalog = "adistemdb")
 public class BnkEstadofinanciero implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -34,187 +34,186 @@ public class BnkEstadofinanciero implements Serializable {
     //--- ENTITY PRIMARY KEY 
     @Id
     @Lob
-    @Column(name="IDESTADOFINANCIERO", nullable=false)
-    private byte[]     idestadofinanciero ;
+    @Column(name = "IDESTADOFINANCIERO", nullable = false)
+    private byte[] idestadofinanciero;
 
     //--- ENTITY DATA FIELDS 
-    @Column(name="PERIODOANIO", nullable=false)
-    private int        periodoanio ;
+    @Column(name = "PERIODOANIO", nullable = false)
+    private int periodoanio;
 
-    @Column(name="PERIODOMES", nullable=false)
-    private int        periodomes ;
+    @Column(name = "PERIODOMES", nullable = false)
+    private int periodomes;
 
-    @Column(name="VENTAMUESTRA", nullable=false)
-    private BigDecimal ventamuestra ;
+    @Column(name = "VENTAMUESTRA", nullable = false)
+    private BigDecimal ventamuestra;
 
-    @Column(name="VENTAAUTOSNUEVOSMENUDEO", nullable=false)
-    private BigDecimal ventaautosnuevosmenudeo ;
+    @Column(name = "VENTAAUTOSNUEVOSMENUDEO", nullable = false)
+    private BigDecimal ventaautosnuevosmenudeo;
 
-    @Column(name="VENTAAUTOSNUEVOSFLOTILLA", nullable=false)
-    private BigDecimal ventaautosnuevosflotilla ;
+    @Column(name = "VENTAAUTOSNUEVOSFLOTILLA", nullable = false)
+    private BigDecimal ventaautosnuevosflotilla;
 
-    @Column(name="VENTAMERCANCIASVARIASOTROS", nullable=false)
-    private BigDecimal ventamercanciasvariasotros ;
+    @Column(name = "VENTAMERCANCIASVARIASOTROS", nullable = false)
+    private BigDecimal ventamercanciasvariasotros;
 
-    @Column(name="VENTATOTALAUTOSNUEVOS", nullable=false)
-    private BigDecimal ventatotalautosnuevos ;
+    @Column(name = "VENTATOTALAUTOSNUEVOS", nullable = false)
+    private BigDecimal ventatotalautosnuevos;
 
-    @Column(name="VENTAAUTOSUSADOS", nullable=false)
-    private BigDecimal ventaautosusados ;
+    @Column(name = "VENTAAUTOSUSADOS", nullable = false)
+    private BigDecimal ventaautosusados;
 
-    @Column(name="VENTACONTRATOSSERVICIONUEVOSUSADOS", nullable=false)
-    private BigDecimal ventacontratosservicionuevosusados ;
+    @Column(name = "VENTACONTRATOSSERVICIONUEVOSUSADOS", nullable = false)
+    private BigDecimal ventacontratosservicionuevosusados;
 
-    @Column(name="VENTAMECANICA", nullable=false)
-    private BigDecimal ventamecanica ;
+    @Column(name = "VENTAMECANICA", nullable = false)
+    private BigDecimal ventamecanica;
 
-    @Column(name="VENTAHOJALATERIAPINTURA", nullable=false)
-    private BigDecimal ventahojalateriapintura ;
+    @Column(name = "VENTAHOJALATERIAPINTURA", nullable = false)
+    private BigDecimal ventahojalateriapintura;
 
-    @Column(name="VENTAREFACCIONES", nullable=false)
-    private BigDecimal ventarefacciones ;
+    @Column(name = "VENTAREFACCIONES", nullable = false)
+    private BigDecimal ventarefacciones;
 
-    @Column(name="VENTAVENTASTOTALES", nullable=false)
-    private BigDecimal ventaventastotales ;
+    @Column(name = "VENTAVENTASTOTALES", nullable = false)
+    private BigDecimal ventaventastotales;
 
-    @Column(name="VENTAVENTATOTALESAUTOSNUEVOSUNIDADES", nullable=false)
-    private BigDecimal ventaventatotalesautosnuevosunidades ;
+    @Column(name = "VENTAVENTATOTALESAUTOSNUEVOSUNIDADES", nullable = false)
+    private BigDecimal ventaventatotalesautosnuevosunidades;
 
-    @Column(name="VENTAPRECIOPROMEDIOUNIDADMEZCLA", nullable=false)
-    private BigDecimal ventapreciopromediounidadmezcla ;
+    @Column(name = "VENTAPRECIOPROMEDIOUNIDADMEZCLA", nullable = false)
+    private BigDecimal ventapreciopromediounidadmezcla;
 
-    @Column(name="UTILIDADBRUTAAUTOSNUEVOSMENUDEO", nullable=false)
-    private BigDecimal utilidadbrutaautosnuevosmenudeo ;
+    @Column(name = "UTILIDADBRUTAAUTOSNUEVOSMENUDEO", nullable = false)
+    private BigDecimal utilidadbrutaautosnuevosmenudeo;
 
-    @Column(name="UTILIDADBRUTAAUTOSNUEVOSFLOTILLA", nullable=false)
-    private BigDecimal utilidadbrutaautosnuevosflotilla ;
+    @Column(name = "UTILIDADBRUTAAUTOSNUEVOSFLOTILLA", nullable = false)
+    private BigDecimal utilidadbrutaautosnuevosflotilla;
 
-    @Column(name="UTILIDADBRUTABONOSPLANTA", nullable=false)
-    private BigDecimal utilidadbrutabonosplanta ;
+    @Column(name = "UTILIDADBRUTABONOSPLANTA", nullable = false)
+    private BigDecimal utilidadbrutabonosplanta;
 
-    @Column(name="UTILIDADBRUTATRANSFERENCIASBONOSINCENTIVOSFINANCIERAS", nullable=false)
-    private BigDecimal utilidadbrutatransferenciasbonosincentivosfinancieras ;
+    @Column(name = "UTILIDADBRUTATRANSFERENCIASBONOSINCENTIVOSFINANCIERAS", nullable = false)
+    private BigDecimal utilidadbrutatransferenciasbonosincentivosfinancieras;
 
-    @Column(name="UTILIDADBRUTATOTALAUTOSNUEVOS", nullable=false)
-    private BigDecimal utilidadbrutatotalautosnuevos ;
+    @Column(name = "UTILIDADBRUTATOTALAUTOSNUEVOS", nullable = false)
+    private BigDecimal utilidadbrutatotalautosnuevos;
 
-    @Column(name="UTILIDADBRUTAAUTOSUSADOS", nullable=false)
-    private BigDecimal utilidadbrutaautosusados ;
+    @Column(name = "UTILIDADBRUTAAUTOSUSADOS", nullable = false)
+    private BigDecimal utilidadbrutaautosusados;
 
-    @Column(name="UTILIDADBRUTACONTRATOSSERVICIONUEVOSUSADOS", nullable=false)
-    private BigDecimal utilidadbrutacontratosservicionuevosusados ;
+    @Column(name = "UTILIDADBRUTACONTRATOSSERVICIONUEVOSUSADOS", nullable = false)
+    private BigDecimal utilidadbrutacontratosservicionuevosusados;
 
-    @Column(name="UTILIDADBRUTAMECANICA", nullable=false)
-    private BigDecimal utilidadbrutamecanica ;
+    @Column(name = "UTILIDADBRUTAMECANICA", nullable = false)
+    private BigDecimal utilidadbrutamecanica;
 
-    @Column(name="UTILIDADBRUTAHOJALATERIAPINTURA", nullable=false)
-    private BigDecimal utilidadbrutahojalateriapintura ;
+    @Column(name = "UTILIDADBRUTAHOJALATERIAPINTURA", nullable = false)
+    private BigDecimal utilidadbrutahojalateriapintura;
 
-    @Column(name="UTILIDADBRUTAREFACCIONES", nullable=false)
-    private BigDecimal utilidadbrutarefacciones ;
+    @Column(name = "UTILIDADBRUTAREFACCIONES", nullable = false)
+    private BigDecimal utilidadbrutarefacciones;
 
-    @Column(name="UTILIDADBRUTAUTILIDADBRUTATOTAL", nullable=false)
-    private BigDecimal utilidadbrutautilidadbrutatotal ;
+    @Column(name = "UTILIDADBRUTAUTILIDADBRUTATOTAL", nullable = false)
+    private BigDecimal utilidadbrutautilidadbrutatotal;
 
-    @Column(name="GASTOVARIABLESNUEVOS", nullable=false)
-    private BigDecimal gastovariablesnuevos ;
+    @Column(name = "GASTOVARIABLESNUEVOS", nullable = false)
+    private BigDecimal gastovariablesnuevos;
 
-    @Column(name="GASTOVARIABLESUSADOS", nullable=false)
-    private BigDecimal gastovariablesusados ;
+    @Column(name = "GASTOVARIABLESUSADOS", nullable = false)
+    private BigDecimal gastovariablesusados;
 
-    @Column(name="GASTOPLANPISO", nullable=false)
-    private BigDecimal gastoplanpiso ;
+    @Column(name = "GASTOPLANPISO", nullable = false)
+    private BigDecimal gastoplanpiso;
 
-    @Column(name="GASTOVENTAMECANICA", nullable=false)
-    private BigDecimal gastoventamecanica ;
+    @Column(name = "GASTOVENTAMECANICA", nullable = false)
+    private BigDecimal gastoventamecanica;
 
-    @Column(name="GASTOVENTAHOJALATERIAPINTURA", nullable=false)
-    private BigDecimal gastoventahojalateriapintura ;
+    @Column(name = "GASTOVENTAHOJALATERIAPINTURA", nullable = false)
+    private BigDecimal gastoventahojalateriapintura;
 
-    @Column(name="GASTOVENTAREFACCIONES", nullable=false)
-    private BigDecimal gastoventarefacciones ;
+    @Column(name = "GASTOVENTAREFACCIONES", nullable = false)
+    private BigDecimal gastoventarefacciones;
 
-    @Column(name="GASTOFIJOS", nullable=false)
-    private BigDecimal gastofijos ;
+    @Column(name = "GASTOFIJOS", nullable = false)
+    private BigDecimal gastofijos;
 
-    @Column(name="GASTOSUELDOSPROPIETARIOSFUNCIONARIOS", nullable=false)
-    private BigDecimal gastosueldospropietariosfuncionarios ;
+    @Column(name = "GASTOSUELDOSPROPIETARIOSFUNCIONARIOS", nullable = false)
+    private BigDecimal gastosueldospropietariosfuncionarios;
 
-    @Column(name="GASTOGASTOSTOTALESSINRENTAEQUIVALENTES", nullable=false)
-    private BigDecimal gastogastostotalessinrentaequivalentes ;
+    @Column(name = "GASTOGASTOSTOTALESSINRENTAEQUIVALENTES", nullable = false)
+    private BigDecimal gastogastostotalessinrentaequivalentes;
 
-    @Column(name="UTILIDADNETAUTILIDADOPERACIONSINRENTASSINDEPRECIACION", nullable=false)
-    private BigDecimal utilidadnetautilidadoperacionsinrentassindepreciacion ;
+    @Column(name = "UTILIDADNETAUTILIDADOPERACIONSINRENTASSINDEPRECIACION", nullable = false)
+    private BigDecimal utilidadnetautilidadoperacionsinrentassindepreciacion;
 
-    @Column(name="UTILIDADNETABIENESINMUEBLESRENTAEQUIVALENTES", nullable=false)
-    private BigDecimal utilidadnetabienesinmueblesrentaequivalentes ;
+    @Column(name = "UTILIDADNETABIENESINMUEBLESRENTAEQUIVALENTES", nullable = false)
+    private BigDecimal utilidadnetabienesinmueblesrentaequivalentes;
 
-    @Column(name="UTILIDADNETAUTILIDADOPERACION", nullable=false)
-    private BigDecimal utilidadnetautilidadoperacion ;
+    @Column(name = "UTILIDADNETAUTILIDADOPERACION", nullable = false)
+    private BigDecimal utilidadnetautilidadoperacion;
 
-    @Column(name="UTILIDADNETAOTROSINGRESOSDEDUCCIONES", nullable=false)
-    private BigDecimal utilidadnetaotrosingresosdeducciones ;
+    @Column(name = "UTILIDADNETAOTROSINGRESOSDEDUCCIONES", nullable = false)
+    private BigDecimal utilidadnetaotrosingresosdeducciones;
 
-    @Column(name="UTILIDADNETAUTILIDADNETAREPORTADA", nullable=false)
-    private BigDecimal utilidadnetautilidadnetareportada ;
+    @Column(name = "UTILIDADNETAUTILIDADNETAREPORTADA", nullable = false)
+    private BigDecimal utilidadnetautilidadnetareportada;
 
-    @Column(name="UTILIDADDEALERSREPORTARONUTILIDAD", nullable=false)
-    private BigDecimal utilidaddealersreportaronutilidad ;
+    @Column(name = "UTILIDADDEALERSREPORTARONUTILIDAD", nullable = false)
+    private BigDecimal utilidaddealersreportaronutilidad;
 
-    @Column(name="UTILIDADPORCENTAJEDEALERSCONUTILIDAD", nullable=false)
-    private BigDecimal utilidadporcentajedealersconutilidad ;
+    @Column(name = "UTILIDADPORCENTAJEDEALERSCONUTILIDAD", nullable = false)
+    private BigDecimal utilidadporcentajedealersconutilidad;
 
-    @Column(name="UTILIDADUTILIDADNETAENTREVENTASTOTALES", nullable=false)
-    private BigDecimal utilidadutilidadnetaentreventastotales ;
+    @Column(name = "UTILIDADUTILIDADNETAENTREVENTASTOTALES", nullable = false)
+    private BigDecimal utilidadutilidadnetaentreventastotales;
 
-    @Column(name="UTILIDADEBITDAENTREVENTASTOTALES", nullable=false)
-    private BigDecimal utilidadebitdaentreventastotales ;
+    @Column(name = "UTILIDADEBITDAENTREVENTASTOTALES", nullable = false)
+    private BigDecimal utilidadebitdaentreventastotales;
 
-    @Column(name="UTILIDADABSORCIONSERVICIO", nullable=false)
-    private BigDecimal utilidadabsorcionservicio ;
+    @Column(name = "UTILIDADABSORCIONSERVICIO", nullable = false)
+    private BigDecimal utilidadabsorcionservicio;
 
-    @Column(name="UTILIDADROIPORCENTAJE", nullable=false)
-    private BigDecimal utilidadroiporcentaje ;
+    @Column(name = "UTILIDADROIPORCENTAJE", nullable = false)
+    private BigDecimal utilidadroiporcentaje;
 
-    @Column(name="UTILIDADROIOPERATIVOPORCENTAJE", nullable=false)
-    private BigDecimal utilidadroioperativoporcentaje ;
+    @Column(name = "UTILIDADROIOPERATIVOPORCENTAJE", nullable = false)
+    private BigDecimal utilidadroioperativoporcentaje;
 
-    @Column(name="UTILIDADMARGENBRUTO", nullable=false)
-    private BigDecimal utilidadmargenbruto ;
+    @Column(name = "UTILIDADMARGENBRUTO", nullable = false)
+    private BigDecimal utilidadmargenbruto;
 
-    @Column(name="UTILIDADPLANPISOUTILIDADBRUTA", nullable=false)
-    private BigDecimal utilidadplanpisoutilidadbruta ;
+    @Column(name = "UTILIDADPLANPISOUTILIDADBRUTA", nullable = false)
+    private BigDecimal utilidadplanpisoutilidadbruta;
 
-    @Column(name="UTILIDADAUTOSNUEVOSMENUDEO", nullable=false)
-    private BigDecimal utilidadautosnuevosmenudeo ;
+    @Column(name = "UTILIDADAUTOSNUEVOSMENUDEO", nullable = false)
+    private BigDecimal utilidadautosnuevosmenudeo;
 
-    @Column(name="UTILIDADAUTOSNUEVOSFLOTILLAS", nullable=false)
-    private BigDecimal utilidadautosnuevosflotillas ;
+    @Column(name = "UTILIDADAUTOSNUEVOSFLOTILLAS", nullable = false)
+    private BigDecimal utilidadautosnuevosflotillas;
 
-    @Column(name="UTILIDADAUTOSNUEVOSBONOSPLANTA", nullable=false)
-    private BigDecimal utilidadautosnuevosbonosplanta ;
+    @Column(name = "UTILIDADAUTOSNUEVOSBONOSPLANTA", nullable = false)
+    private BigDecimal utilidadautosnuevosbonosplanta;
 
-    @Column(name="UTILIDADAUTOSNUEVOSTOTALSINFLOTILLAS", nullable=false)
-    private BigDecimal utilidadautosnuevostotalsinflotillas ;
+    @Column(name = "UTILIDADAUTOSNUEVOSTOTALSINFLOTILLAS", nullable = false)
+    private BigDecimal utilidadautosnuevostotalsinflotillas;
 
-    @Column(name="UTILIDADAUTOSUSADOS", nullable=false)
-    private BigDecimal utilidadautosusados ;
+    @Column(name = "UTILIDADAUTOSUSADOS", nullable = false)
+    private BigDecimal utilidadautosusados;
 
-    @Column(name="UTILIDADCONTRATOSSERVICIO", nullable=false)
-    private BigDecimal utilidadcontratosservicio ;
+    @Column(name = "UTILIDADCONTRATOSSERVICIO", nullable = false)
+    private BigDecimal utilidadcontratosservicio;
 
-    @Column(name="UTILIDADMECANICA", nullable=false)
-    private BigDecimal utilidadmecanica ;
+    @Column(name = "UTILIDADMECANICA", nullable = false)
+    private BigDecimal utilidadmecanica;
 
-    @Column(name="UTILIDADHOJALATERIAPINTURA", nullable=false)
-    private BigDecimal utilidadhojalateriapintura ;
+    @Column(name = "UTILIDADHOJALATERIAPINTURA", nullable = false)
+    private BigDecimal utilidadhojalateriapintura;
 
-    @Column(name="UTILIDADREFACCIONES", nullable=false)
-    private BigDecimal utilidadrefacciones ;
+    @Column(name = "UTILIDADREFACCIONES", nullable = false)
+    private BigDecimal utilidadrefacciones;
 
-    @Column(name="UTILIDADTOTAL", nullable=false)
-    private BigDecimal utilidadtotal ;
-
+    @Column(name = "UTILIDADTOTAL", nullable = false)
+    private BigDecimal utilidadtotal;
 
 
     @Override
@@ -325,140 +324,179 @@ public class BnkEstadofinanciero implements Serializable {
     }
 
 
-    private static BigDecimal nvl(BigDecimal v) {
-        return v != null ? v : BigDecimal.ZERO;
+    private BigDecimal nvl(BigDecimal v) {
+        return Objects.isNull(v) ? BigDecimal.ZERO : v;
     }
 
     public BnkEstadofinanciero sumarCon(BnkEstadofinanciero otro) {
-        BnkEstadofinanciero r = new BnkEstadofinanciero();
+        BnkEstadofinanciero resultado = new BnkEstadofinanciero();
+        var dos = new BigDecimal("2.0");
 
-        // Ventas
-        r.setVentamuestra(nvl(this.ventamuestra).add(nvl(otro.ventamuestra)));
-        r.setVentaautosnuevosmenudeo(nvl(this.ventaautosnuevosmenudeo).add(nvl(otro.ventaautosnuevosmenudeo)));
-        r.setVentaautosnuevosflotilla(nvl(this.ventaautosnuevosflotilla).add(nvl(otro.ventaautosnuevosflotilla)));
-        r.setVentamercanciasvariasotros(nvl(this.ventamercanciasvariasotros).add(nvl(otro.ventamercanciasvariasotros)));
-        r.setVentatotalautosnuevos(nvl(this.ventatotalautosnuevos).add(nvl(otro.ventatotalautosnuevos)));
-        r.setVentaautosusados(nvl(this.ventaautosusados).add(nvl(otro.ventaautosusados)));
-        r.setVentacontratosservicionuevosusados(nvl(this.ventacontratosservicionuevosusados).add(nvl(otro.ventacontratosservicionuevosusados)));
-        r.setVentamecanica(nvl(this.ventamecanica).add(nvl(otro.ventamecanica)));
-        r.setVentahojalateriapintura(nvl(this.ventahojalateriapintura).add(nvl(otro.ventahojalateriapintura)));
-        r.setVentarefacciones(nvl(this.ventarefacciones).add(nvl(otro.ventarefacciones)));
-        r.setVentaventastotales(nvl(this.ventaventastotales).add(nvl(otro.ventaventastotales)));
-        r.setVentaventatotalesautosnuevosunidades(nvl(this.ventaventatotalesautosnuevosunidades).add(nvl(otro.ventaventatotalesautosnuevosunidades)));
-        r.setVentapreciopromediounidadmezcla(nvl(this.ventapreciopromediounidadmezcla).add(nvl(otro.ventapreciopromediounidadmezcla)));
 
-        // Utilidad bruta
-        r.setUtilidadbrutaautosnuevosmenudeo(nvl(this.utilidadbrutaautosnuevosmenudeo).add(nvl(otro.utilidadbrutaautosnuevosmenudeo)));
-        r.setUtilidadbrutaautosnuevosflotilla(nvl(this.utilidadbrutaautosnuevosflotilla).add(nvl(otro.utilidadbrutaautosnuevosflotilla)));
-        r.setUtilidadbrutabonosplanta(nvl(this.utilidadbrutabonosplanta).add(nvl(otro.utilidadbrutabonosplanta)));
-        r.setUtilidadbrutatransferenciasbonosincentivosfinancieras(
+        // VENTAS
+        resultado.setVentamuestra(nvl(this.ventamuestra).add(nvl(otro.ventamuestra)));
+        resultado.setVentaautosnuevosmenudeo(nvl(this.ventaautosnuevosmenudeo).add(nvl(otro.ventaautosnuevosmenudeo)));
+        resultado.setVentaautosnuevosflotilla(nvl(this.ventaautosnuevosflotilla).add(nvl(otro.ventaautosnuevosflotilla)));
+        resultado.setVentamercanciasvariasotros(nvl(this.ventamercanciasvariasotros).add(nvl(otro.ventamercanciasvariasotros)));
+        resultado.setVentatotalautosnuevos(nvl(this.ventatotalautosnuevos).add(nvl(otro.ventatotalautosnuevos)));
+        resultado.setVentaautosusados(nvl(this.ventaautosusados).add(nvl(otro.ventaautosusados)));
+        resultado.setVentacontratosservicionuevosusados(
+                nvl(this.ventacontratosservicionuevosusados)
+                        .add(nvl(otro.ventacontratosservicionuevosusados)));
+        resultado.setVentamecanica(nvl(this.ventamecanica).add(nvl(otro.ventamecanica)));
+        resultado.setVentahojalateriapintura(nvl(this.ventahojalateriapintura).add(nvl(otro.ventahojalateriapintura)));
+        resultado.setVentarefacciones(nvl(this.ventarefacciones).add(nvl(otro.ventarefacciones)));
+        resultado.setVentaventastotales(nvl(this.ventaventastotales).add(nvl(otro.ventaventastotales)));
+        resultado.setVentaventatotalesautosnuevosunidades(
+                nvl(this.ventaventatotalesautosnuevosunidades)
+                        .add(nvl(otro.ventaventatotalesautosnuevosunidades)));
+        resultado.setVentapreciopromediounidadmezcla(
+                nvl(this.ventapreciopromediounidadmezcla)
+                        .add(nvl(otro.ventapreciopromediounidadmezcla)));
+
+        // UTILIDAD BRUTA
+        resultado.setUtilidadbrutaautosnuevosmenudeo(
+                nvl(this.utilidadbrutaautosnuevosmenudeo)
+                        .add(nvl(otro.utilidadbrutaautosnuevosmenudeo)));
+        resultado.setUtilidadbrutaautosnuevosflotilla(
+                nvl(this.utilidadbrutaautosnuevosflotilla)
+                        .add(nvl(otro.utilidadbrutaautosnuevosflotilla)));
+        resultado.setUtilidadbrutabonosplanta(
+                nvl(this.utilidadbrutabonosplanta)
+                        .add(nvl(otro.utilidadbrutabonosplanta)));
+        resultado.setUtilidadbrutatransferenciasbonosincentivosfinancieras(
                 nvl(this.utilidadbrutatransferenciasbonosincentivosfinancieras)
                         .add(nvl(otro.utilidadbrutatransferenciasbonosincentivosfinancieras)));
-        r.setUtilidadbrutatotalautosnuevos(nvl(this.utilidadbrutatotalautosnuevos).add(nvl(otro.utilidadbrutatotalautosnuevos)));
-        r.setUtilidadbrutaautosusados(nvl(this.utilidadbrutaautosusados).add(nvl(otro.utilidadbrutaautosusados)));
-        r.setUtilidadbrutacontratosservicionuevosusados(
+        resultado.setUtilidadbrutatotalautosnuevos(
+                nvl(this.utilidadbrutatotalautosnuevos)
+                        .add(nvl(otro.utilidadbrutatotalautosnuevos)));
+        resultado.setUtilidadbrutaautosusados(
+                nvl(this.utilidadbrutaautosusados)
+                        .add(nvl(otro.utilidadbrutaautosusados)));
+        resultado.setUtilidadbrutacontratosservicionuevosusados(
                 nvl(this.utilidadbrutacontratosservicionuevosusados)
                         .add(nvl(otro.utilidadbrutacontratosservicionuevosusados)));
-        r.setUtilidadbrutamecanica(nvl(this.utilidadbrutamecanica).add(nvl(otro.utilidadbrutamecanica)));
-        r.setUtilidadbrutahojalateriapintura(nvl(this.utilidadbrutahojalateriapintura).add(nvl(otro.utilidadbrutahojalateriapintura)));
-        r.setUtilidadbrutarefacciones(nvl(this.utilidadbrutarefacciones).add(nvl(otro.utilidadbrutarefacciones)));
-        r.setUtilidadbrutautilidadbrutatotal(
-                nvl(this.utilidadbrutautilidadbrutatotal).add(nvl(otro.utilidadbrutautilidadbrutatotal)));
+        resultado.setUtilidadbrutamecanica(
+                nvl(this.utilidadbrutamecanica)
+                        .add(nvl(otro.utilidadbrutamecanica)));
+        resultado.setUtilidadbrutahojalateriapintura(
+                nvl(this.utilidadbrutahojalateriapintura)
+                        .add(nvl(otro.utilidadbrutahojalateriapintura)));
+        resultado.setUtilidadbrutarefacciones(
+                nvl(this.utilidadbrutarefacciones)
+                        .add(nvl(otro.utilidadbrutarefacciones)));
+        resultado.setUtilidadbrutautilidadbrutatotal(
+                nvl(this.utilidadbrutautilidadbrutatotal)
+                        .add(nvl(otro.utilidadbrutautilidadbrutatotal)));
 
-        // Gastos
-        r.setGastovariablesnuevos(nvl(this.gastovariablesnuevos).add(nvl(otro.gastovariablesnuevos)));
-        r.setGastovariablesusados(nvl(this.gastovariablesusados).add(nvl(otro.gastovariablesusados)));
-        r.setGastoplanpiso(nvl(this.gastoplanpiso).add(nvl(otro.gastoplanpiso)));
-        r.setGastoventamecanica(nvl(this.gastoventamecanica).add(nvl(otro.gastoventamecanica)));
-        r.setGastoventahojalateriapintura(nvl(this.gastoventahojalateriapintura).add(nvl(otro.gastoventahojalateriapintura)));
-        r.setGastoventarefacciones(nvl(this.gastoventarefacciones).add(nvl(otro.gastoventarefacciones)));
-        r.setGastofijos(nvl(this.gastofijos).add(nvl(otro.gastofijos)));
-        r.setGastosueldospropietariosfuncionarios(
+        // GASTOS
+        resultado.setGastovariablesnuevos(
+                nvl(this.gastovariablesnuevos)
+                        .add(nvl(otro.gastovariablesnuevos)));
+        resultado.setGastovariablesusados(
+                nvl(this.gastovariablesusados)
+                        .add(nvl(otro.gastovariablesusados)));
+        resultado.setGastoplanpiso(
+                nvl(this.gastoplanpiso)
+                        .add(nvl(otro.gastoplanpiso)));
+        resultado.setGastoventamecanica(
+                nvl(this.gastoventamecanica)
+                        .add(nvl(otro.gastoventamecanica)));
+        resultado.setGastoventahojalateriapintura(
+                nvl(this.gastoventahojalateriapintura)
+                        .add(nvl(otro.gastoventahojalateriapintura)));
+        resultado.setGastoventarefacciones(
+                nvl(this.gastoventarefacciones)
+                        .add(nvl(otro.gastoventarefacciones)));
+        resultado.setGastofijos(
+                nvl(this.gastofijos)
+                        .add(nvl(otro.gastofijos)));
+        resultado.setGastosueldospropietariosfuncionarios(
                 nvl(this.gastosueldospropietariosfuncionarios)
                         .add(nvl(otro.gastosueldospropietariosfuncionarios)));
-        r.setGastogastostotalessinrentaequivalentes(
+        resultado.setGastogastostotalessinrentaequivalentes(
                 nvl(this.gastogastostotalessinrentaequivalentes)
                         .add(nvl(otro.gastogastostotalessinrentaequivalentes)));
 
-        // Utilidad neta
-        r.setUtilidadnetautilidadoperacionsinrentassindepreciacion(
+        // UTILIDAD NETA
+        resultado.setUtilidadnetautilidadoperacionsinrentassindepreciacion(
                 nvl(this.utilidadnetautilidadoperacionsinrentassindepreciacion)
                         .add(nvl(otro.utilidadnetautilidadoperacionsinrentassindepreciacion)));
-        r.setUtilidadnetabienesinmueblesrentaequivalentes(
+        resultado.setUtilidadnetabienesinmueblesrentaequivalentes(
                 nvl(this.utilidadnetabienesinmueblesrentaequivalentes)
                         .add(nvl(otro.utilidadnetabienesinmueblesrentaequivalentes)));
-        r.setUtilidadnetautilidadoperacion(
+        resultado.setUtilidadnetautilidadoperacion(
                 nvl(this.utilidadnetautilidadoperacion)
                         .add(nvl(otro.utilidadnetautilidadoperacion)));
-        r.setUtilidadnetaotrosingresosdeducciones(
+        resultado.setUtilidadnetaotrosingresosdeducciones(
                 nvl(this.utilidadnetaotrosingresosdeducciones)
                         .add(nvl(otro.utilidadnetaotrosingresosdeducciones)));
-        r.setUtilidadnetautilidadnetareportada(
+        resultado.setUtilidadnetautilidadnetareportada(
                 nvl(this.utilidadnetautilidadnetareportada)
                         .add(nvl(otro.utilidadnetautilidadnetareportada)));
 
-        // Indicadores finales
-        r.setUtilidaddealersreportaronutilidad(
+        // INDICADORES
+        resultado.setUtilidaddealersreportaronutilidad(
                 nvl(this.utilidaddealersreportaronutilidad)
                         .add(nvl(otro.utilidaddealersreportaronutilidad)));
-        r.setUtilidadporcentajedealersconutilidad(
+        resultado.setUtilidadporcentajedealersconutilidad(
                 nvl(this.utilidadporcentajedealersconutilidad)
-                        .add(nvl(otro.utilidadporcentajedealersconutilidad)));
-        r.setUtilidadutilidadnetaentreventastotales(
+                        .add(nvl(otro.utilidadporcentajedealersconutilidad)).divide(dos));
+        resultado.setUtilidadutilidadnetaentreventastotales(
                 nvl(this.utilidadutilidadnetaentreventastotales)
-                        .add(nvl(otro.utilidadutilidadnetaentreventastotales)));
-        r.setUtilidadebitdaentreventastotales(
+                        .add(nvl(otro.utilidadutilidadnetaentreventastotales)).divide(dos));
+        resultado.setUtilidadebitdaentreventastotales(
                 nvl(this.utilidadebitdaentreventastotales)
-                        .add(nvl(otro.utilidadebitdaentreventastotales)));
-        r.setUtilidadabsorcionservicio(
+                        .add(nvl(otro.utilidadebitdaentreventastotales)).divide(dos));
+        resultado.setUtilidadabsorcionservicio(
                 nvl(this.utilidadabsorcionservicio)
-                        .add(nvl(otro.utilidadabsorcionservicio)));
-        r.setUtilidadroiporcentaje(
+                        .add(nvl(otro.utilidadabsorcionservicio)).divide(dos));
+        resultado.setUtilidadroiporcentaje(
                 nvl(this.utilidadroiporcentaje)
-                        .add(nvl(otro.utilidadroiporcentaje)));
-        r.setUtilidadroioperativoporcentaje(
+                        .add(nvl(otro.utilidadroiporcentaje)).divide(dos));
+        resultado.setUtilidadroioperativoporcentaje(
                 nvl(this.utilidadroioperativoporcentaje)
-                        .add(nvl(otro.utilidadroioperativoporcentaje)));
-        r.setUtilidadmargenbruto(
+                        .add(nvl(otro.utilidadroioperativoporcentaje)).divide(dos));
+        resultado.setUtilidadmargenbruto(
                 nvl(this.utilidadmargenbruto)
-                        .add(nvl(otro.utilidadmargenbruto)));
-        r.setUtilidadplanpisoutilidadbruta(
+                        .add(nvl(otro.utilidadmargenbruto)).divide(dos));
+        resultado.setUtilidadplanpisoutilidadbruta(
                 nvl(this.utilidadplanpisoutilidadbruta)
-                        .add(nvl(otro.utilidadplanpisoutilidadbruta)));
+                        .add(nvl(otro.utilidadplanpisoutilidadbruta)).divide(dos));
 
-        // Utilidades por área
-        r.setUtilidadautosnuevosmenudeo(
+        // UTILIDAD POR ÁREA
+        resultado.setUtilidadautosnuevosmenudeo(
                 nvl(this.utilidadautosnuevosmenudeo)
-                        .add(nvl(otro.utilidadautosnuevosmenudeo)));
-        r.setUtilidadautosnuevosflotillas(
+                        .add(nvl(otro.utilidadautosnuevosmenudeo)).divide(dos));
+        resultado.setUtilidadautosnuevosflotillas(
                 nvl(this.utilidadautosnuevosflotillas)
-                        .add(nvl(otro.utilidadautosnuevosflotillas)));
-        r.setUtilidadautosnuevosbonosplanta(
+                        .add(nvl(otro.utilidadautosnuevosflotillas)).divide(dos));
+        resultado.setUtilidadautosnuevosbonosplanta(
                 nvl(this.utilidadautosnuevosbonosplanta)
-                        .add(nvl(otro.utilidadautosnuevosbonosplanta)));
-        r.setUtilidadautosnuevostotalsinflotillas(
+                        .add(nvl(otro.utilidadautosnuevosbonosplanta)).divide(dos));
+        resultado.setUtilidadautosnuevostotalsinflotillas(
                 nvl(this.utilidadautosnuevostotalsinflotillas)
-                        .add(nvl(otro.utilidadautosnuevostotalsinflotillas)));
-        r.setUtilidadautosusados(
+                        .add(nvl(otro.utilidadautosnuevostotalsinflotillas)).divide(dos));
+        resultado.setUtilidadautosusados(
                 nvl(this.utilidadautosusados)
-                        .add(nvl(otro.utilidadautosusados)));
-        r.setUtilidadcontratosservicio(
+                        .add(nvl(otro.utilidadautosusados)).divide(dos));
+        resultado.setUtilidadcontratosservicio(
                 nvl(this.utilidadcontratosservicio)
-                        .add(nvl(otro.utilidadcontratosservicio)));
-        r.setUtilidadmecanica(
+                        .add(nvl(otro.utilidadcontratosservicio)).divide(dos));
+        resultado.setUtilidadmecanica(
                 nvl(this.utilidadmecanica)
-                        .add(nvl(otro.utilidadmecanica)));
-        r.setUtilidadhojalateriapintura(
+                        .add(nvl(otro.utilidadmecanica)).divide(dos));
+        resultado.setUtilidadhojalateriapintura(
                 nvl(this.utilidadhojalateriapintura)
-                        .add(nvl(otro.utilidadhojalateriapintura)));
-        r.setUtilidadrefacciones(
+                        .add(nvl(otro.utilidadhojalateriapintura)).divide(dos));
+        resultado.setUtilidadrefacciones(
                 nvl(this.utilidadrefacciones)
-                        .add(nvl(otro.utilidadrefacciones)));
-        r.setUtilidadtotal(
+                        .add(nvl(otro.utilidadrefacciones)).divide(dos));
+        resultado.setUtilidadtotal(
                 nvl(this.utilidadtotal)
-                        .add(nvl(otro.utilidadtotal)));
+                        .add(nvl(otro.utilidadtotal)).divide(dos));
 
-        return r;
+        return resultado;
     }
 
 
