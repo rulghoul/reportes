@@ -4,7 +4,6 @@ import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.dto.ColumnaFila;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -49,7 +48,7 @@ public class FilasColumnas {
 
                 cell.setCellStyle(estilo.getNormal());
 
-                this.trasnforma(cell, celda.getValor(), true, estilo);
+                this.trasnforma(cell, celda.getValor(), false, estilo);
 
                 if(celda.getTamanio() > 1){
                     var rango = new CellRangeAddress(posicion.getRow(),posicion.getRow(),
@@ -78,7 +77,7 @@ public class FilasColumnas {
 
                 cell.setCellStyle(estilo.getNormal());
 
-                this.trasnforma(cell, celda.getValor(), true, estilo);
+                this.trasnforma(cell, celda.getValor(), false, estilo);
 
                 if(celda.getTamanio() > 1){
                     var rango = new CellRangeAddress(posicion.getRow(),

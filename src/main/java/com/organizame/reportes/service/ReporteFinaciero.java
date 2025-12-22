@@ -111,7 +111,7 @@ public class ReporteFinaciero {
 
         excel.creaColumna(hoja, new ColumnaFila(new Posicion(5,5), mesActual.variacionCon(mesAnterior)));
         //Divisor
-        excel.creaColumna(hoja, new ColumnaFila(new Posicion(6,2), List.of(new Celda("", "encabezado", 67))));
+        excel.creaColumna(hoja, new ColumnaFila(new Posicion(6,2), List.of(new Celda("", "separador", 67))));
 
         var consolidadoActual = filtradoActual.stream().reduce(new BnkEstadofinanciero(), BnkEstadofinanciero::sumarCon);
         consolidadoActual.setVentamuestra(mesActual.getVentamuestra());
@@ -129,7 +129,7 @@ public class ReporteFinaciero {
         //Ajustar el estilo de la variacion
 
         //Se ajustan los ancos de columnas
-        var anchos = List.of(2,10,75,35,35,35,2,35,35,35);
+        var anchos = List.of(2,10,75,35,35,35,2,40,40,35);
         for(var i = 0; anchos.size() > i; i++ ){
             hoja.setColumnWidth(i, anchos.get(i)*150);
         }
@@ -250,7 +250,7 @@ public class ReporteFinaciero {
         posicion.setRow(4);
         excel.creaColumna(hoja, new ColumnaFila(posicion, columnaC));
 
-        var variacion = List.of(new Celda("Variación", "grisEncabezado", 2 ),new Celda("", "encabezado", 1 ));
+        var variacion = List.of(new Celda("Variación", "grisEncabezado", 2 ),new Celda("", "EncabezadoIzquierda", 1 ));
 
         excel.creaColumna(hoja, new ColumnaFila(new Posicion(5,2), variacion));
         excel.creaColumna(hoja, new ColumnaFila(new Posicion(9,2), variacion));
@@ -327,6 +327,12 @@ public class ReporteFinaciero {
                     estilo.getNormal().setFont(fuenteNegraGirada);
                     estilo.getNormal().setRotation(rotacion);
                 });
+
+        var separadorColor = new ColorExcel("separador", "#7F9AC7", "#7F9AC7");
+        var separador = new EstiloCeldaExcel(separadorColor,excel.getWb(),16
+                , Optional.of(HorizontalAlignment.LEFT),Optional.of(VerticalAlignment.BOTTOM),
+                Optional.empty(),"NONE", "0.0%", true);
+        excel.getEstilos().add(separador);
 
         var EncabezadoIzquierdaColor = new ColorExcel("EncabezadoIzquierda", "#002B7F", "#002B7F");
         var EncabezadoIzquierda = new EstiloCeldaExcel(EncabezadoIzquierdaColor,excel.getWb(),16
