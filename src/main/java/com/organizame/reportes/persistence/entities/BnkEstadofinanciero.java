@@ -239,51 +239,51 @@ public class BnkEstadofinanciero implements Serializable {
         resultado.add(new Celda(anio, "grisEncabezado", 1));
         resultado.add(new Celda(mes, "grisEncabezado", 1));
 
-        resultado.add(new Celda(this.ventamuestra.intValue(), "Encabezado", 1));
-        resultado.add(new Celda(this.ventaautosnuevosmenudeo.intValue(), "normal", 1));
-        resultado.add(new Celda(this.ventaautosnuevosflotilla.intValue(), "normal", 1));
-        resultado.add(new Celda(this.ventamercanciasvariasotros.intValue(), "normal", 1));
+        resultado.add(new Celda(this.ventamuestra.intValue(), "EncabezadoCentro", 1));
+        resultado.add(new Celda(this.ventaautosnuevosmenudeo.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventaautosnuevosflotilla.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventamercanciasvariasotros.intValue(), "normalDerecha", 1));
 
         //Ventas
-        resultado.add(new Celda(this.ventatotalautosnuevos.intValue(), "normal", 1));
-        resultado.add(new Celda(this.ventaautosusados.intValue(), "normal", 1));
-        resultado.add(new Celda(this.ventacontratosservicionuevosusados.intValue(), "normal", 1));
-        resultado.add(new Celda(this.ventamecanica.intValue(), "normal", 1));
-        resultado.add(new Celda(this.ventahojalateriapintura.intValue(), "normal", 1));
-        resultado.add(new Celda(this.ventarefacciones.intValue(), "normal", 1));
+        resultado.add(new Celda(this.ventatotalautosnuevos.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventaautosusados.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventacontratosservicionuevosusados.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventamecanica.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventahojalateriapintura.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventarefacciones.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.ventaventastotales.intValue(), "normal", 1));
         resultado.add(new Celda(this.ventaventatotalesautosnuevosunidades.intValue(), "normal", 1));
         resultado.add(new Celda(this.ventapreciopromediounidadmezcla.intValue(), "normal", 1));
 
-        resultado.add(new Celda(this.utilidadbrutaautosnuevosmenudeo.intValue(), "normal", 1));
-        resultado.add(new Celda(this.utilidadbrutaautosnuevosflotilla.intValue(), "normal", 1));
-        resultado.add(new Celda(this.utilidadbrutabonosplanta.intValue(), "normal", 1));
-        resultado.add(new Celda(this.utilidadbrutatransferenciasbonosincentivosfinancieras.intValue(), "normal", 1));
-        resultado.add(new Celda(this.utilidadbrutatotalautosnuevos.intValue(), "normal", 1));
-        resultado.add(new Celda(this.utilidadbrutaautosusados.intValue(), "normal", 1));
-        resultado.add(new Celda(this.utilidadbrutacontratosservicionuevosusados.intValue(), "normal", 1));
-        resultado.add(new Celda(this.utilidadbrutamecanica.intValue(), "normal", 1));
-        resultado.add(new Celda(this.utilidadbrutahojalateriapintura.intValue(), "normal", 1));
-        resultado.add(new Celda(this.utilidadbrutarefacciones.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadbrutaautosnuevosmenudeo.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutaautosnuevosflotilla.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutabonosplanta.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutatransferenciasbonosincentivosfinancieras.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutatotalautosnuevos.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutaautosusados.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutacontratosservicionuevosusados.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutamecanica.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutahojalateriapintura.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutarefacciones.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.utilidadbrutautilidadbrutatotal.intValue(), "normal", 1));
 
 
         //Gastos
-        resultado.add(new Celda(this.gastovariablesnuevos.intValue(), "normal", 1));
-        resultado.add(new Celda(this.gastovariablesusados.intValue(), "normal", 1));
-        resultado.add(new Celda(this.gastoplanpiso.intValue(), "normal", 1));
-        resultado.add(new Celda(this.gastoventamecanica.intValue(), "normal", 1));
-        resultado.add(new Celda(this.gastoventahojalateriapintura.intValue(), "normal", 1));
-        resultado.add(new Celda(this.gastoventarefacciones.intValue(), "normal", 1));
-        resultado.add(new Celda(this.gastofijos.intValue(), "normal", 1));
-        resultado.add(new Celda(this.gastosueldospropietariosfuncionarios.intValue(), "normal", 1));
+        resultado.add(new Celda(this.gastovariablesnuevos.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.gastovariablesusados.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.gastoplanpiso.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.gastoventamecanica.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.gastoventahojalateriapintura.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.gastoventarefacciones.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.gastofijos.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.gastosueldospropietariosfuncionarios.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.gastogastostotalessinrentaequivalentes.intValue(), "normal", 1));
 
 
         resultado.add(new Celda(this.utilidadnetautilidadoperacionsinrentassindepreciacion.intValue(), "normal", 1));
-        resultado.add(new Celda(this.utilidadnetabienesinmueblesrentaequivalentes.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadnetabienesinmueblesrentaequivalentes.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.utilidadnetautilidadoperacion.intValue(), "normal", 1));
-        resultado.add(new Celda(this.utilidadnetaotrosingresosdeducciones.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadnetaotrosingresosdeducciones.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.utilidadnetautilidadnetareportada.intValue(), "normal", 1));
 
         resultado.add(new Celda("", "normal", 1));
@@ -305,22 +305,22 @@ public class BnkEstadofinanciero implements Serializable {
 
         resultado.add(new Celda(this.utilidadmargenbruto, "azul", 1));
         resultado.add(new Celda(this.utilidadplanpisoutilidadbruta, "azul", 1));
-        resultado.add(new Celda(this.utilidadautosnuevosmenudeo, "normal", 1));
-        resultado.add(new Celda(this.utilidadautosnuevosflotillas, "normal", 1));
-        resultado.add(new Celda(this.utilidadautosnuevosbonosplanta, "normal", 1));
-        resultado.add(new Celda(this.utilidadautosnuevostotalsinflotillas, "normal", 1));
-        resultado.add(new Celda(this.utilidadautosusados, "normal", 1));
-        resultado.add(new Celda(this.utilidadcontratosservicio, "normal", 1));
-        resultado.add(new Celda(this.utilidadmecanica, "normal", 1));
-        resultado.add(new Celda(this.utilidadhojalateriapintura, "normal", 1));
-        resultado.add(new Celda(this.utilidadrefacciones, "normal", 1));
-        resultado.add(new Celda(this.utilidadtotal, "encabezado", 1));
+        resultado.add(new Celda(this.utilidadautosnuevosmenudeo, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadautosnuevosflotillas, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadautosnuevosbonosplanta, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadautosnuevostotalsinflotillas, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadautosusados, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadcontratosservicio, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadmecanica, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadhojalateriapintura, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadrefacciones, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadtotal, "normalDerecha", 1));
 
 
         resultado.add(new Celda("", "normal", 1));
         resultado.add(new Celda("", "normal", 1));
 
-        resultado.add(new Celda(this.periodomes, "normal", 1));
+        resultado.add(new Celda(this.periodomes, "normalDerecha", 1));
         return resultado;
     }
 
@@ -332,7 +332,6 @@ public class BnkEstadofinanciero implements Serializable {
     public BnkEstadofinanciero sumarCon(BnkEstadofinanciero otro) {
         BnkEstadofinanciero resultado = new BnkEstadofinanciero();
         var dos = new BigDecimal("2.0");
-
 
         // VENTAS
         resultado.setVentamuestra(nvl(this.ventamuestra).add(nvl(otro.ventamuestra)));

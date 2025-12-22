@@ -50,6 +50,8 @@ public class Utilidades {
                 case Integer i -> {
                     if(Utilidades.evaluaNumero(i) == -1){
                         cell.setCellStyle(par ? rojo.getOdd() : rojo.getNormal());
+                    }else {
+                        cell.setCellStyle(par ? estilo.getOddEntero() : estilo.getNormalEntero());
                     }
                     cell.setCellValue(i);
                 }

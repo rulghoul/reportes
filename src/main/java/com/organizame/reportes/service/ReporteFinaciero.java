@@ -7,6 +7,7 @@ import com.organizame.reportes.repository.service.EstadoFinancieroService;
 import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.ColorExcel;
 import com.organizame.reportes.utils.excel.CrearExcel;
+import com.organizame.reportes.utils.excel.EstiloCeldaExcel;
 import com.organizame.reportes.utils.excel.dto.Celda;
 import com.organizame.reportes.utils.excel.dto.ColumnaFila;
 import com.organizame.reportes.utils.excel.dto.Posicion;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,10 +126,17 @@ public class ReporteFinaciero {
         excel.creaColumna(hoja, new ColumnaFila(new Posicion(8,2), consolidadoAnterior.toCeldas(String.valueOf(request.getAnio()-1), fecha)));
         excel.creaColumna(hoja, new ColumnaFila(new Posicion(9,5), consolidadoActual.variacionCon(consolidadoAnterior)));
 
+        //Ajustar el estilo de la variacion
+
+        //Se ajustan los ancos de columnas
         var anchos = List.of(2,10,75,35,35,35,2,35,35,35);
         for(var i = 0; anchos.size() > i; i++ ){
             hoja.setColumnWidth(i, anchos.get(i)*150);
         }
+
+        //Se congelan secciones
+
+        hoja.createFreezePane(3, 5);
     }
 
     private void encabezadosYtitiulos(CrearExcel excel, XSSFSheet hoja){
@@ -135,7 +144,7 @@ public class ReporteFinaciero {
         var posicion = new Posicion(0,0);
 
         List<Celda> columnaA1 = new ArrayList<>();
-        columnaA1.add(new Celda("INFORMACION FINANCIERA DE  STELLANTIS", "Estandar", 5));
+        columnaA1.add(new Celda("INFORMACION FINANCIERA DE  STELLANTIS", "normalEncabezado", 5));
 
 
         excel.creaFila(hoja, new ColumnaFila(posicion, columnaA1));
@@ -143,7 +152,7 @@ public class ReporteFinaciero {
         posicion.setRow(1);
         posicion.setCol(0);
         List<Celda> columnaA2 = new ArrayList<>();
-        columnaA2.add(new Celda("STELLANTIS", "Encabezado", 3));
+        columnaA2.add(new Celda("STELLANTIS", "EncabezadoIzquierda", 3));
         excel.creaFila(hoja, new ColumnaFila(posicion, columnaA2));
 
         posicion.setRow(5);
@@ -159,68 +168,80 @@ public class ReporteFinaciero {
 
         List<Celda> columnaC = new ArrayList<>();
 
-        columnaC.add(new Celda("Muestra", "Estandar", 1));
-        columnaC.add(new Celda("Autos nuevos MENUDEO", "Estandar", 1));
-        columnaC.add(new Celda("Autos nuevos Flotillas", "Estandar", 1));
-        columnaC.add(new Celda("Mercancías varias y otros", "Estandar", 1));
-        columnaC.add(new Celda("TOTAL de autos nuevos", "Estandar", 1));
-        columnaC.add(new Celda("Autos Usados", "Estandar", 1));
-        columnaC.add(new Celda("Contratos de servicio nuevos y usados", "Estandar", 1));
-        columnaC.add(new Celda("Mecánica ", "Estandar", 1));
-        columnaC.add(new Celda("H&P", "Estandar", 1));
-        columnaC.add(new Celda("Refacciones", "Estandar", 1));
+        columnaC.add(new Celda("Muestra", "normalEncabezadoDerecha", 1));
+        columnaC.add(new Celda("Autos nuevos MENUDEO", "normalDerecha", 1));
+        columnaC.add(new Celda("Autos nuevos Flotillas", "normalDerecha", 1));
+        columnaC.add(new Celda("Mercancías varias y otros", "normalDerecha", 1));
+        columnaC.add(new Celda("TOTAL de autos nuevos", "normalIzquierda", 1));
+        columnaC.add(new Celda("Autos Usados", "normalIzquierda", 1));
+        columnaC.add(new Celda("Contratos de servicio nuevos y usados", "normalIzquierda", 1));
+        columnaC.add(new Celda("Mecánica ", "normalIzquierda", 1));
+        columnaC.add(new Celda("H&P", "normalIzquierda", 1));
+        columnaC.add(new Celda("Refacciones", "normalIzquierda", 1));
         columnaC.add(new Celda("Ventas totales", "Estandar", 1));
         columnaC.add(new Celda("Venta totales AUTOS NUEVOS en UNIDADES", "Estandar", 1));
-        columnaC.add(new Celda("Precio promedio x unidad (MEZCLA)", "Estandar", 1));
-        columnaC.add(new Celda("Autos nuevos MENUDEO", "Estandar", 1));
-        columnaC.add(new Celda("Autos nuevos Flotillas", "Estandar", 1));
-        columnaC.add(new Celda("Bonos planta", "Estandar", 1));
-        columnaC.add(new Celda("Transferencias/Bonos e Incentivos Financieras", "Estandar", 1));
-        columnaC.add(new Celda("Autos Nuevos ", "Estandar", 1));
-        columnaC.add(new Celda("Autos Usados", "Estandar", 1));
-        columnaC.add(new Celda("Contratos de servicio nuevos y usados", "Estandar", 1));
-        columnaC.add(new Celda("Mecánica ", "Estandar", 1));
-        columnaC.add(new Celda("H&P", "Estandar", 1));
-        columnaC.add(new Celda("Refacciones", "Estandar", 1));
+        columnaC.add(new Celda("Precio promedio x unidad (MEZCLA)", "normalDerecha", 1));
+
+        columnaC.add(new Celda("Autos nuevos MENUDEO", "normalDerecha", 1));
+        columnaC.add(new Celda("Autos nuevos Flotillas", "normalDerecha", 1));
+        columnaC.add(new Celda("Bonos planta", "normalDerecha", 1));
+        columnaC.add(new Celda("Transferencias/Bonos e Incentivos Financieras", "normalDerecha", 1));
+        columnaC.add(new Celda("Autos Nuevos ", "normalIzquierda", 1));
+        columnaC.add(new Celda("Autos Usados", "normalIzquierda", 1));
+        columnaC.add(new Celda("Contratos de servicio nuevos y usados", "normalIzquierda", 1));
+        columnaC.add(new Celda("Mecánica ", "normalIzquierda", 1));
+        columnaC.add(new Celda("H&P", "normalIzquierda", 1));
+        columnaC.add(new Celda("Refacciones", "normalIzquierda", 1));
         columnaC.add(new Celda("Utilidad Bruta Total ", "Estandar", 1));
-        columnaC.add(new Celda("Variables Nuevos", "Estandar", 1));
-        columnaC.add(new Celda("Variables Usados", "Estandar", 1));
-        columnaC.add(new Celda("Plan Piso", "Estandar", 1));
-        columnaC.add(new Celda("De venta de Mecánica", "Estandar", 1));
-        columnaC.add(new Celda("De venta de H&P", "Estandar", 1));
-        columnaC.add(new Celda("De venta de refacciones", "Estandar", 1));
-        columnaC.add(new Celda("Fijos", "Estandar", 1));
-        columnaC.add(new Celda("Sueldos de propietarios y funcionarios", "Estandar", 1));
+
+        columnaC.add(new Celda("Variables Nuevos", "normalIzquierda", 1));
+        columnaC.add(new Celda("Variables Usados", "normalIzquierda", 1));
+        columnaC.add(new Celda("Plan Piso", "normalIzquierda", 1));
+        columnaC.add(new Celda("De venta de Mecánica", "normalIzquierda", 1));
+        columnaC.add(new Celda("De venta de H&P", "normalIzquierda", 1));
+        columnaC.add(new Celda("De venta de refacciones", "normalIzquierda", 1));
+        columnaC.add(new Celda("Fijos", "normalIzquierda", 1));
+        columnaC.add(new Celda("Sueldos de propietarios y funcionarios", "normalIzquierda", 1));
         columnaC.add(new Celda("Gastos totales sin renta o equivalentes", "Estandar", 1));
+
         columnaC.add(new Celda("Utilidad de Operación sin rentas ni depreciación ", "Estandar", 1));
-        columnaC.add(new Celda("Bienes Inmuebles - renta y equivalentes", "Estandar", 1));
+        columnaC.add(new Celda("Bienes Inmuebles - renta y equivalentes", "normalIzquierda", 1));
         columnaC.add(new Celda("Utilidad de la operación", "Estandar", 1));
-        columnaC.add(new Celda("Otros ingresos y deducciones", "Estandar", 1));
+        columnaC.add(new Celda("Otros ingresos y deducciones", "normalIzquierda", 1));
         columnaC.add(new Celda("Utilidad neta reportada", "Estandar", 1));
+
         columnaC.add(new Celda("", "Rojo", 1));
+
         columnaC.add(new Celda("Dealer que reportaron utilidad", "Estandar", 1));
         columnaC.add(new Celda("% de dealers con utilidad ", "Estandar", 1));
         columnaC.add(new Celda("Utilidad Neta / Ventas Totales (ROS)", "Estandar", 1));
+
         columnaC.add(new Celda("", "Rojo", 1));
         columnaC.add(new Celda("", "Rojo", 1));
         columnaC.add(new Celda("", "Rojo", 1));
-        columnaC.add(new Celda("EBITDA / Ventas Totales", "Estandar", 1));
-        columnaC.add(new Celda("Absorción de Servicio", "Estandar", 1));
-        columnaC.add(new Celda("ROI %", "Estandar", 1));
-        columnaC.add(new Celda("ROI  Operativo%", "Estandar", 1));
+
+        columnaC.add(new Celda("EBITDA / Ventas Totales", "normalIzquierda", 1));
+        columnaC.add(new Celda("Absorción de Servicio", "normalIzquierda", 1));
+        columnaC.add(new Celda("ROI %", "normalIzquierda", 1));
+        columnaC.add(new Celda("ROI  Operativo%", "normalIzquierda", 1));
+
         columnaC.add(new Celda("", "Rojo", 1));
+
         columnaC.add(new Celda("Margen Bruto", "Estandar", 1));
         columnaC.add(new Celda("Plan piso (Utilidad bruta)", "Estandar", 1));
-        columnaC.add(new Celda("Autos Nuevos  MENUDEO", "Estandar", 1));
-        columnaC.add(new Celda("Autos Nuevos  Flotillas", "Estandar", 1));
-        columnaC.add(new Celda("Autos Nuevos  Bonos planta", "Estandar", 1));
-        columnaC.add(new Celda("Autos Nuevos  TOTAL SIN FLOTILLAS", "Estandar", 1));
-        columnaC.add(new Celda("Autos Usados", "Estandar", 1));
-        columnaC.add(new Celda("Contratos de Servicio ", "Estandar", 1));
-        columnaC.add(new Celda("Mecánica", "Estandar", 1));
-        columnaC.add(new Celda("Hojalatería y Pintura", "Estandar", 1));
-        columnaC.add(new Celda("Refacciones", "Estandar", 1));
+
+        columnaC.add(new Celda("Autos Nuevos  MENUDEO", "normalIzquierda", 1));
+        columnaC.add(new Celda("Autos Nuevos  Flotillas", "normalIzquierda", 1));
+        columnaC.add(new Celda("Autos Nuevos  Bonos planta", "normalIzquierda", 1));
+        columnaC.add(new Celda("Autos Nuevos  TOTAL SIN FLOTILLAS", "normalIzquierda", 1));
+        columnaC.add(new Celda("Autos Usados", "normalIzquierda", 1));
+        columnaC.add(new Celda("Contratos de Servicio ", "normalIzquierda", 1));
+        columnaC.add(new Celda("Mecánica", "normalIzquierda", 1));
+        columnaC.add(new Celda("Hojalatería y Pintura", "normalIzquierda", 1));
+        columnaC.add(new Celda("Refacciones", "normalIzquierda", 1));
+
         columnaC.add(new Celda("Total", "Estandar", 1));
+
         columnaC.add(new Celda("* NA  =  No Aplica", "Estandar", 1));
         columnaC.add(new Celda("", "Rojo", 1));
         columnaC.add(new Celda("No. De meses", "Estandar", 1));
@@ -228,6 +249,11 @@ public class ReporteFinaciero {
         posicion.setCol(2);
         posicion.setRow(4);
         excel.creaColumna(hoja, new ColumnaFila(posicion, columnaC));
+
+        var variacion = List.of(new Celda("Variación", "grisEncabezado", 2 ),new Celda("", "encabezado", 1 ));
+
+        excel.creaColumna(hoja, new ColumnaFila(new Posicion(5,2), variacion));
+        excel.creaColumna(hoja, new ColumnaFila(new Posicion(9,2), variacion));
 
     }
 
@@ -301,6 +327,49 @@ public class ReporteFinaciero {
                     estilo.getNormal().setFont(fuenteNegraGirada);
                     estilo.getNormal().setRotation(rotacion);
                 });
+
+        var EncabezadoIzquierdaColor = new ColorExcel("EncabezadoIzquierda", "#002B7F", "#002B7F");
+        var EncabezadoIzquierda = new EstiloCeldaExcel(EncabezadoIzquierdaColor,excel.getWb(),16
+                , Optional.of(HorizontalAlignment.LEFT),Optional.of(VerticalAlignment.BOTTOM),
+                Optional.empty(),"NONE", "0.0%", true);
+        excel.getEstilos().add(EncabezadoIzquierda);
+
+
+        var EncabezadoCentroColor = new ColorExcel("EncabezadoCentro", "#002B7F", "#002B7F");
+        var EncabezadoCentro = new EstiloCeldaExcel(EncabezadoCentroColor,excel.getWb(),14
+                , Optional.of(HorizontalAlignment.CENTER),Optional.of(VerticalAlignment.CENTER),
+                Optional.empty(),"NONE", "0.0%", true);
+        excel.getEstilos().add(EncabezadoCentro);
+
+        var grisEncabezadoColor = new ColorExcel("grisEncabezado", "#F2F2F2", "#F2F2F2");
+        var grisEncabezado = new EstiloCeldaExcel(grisEncabezadoColor,excel.getWb(),16
+                , Optional.of(HorizontalAlignment.CENTER),Optional.of(VerticalAlignment.CENTER),
+                Optional.empty(),"NONE", "0.0%", true);
+        excel.getEstilos().add(grisEncabezado);
+
+        var normalEncabezadoColor = new ColorExcel("normalEncabezado", "#FFFFFF", "#FFFFFF");
+        var normalEncabezado = new EstiloCeldaExcel(normalEncabezadoColor,excel.getWb(),20
+                , Optional.of(HorizontalAlignment.LEFT),Optional.of(VerticalAlignment.BOTTOM),
+                Optional.empty(),"NONE", "0.0%",false);
+        excel.getEstilos().add(normalEncabezado);
+
+        var normalEncabezadoDerechaColor = new ColorExcel("normalEncabezadoDerecha", "#FFFFFF", "#FFFFFF");
+        var normalEncabezadoDerecha = new EstiloCeldaExcel(normalEncabezadoDerechaColor,excel.getWb(),18
+                , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
+                Optional.empty(),"NONE", "0.0%",true);
+        excel.getEstilos().add(normalEncabezadoDerecha);
+
+        var normalIzquierdaColor = new ColorExcel("normalIzquierda", "#FFFFFF", "#FFFFFF");
+        var normalIzquierda = new EstiloCeldaExcel(normalIzquierdaColor,excel.getWb(),10
+                , Optional.of(HorizontalAlignment.LEFT),Optional.of(VerticalAlignment.BOTTOM),
+                Optional.empty(),"NONE", "0.0%",false);
+        excel.getEstilos().add(normalIzquierda);
+
+        var normalDerechaColor = new ColorExcel("normalDerecha", "#FFFFFF", "#FFFFFF");
+        var normalDerecha = new EstiloCeldaExcel(normalDerechaColor,excel.getWb(),10
+                , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
+                Optional.empty(),"NONE", "0.0%",false);
+        excel.getEstilos().add(normalDerecha);
     }
 
     public String getNombreArchivo() {
