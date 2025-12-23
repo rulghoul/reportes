@@ -130,7 +130,7 @@ public class ReporteFinaciero {
         //Ajustar el estilo de la variacion
 
         //Se ajustan los ancos de columnas
-        var anchos = List.of(2,10,85,40,40,35,2,45,45,35);
+        var anchos = List.of(2,10,85,45,45,35,2,50,50,35);
         for(var i = 0; anchos.size() > i; i++ ){
             hoja.setColumnWidth(i, anchos.get(i)*150);
         }
@@ -187,7 +187,7 @@ public class ReporteFinaciero {
         columnaC.add(new Celda("Autos nuevos MENUDEO", "normalDerecha", 1));
         columnaC.add(new Celda("Autos nuevos Flotillas", "normalDerecha", 1));
         columnaC.add(new Celda("Bonos planta", "normalDerecha", 1));
-        columnaC.add(new Celda("Transferencias/Bonos e Incentivos Financieras", "normalDerecha", 1));
+        columnaC.add(new Celda("Transferencias/Bonos e Incentivos Financieras", "normalDerechaBottom", 1));
         columnaC.add(new Celda("Autos Nuevos ", "normalIzquierda", 1));
         columnaC.add(new Celda("Autos Usados", "normalIzquierda", 1));
         columnaC.add(new Celda("Contratos de servicio nuevos y usados", "normalIzquierda", 1));
@@ -309,14 +309,14 @@ public class ReporteFinaciero {
         var EncabezadoIzquierdaColor = new ColorExcel("EncabezadoIzquierda", "#002B7F", "#002B7F");
         var EncabezadoIzquierda = new EstiloCeldaExcel(EncabezadoIzquierdaColor,excel.getWb(),16
                 , Optional.of(HorizontalAlignment.LEFT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%", true, Optional.empty());
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%", true, Optional.of("#FFFFFF"));
         excel.getEstilos().add(EncabezadoIzquierda);
 
 
         var EncabezadoCentroColor = new ColorExcel("EncabezadoCentro", "#002B7F", "#002B7F");
         var EncabezadoCentro = new EstiloCeldaExcel(EncabezadoCentroColor,excel.getWb(),14
                 , Optional.of(HorizontalAlignment.CENTER),Optional.of(VerticalAlignment.CENTER),
-                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%", true, Optional.empty());
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%", true, Optional.of("#FFFFFF"));
         excel.getEstilos().add(EncabezadoCentro);
 
         var grisEncabezadoColor = new ColorExcel("grisEncabezado", "#F2F2F2", "#F2F2F2");
