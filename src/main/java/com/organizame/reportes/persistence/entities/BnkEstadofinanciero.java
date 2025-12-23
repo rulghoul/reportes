@@ -509,39 +509,39 @@ public class BnkEstadofinanciero implements Serializable {
 
         // VENTAS
         resultado.add(new Celda(
-                this.variacion(this.ventaautosnuevosmenudeo, otro.ventaautosnuevosmenudeo), "normal", 1));
+                this.variacion(this.ventaautosnuevosmenudeo, otro.ventaautosnuevosmenudeo), "normalDerecha", 1));
         resultado.add(new Celda(
-                this.variacion(this.ventaautosnuevosflotilla, otro.ventaautosnuevosflotilla), "normal", 1));
+                this.variacion(this.ventaautosnuevosflotilla, otro.ventaautosnuevosflotilla), "normalDerecha", 1));
         resultado.add(new Celda(
-                this.variacion(this.ventamercanciasvariasotros, otro.ventamercanciasvariasotros), "normal", 1));
+                this.variacion(this.ventamercanciasvariasotros, otro.ventamercanciasvariasotros), "normalDerecha", 1));
         resultado.add(new Celda(
-                this.variacion(this.ventatotalautosnuevos, otro.ventatotalautosnuevos), "normal", 1));
+                this.variacion(this.ventatotalautosnuevos, otro.ventatotalautosnuevos), "normalDerecha", 1));
         resultado.add(new Celda(
-                this.variacion(this.ventaautosusados, otro.ventaautosusados), "normal", 1));
+                this.variacion(this.ventaautosusados, otro.ventaautosusados), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.ventacontratosservicionuevosusados,
-                        otro.ventacontratosservicionuevosusados), "normal", 1));
+                        otro.ventacontratosservicionuevosusados), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.ventamecanica,
                         otro.ventamecanica)
-                , "normal", 1));
+                , "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.ventahojalateriapintura, otro.ventahojalateriapintura),
-                "normal", 1));
+                "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.ventarefacciones, otro.ventarefacciones),
-                "normal", 1));
+                "normalDerecha", 1));
         resultado.add(
                 new Celda(this.variacion(this.ventaventastotales, otro.ventaventastotales),
-                        "normal", 1));
+                        "normalDerechaBold", 1));
         resultado.add(new Celda(
                 this.variacion(this.ventaventatotalesautosnuevosunidades,
                         otro.ventaventatotalesautosnuevosunidades),
-                "normal", 1));
+                "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.ventapreciopromediounidadmezcla,
                         otro.ventapreciopromediounidadmezcla),
-                "normal", 1));
+                "normalDerecha", 1));
 
         // UTILIDAD BRUTA
         resultado.add(new Celda(
@@ -551,104 +551,104 @@ public class BnkEstadofinanciero implements Serializable {
         resultado.add(new Celda(
                 this.variacion(this.utilidadbrutaautosnuevosflotilla,
                         otro.utilidadbrutaautosnuevosflotilla),
-                "normal", 1));
+                "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadbrutabonosplanta,
                         otro.utilidadbrutabonosplanta),
-                "normal", 1));
+                "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadbrutatransferenciasbonosincentivosfinancieras,
-                        otro.utilidadbrutatransferenciasbonosincentivosfinancieras), "normal", 1));
+                        otro.utilidadbrutatransferenciasbonosincentivosfinancieras), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadbrutatotalautosnuevos,
-                        otro.utilidadbrutatotalautosnuevos), "normal", 1));
+                        otro.utilidadbrutatotalautosnuevos), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadbrutaautosusados,
-                        otro.utilidadbrutaautosusados), "normal", 1));
+                        otro.utilidadbrutaautosusados), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadbrutacontratosservicionuevosusados,
-                        otro.utilidadbrutacontratosservicionuevosusados), "normal", 1));
+                        otro.utilidadbrutacontratosservicionuevosusados), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadbrutamecanica,
-                        otro.utilidadbrutamecanica), "normal", 1));
+                        otro.utilidadbrutamecanica), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadbrutahojalateriapintura,
-                        otro.utilidadbrutahojalateriapintura), "normal", 1));
+                        otro.utilidadbrutahojalateriapintura), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadbrutarefacciones,
-                        otro.utilidadbrutarefacciones), "normal", 1));
+                        otro.utilidadbrutarefacciones), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadbrutautilidadbrutatotal,
-                        otro.utilidadbrutautilidadbrutatotal), "normal", 1));
+                        otro.utilidadbrutautilidadbrutatotal), "normalDerechaBold", 1));
 
         // GASTOS
         resultado.add(new Celda(
                 this.variacion(this.gastovariablesnuevos,
-                        otro.gastovariablesnuevos), "normal", 1));
+                        otro.gastovariablesnuevos), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.gastovariablesusados,
-                        otro.gastovariablesusados), "normal", 1));
+                        otro.gastovariablesusados), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.gastoplanpiso,
-                        otro.gastoplanpiso), "normal", 1));
+                        otro.gastoplanpiso), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.gastoventamecanica,
-                        otro.gastoventamecanica), "normal", 1));
+                        otro.gastoventamecanica), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.gastoventahojalateriapintura,
-                        otro.gastoventahojalateriapintura), "normal", 1));
+                        otro.gastoventahojalateriapintura), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.gastoventarefacciones,
-                        otro.gastoventarefacciones), "normal", 1));
+                        otro.gastoventarefacciones), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.gastofijos,
-                        otro.gastofijos), "normal", 1));
+                        otro.gastofijos), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.gastosueldospropietariosfuncionarios,
                         otro.gastosueldospropietariosfuncionarios)
-                , "normal", 1));
+                , "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.gastogastostotalessinrentaequivalentes,
                         otro.gastogastostotalessinrentaequivalentes)
-                , "normal", 1));
+                , "normalDerechaBold", 1));
 
         // UTILIDAD NETA
         resultado.add(new Celda(
                 this.variacion(this.utilidadnetautilidadoperacionsinrentassindepreciacion,
                         otro.utilidadnetautilidadoperacionsinrentassindepreciacion)
-                , "normal", 1));
+                , "normalDerechaBold", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadnetabienesinmueblesrentaequivalentes,
                         otro.utilidadnetabienesinmueblesrentaequivalentes)
-                , "normal", 1));
+                , "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadnetautilidadoperacion,
                         otro.utilidadnetautilidadoperacion)
-                , "normal", 1));
+                , "normalDerechaBold", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadnetaotrosingresosdeducciones,
                         otro.utilidadnetaotrosingresosdeducciones)
-                , "normal", 1));
+                , "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadnetautilidadnetareportada,
                         otro.utilidadnetautilidadnetareportada),
-                "normal", 1));
+                "normalDerechaBold", 1));
 
-        resultado.add(new Celda("", "normal", 1));
+        resultado.add(new Celda("", "normalDerecha", 1));
 
         // INDICADORES
         resultado.add(new Celda(
                 this.variacion(this.utilidaddealersreportaronutilidad
                         , otro.utilidaddealersreportaronutilidad),
-                "normal", 1));
+                "Azul", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadporcentajedealersconutilidad,
                         nvl(otro.utilidadporcentajedealersconutilidad)),
-                "normal", 1));
+                "normalDerecha", 1));
         resultado.add(new Celda(
                 nvl(this.utilidadutilidadnetaentreventastotales)
                         .subtract(nvl(otro.utilidadutilidadnetaentreventastotales)),
-                "normal", 1));
+                "normalDerecha", 1));
 
 
         return resultado;
