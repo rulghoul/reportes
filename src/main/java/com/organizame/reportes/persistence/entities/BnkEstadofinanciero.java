@@ -297,10 +297,10 @@ public class BnkEstadofinanciero implements Serializable {
         resultado.add(new Celda("", "normalDerecha", 1));
         resultado.add(new Celda("", "normalDerecha", 1));
 
-        resultado.add(new Celda(this.utilidadebitdaentreventastotales, "gris", 1));
-        resultado.add(new Celda(this.utilidadabsorcionservicio, "normal", 1));
-        resultado.add(new Celda(this.utilidadroiporcentaje, "normal", 1));
-        resultado.add(new Celda(this.utilidadroioperativoporcentaje, "normal", 1));
+        resultado.add(new Celda(this.utilidadebitdaentreventastotales, "grisDerecha", 1));
+        resultado.add(new Celda(this.utilidadabsorcionservicio, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadroiporcentaje, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadroioperativoporcentaje, "normalDerecha", 1));
 
         resultado.add(new Celda("", "normalDerecha", 1));
 

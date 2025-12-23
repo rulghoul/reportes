@@ -343,6 +343,12 @@ public class ReporteFinaciero {
                 Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%",false, Optional.empty());
         excel.getEstilos().add(normalIzquierda);
 
+        var grisDerechaColor = new ColorExcel("grisDerecha", "#D9D9D9", "#D9D9D9");
+        var grisDerecha = new EstiloCeldaExcel(grisDerechaColor,excel.getWb(),10
+                , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%",false,Optional.empty());
+        excel.getEstilos().add(grisDerecha);
+
         var normalDerechaColor = new ColorExcel("normalDerecha", "#FFFFFF", "#FFFFFF");
         var normalDerecha = new EstiloCeldaExcel(normalDerechaColor,excel.getWb(),10
                 , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
@@ -397,7 +403,7 @@ public class ReporteFinaciero {
         var letraRojaColor = new ColorExcel("letraRoja","#FFFFFF", "#FFFFFF");
         var letraRoja = new EstiloCeldaExcel(letraRojaColor,excel.getWb(),12
                 , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0%",
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%",
                 false, Optional.of("#FF0000"));
         excel.getEstilos().add(letraRoja);
         excel.setRojo(letraRoja);
