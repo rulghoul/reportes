@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class Utilidades {
     private static final Pattern rgb = Pattern
-            .compile("(?i)\\#*(?<r>[0-9|a-f]{2})(?<g>[0-9|a-f]{2})(?<b>[0-9|a-f]{2})");
+            .compile("(?i)\\#*(?<r>[0-9a-f]{2})(?<g>[0-9a-f]{2})(?<b>[0-9a-f]{2})");
 
 
     public static void trasnforma(XSSFWorkbook wb,Cell cell, Object valor, boolean par, EstiloCeldaExcel estilo, EstiloCeldaExcel rojo) {
@@ -86,6 +86,25 @@ public class Utilidades {
                 int g = Integer.parseInt(match.group("g"), 16);
                 int b = Integer.parseInt(match.group("b"), 16);
                 return new Color(r, g, b);
+            }
+            throw new ColorExcepcion("No se pudo cargar el color " + valor);
+        }catch (Exception e) {
+            throw new ColorExcepcion("No se pudo cargar el color " + valor);
+        }
+    }
+
+    public static byte[] convierteComponentesRGB(String valor) throws ColorExcepcion {
+        try{
+            Matcher match = rgb.matcher(valor);
+            while (match.find()) {
+                log.info("match groups r {} g {} b {}", match.group("r"), match.group("g"), match.group("b"));
+                var alpha = (byte) Integer.parseInt("FF", 16);
+                var r = (byte) Integer.parseInt(match.group("r"), 16);
+                var g = (byte) Integer.parseInt(match.group("g"), 16);
+                var b = (byte) Integer.parseInt(match.group("b"), 16);
+                return new byte[] {
+                    alpha, r, g, b
+                };
             }
             throw new ColorExcepcion("No se pudo cargar el color " + valor);
         }catch (Exception e) {

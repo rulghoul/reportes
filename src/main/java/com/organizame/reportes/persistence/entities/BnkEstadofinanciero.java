@@ -286,25 +286,25 @@ public class BnkEstadofinanciero implements Serializable {
         resultado.add(new Celda(this.utilidadnetaotrosingresosdeducciones.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.utilidadnetautilidadnetareportada.intValue(), "normal", 1));
 
-        resultado.add(new Celda("", "normal", 1));
+        resultado.add(new Celda("", "normalDerecha", 1));
 
         resultado.add(new Celda(this.utilidaddealersreportaronutilidad.intValue(), "encabezado", 1));
         resultado.add(new Celda(this.utilidadporcentajedealersconutilidad, "normal", 1));
         resultado.add(new Celda(this.utilidadutilidadnetaentreventastotales, "normal", 1));
 
-        resultado.add(new Celda("", "normal", 1));
-        resultado.add(new Celda("", "normal", 1));
-        resultado.add(new Celda("", "normal", 1));
+        resultado.add(new Celda("", "normalDerecha", 1));
+        resultado.add(new Celda("", "normalDerecha", 1));
+        resultado.add(new Celda("", "normalDerecha", 1));
 
         resultado.add(new Celda(this.utilidadebitdaentreventastotales, "gris", 1));
         resultado.add(new Celda(this.utilidadabsorcionservicio, "normal", 1));
         resultado.add(new Celda(this.utilidadroiporcentaje, "normal", 1));
         resultado.add(new Celda(this.utilidadroioperativoporcentaje, "normal", 1));
 
-        resultado.add(new Celda("", "normal", 1));
+        resultado.add(new Celda("", "normalDerecha", 1));
 
-        resultado.add(new Celda(this.utilidadmargenbruto, "azul", 1));
-        resultado.add(new Celda(this.utilidadplanpisoutilidadbruta, "azul", 1));
+        resultado.add(new Celda(this.utilidadmargenbruto, "letraAzul", 1));
+        resultado.add(new Celda(this.utilidadplanpisoutilidadbruta, "letraAzul", 1));
         resultado.add(new Celda(this.utilidadautosnuevosmenudeo, "normalDerecha", 1));
         resultado.add(new Celda(this.utilidadautosnuevosflotillas, "normalDerecha", 1));
         resultado.add(new Celda(this.utilidadautosnuevosbonosplanta, "normalDerecha", 1));
@@ -317,8 +317,8 @@ public class BnkEstadofinanciero implements Serializable {
         resultado.add(new Celda(this.utilidadtotal, "normalDerecha", 1));
 
 
-        resultado.add(new Celda("", "normal", 1));
-        resultado.add(new Celda("", "normal", 1));
+        resultado.add(new Celda("", "normalDerecha", 1));
+        resultado.add(new Celda("", "normalDerecha", 1));
 
         resultado.add(new Celda(this.periodomes, "normalDerecha", 1));
         return resultado;

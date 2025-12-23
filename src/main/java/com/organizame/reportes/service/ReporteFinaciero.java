@@ -18,6 +18,7 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -212,7 +213,7 @@ public class ReporteFinaciero {
 
         columnaC.add(new Celda("", "Rojo", 1));
 
-        columnaC.add(new Celda("Dealer que reportaron utilidad", "Estandar", 1));
+        columnaC.add(new Celda("Dealer que reportaron utilidad", "azulEncabezado", 1));
         columnaC.add(new Celda("% de dealers con utilidad ", "Estandar", 1));
         columnaC.add(new Celda("Utilidad Neta / Ventas Totales (ROS)", "Estandar", 1));
 
@@ -292,90 +293,87 @@ public class ReporteFinaciero {
         fuenteNegraGirada.setFontHeight(18);
         fuenteNegraGirada.setBold(true);
 
-        var fuenteAzul = excel.getWb().createFont();
-        fuenteAzul.setColor(new XSSFColor(Utilidades.convierteRGB("#0070C0"), null));
-        fuenteAzul.setFontName(encabezado.getFont().getFontName());
-        fuenteAzul.setFontHeight(encabezado.getFont().getFontHeight());
-        fuenteAzul.setBold(true);
-
         excel.agregaColor(new ColorExcel("Black","#000000", "#000000"));
-        excel.agregaColor(new ColorExcel("BlackRotate","#FFFFFF", "#FFFFFF"));
+        var BlackRotateColor = new ColorExcel("BlackRotate","#FFFFFF", "#FFFFFF");
+        var BlackRotate = new EstiloCeldaExcel(BlackRotateColor,excel.getWb(),16
+                , Optional.of(HorizontalAlignment.CENTER),Optional.of(VerticalAlignment.CENTER),
+                Optional.of(new Short("90")),"NONE", "0.0%", true, Optional.empty());
+        excel.getEstilos().add(BlackRotate);
         excel.agregaColor(new ColorExcel("tile","#DEEBF7", "#DEEBF7"));
-        excel.agregaColor(new ColorExcel("letraAzul","#DEEBF7", "#DEEBF7"));
-        //Modifica Fuente
-        var nomEstilos = new ArrayList<>(Arrays.asList("", "BlackRotate"));
-        var rotacion = new Short("90");
-        excel.getEstilos().stream()
-                .filter(estilo -> nomEstilos.contains(estilo.getNombre()))
-                .forEach(estilo -> {
-                    estilo.getOdd().setBorderTop(BorderStyle.NONE);
-                    estilo.getOdd().setBorderBottom(BorderStyle.NONE);
-                    estilo.getOdd().setBorderLeft(BorderStyle.NONE);
-                    estilo.getOdd().setBorderRight(BorderStyle.NONE);
-                    estilo.getOdd().setWrapText(true);
-                    estilo.getOdd().setAlignment(HorizontalAlignment.CENTER);
-                    estilo.getOdd().setVerticalAlignment(VerticalAlignment.CENTER);
-                    estilo.getOdd().setFont(fuenteNegraGirada);
 
-                    estilo.getNormal().setBorderTop(BorderStyle.NONE);
-                    estilo.getNormal().setBorderBottom(BorderStyle.NONE);
-                    estilo.getNormal().setBorderLeft(BorderStyle.NONE);
-                    estilo.getNormal().setBorderRight(BorderStyle.NONE);
-                    estilo.getNormal().setWrapText(true);
-                    estilo.getNormal().setAlignment(HorizontalAlignment.CENTER);
-                    estilo.getNormal().setVerticalAlignment(VerticalAlignment.CENTER);
-                    estilo.getNormal().setFont(fuenteNegraGirada);
-                    estilo.getNormal().setRotation(rotacion);
-                });
+        //Modifica Fuente
+
+        var azulColor = new ColorExcel("Azul","#B4C7E7", "#B4C7E7");
+        var azul = new EstiloCeldaExcel(azulColor,excel.getWb(),12
+                , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
+                Optional.empty(),"NONE", "0.0%", false, Optional.empty());
+        excel.getEstilos().add(azul);
+
+        var azulEncabezadoColor = new ColorExcel("azulEncabezado","#B4C7E7", "#B4C7E7");
+        var azulEncabezado = new EstiloCeldaExcel(azulEncabezadoColor,excel.getWb(),16
+                , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
+                Optional.empty(),"NONE", "0.0%", true, Optional.empty());
+        excel.getEstilos().add(azulEncabezado);
+
 
         var separadorColor = new ColorExcel("separador", "#7F9AC7", "#7F9AC7");
         var separador = new EstiloCeldaExcel(separadorColor,excel.getWb(),16
                 , Optional.of(HorizontalAlignment.LEFT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),"NONE", "0.0%", true);
+                Optional.empty(),"NONE", "0.0%", true, Optional.empty());
         excel.getEstilos().add(separador);
 
         var EncabezadoIzquierdaColor = new ColorExcel("EncabezadoIzquierda", "#002B7F", "#002B7F");
         var EncabezadoIzquierda = new EstiloCeldaExcel(EncabezadoIzquierdaColor,excel.getWb(),16
                 , Optional.of(HorizontalAlignment.LEFT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),"NONE", "0.0%", true);
+                Optional.empty(),"NONE", "0.0%", true, Optional.empty());
         excel.getEstilos().add(EncabezadoIzquierda);
 
 
         var EncabezadoCentroColor = new ColorExcel("EncabezadoCentro", "#002B7F", "#002B7F");
         var EncabezadoCentro = new EstiloCeldaExcel(EncabezadoCentroColor,excel.getWb(),14
                 , Optional.of(HorizontalAlignment.CENTER),Optional.of(VerticalAlignment.CENTER),
-                Optional.empty(),"NONE", "0.0%", true);
+                Optional.empty(),"NONE", "0.0%", true, Optional.empty());
         excel.getEstilos().add(EncabezadoCentro);
 
         var grisEncabezadoColor = new ColorExcel("grisEncabezado", "#F2F2F2", "#F2F2F2");
         var grisEncabezado = new EstiloCeldaExcel(grisEncabezadoColor,excel.getWb(),16
                 , Optional.of(HorizontalAlignment.CENTER),Optional.of(VerticalAlignment.CENTER),
-                Optional.empty(),"NONE", "0.0%", true);
+                Optional.empty(),"NONE", "0.0%", true, Optional.empty());
         excel.getEstilos().add(grisEncabezado);
 
         var normalEncabezadoColor = new ColorExcel("normalEncabezado", "#FFFFFF", "#FFFFFF");
         var normalEncabezado = new EstiloCeldaExcel(normalEncabezadoColor,excel.getWb(),20
                 , Optional.of(HorizontalAlignment.LEFT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),"NONE", "0.0%",false);
+                Optional.empty(),"NONE", "0.0%",false, Optional.empty());
         excel.getEstilos().add(normalEncabezado);
 
         var normalEncabezadoDerechaColor = new ColorExcel("normalEncabezadoDerecha", "#FFFFFF", "#FFFFFF");
         var normalEncabezadoDerecha = new EstiloCeldaExcel(normalEncabezadoDerechaColor,excel.getWb(),18
                 , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),"NONE", "0.0%",true);
+                Optional.empty(),"NONE", "0.0%",true, Optional.empty());
         excel.getEstilos().add(normalEncabezadoDerecha);
 
         var normalIzquierdaColor = new ColorExcel("normalIzquierda", "#FFFFFF", "#FFFFFF");
         var normalIzquierda = new EstiloCeldaExcel(normalIzquierdaColor,excel.getWb(),10
                 , Optional.of(HorizontalAlignment.LEFT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),"NONE", "0.0%",false);
+                Optional.empty(),"NONE", "0.0%",false, Optional.empty());
         excel.getEstilos().add(normalIzquierda);
 
         var normalDerechaColor = new ColorExcel("normalDerecha", "#FFFFFF", "#FFFFFF");
         var normalDerecha = new EstiloCeldaExcel(normalDerechaColor,excel.getWb(),10
                 , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),"NONE", "0.0%",false);
+                Optional.empty(),"NONE", "0.0%",false,Optional.empty());
         excel.getEstilos().add(normalDerecha);
+
+
+        var letraAzulColor = new ColorExcel("letraAzul","#FFFFFF", "#FFFFFF");
+        var letraAzul = new EstiloCeldaExcel(letraAzulColor,excel.getWb(),12
+                , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
+                Optional.empty(),"NONE", "0%",
+                true, Optional.of("#0070C0"));
+        excel.getEstilos().add(letraAzul);
+
+
     }
 
     public String getNombreArchivo() {

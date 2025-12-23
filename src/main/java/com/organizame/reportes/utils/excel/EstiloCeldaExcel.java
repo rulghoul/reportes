@@ -2,6 +2,7 @@ package com.organizame.reportes.utils.excel;
 
 
 import com.organizame.reportes.utils.SpringContext;
+import com.organizame.reportes.utils.Utilidades;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.env.Environment;
 
@@ -73,31 +75,31 @@ public class EstiloCeldaExcel {
 
     public EstiloCeldaExcel(ColorExcel color, XSSFWorkbook libro, Integer fontSize,
                             Optional<HorizontalAlignment> horizontal, Optional<VerticalAlignment> verticalAlignment,
-                            Optional<Short> rotacion, String borderType,String formatoDecimal, boolean isBold) {
+                            Optional<Short> rotacion, String borderType,String formatoDecimal, boolean isBold,
+                            Optional<String> colorFuente) {
         Environment env = SpringContext.getContext().getEnvironment();
         this.fuenteNombre = env.getProperty("excel.font.name");
         this.fuenteSize = fontSize;
         this.borderType = borderType;
         this.formatoDecimales = formatoDecimal;
         this.nombre = color.getNombre();
-        this.normal = this.creaEstilo(libro, color, false, TipoDato.TEXTO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold);
-        this.odd = this.creaEstilo(libro, color, true, TipoDato.TEXTO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold);
-        this.normalDate = this.creaEstilo(libro, color, false, TipoDato.FECHA, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold);
-        this.oddDate = this.creaEstilo(libro, color, true, TipoDato.FECHA, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold);
-        this.normalPorciento = this.creaEstilo(libro, color, false, TipoDato.PORCENTAJE, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold);
-        this.oddPorciento = this.creaEstilo(libro, color, true, TipoDato.PORCENTAJE, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold);
+        this.normal = this.creaEstilo(libro, color, false, TipoDato.TEXTO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente);
+        this.normalDate = this.creaEstilo(libro, color, false, TipoDato.FECHA, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente);
+        this.oddDate = this.creaEstilo(libro, color, true, TipoDato.FECHA, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente);
+        this.normalPorciento = this.creaEstilo(libro, color, false, TipoDato.PORCENTAJE, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente);
+        this.oddPorciento = this.creaEstilo(libro, color, true, TipoDato.PORCENTAJE, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente);
 
-        this.normalEntero = this.creaEstilo(libro, color, false, TipoDato.ENTERO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold);
-        this.oddEntero = this.creaEstilo(libro, color, true, TipoDato.ENTERO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold);
+        this.normalEntero = this.creaEstilo(libro, color, false, TipoDato.ENTERO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente);
+        this.oddEntero = this.creaEstilo(libro, color, true, TipoDato.ENTERO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente);
     }
 
     private XSSFCellStyle creaEstilo(XSSFWorkbook libro, ColorExcel color, boolean odd, TipoDato tipo){
-        return this.creaEstilo(libro, color,odd, tipo, Optional.empty(), Optional.empty(), Optional.empty(),  this.formatoDecimales, false);
+        return this.creaEstilo(libro, color,odd, tipo, Optional.empty(), Optional.empty(), Optional.empty(),  this.formatoDecimales, false, Optional.empty() );
     }
 
     private XSSFCellStyle creaEstilo(XSSFWorkbook libro, ColorExcel color, boolean odd, TipoDato tipo
     ,Optional<HorizontalAlignment> horizontal, Optional<VerticalAlignment> verticalAlignment, Optional<Short> rotacion
-    ,String formatoDecimal, Boolean isBold){
+    ,String formatoDecimal, Boolean isBold, Optional<String> colorFuente){
         BorderStyle borde;
         try {
             borde = BorderStyle.valueOf(borderType.toUpperCase().trim());
@@ -106,10 +108,15 @@ public class EstiloCeldaExcel {
             borde = BorderStyle.MEDIUM;
         }
 
-        Font fuente = libro.createFont();
+        var fuente = libro.createFont();
         fuente.setFontName(fuenteNombre);
         fuente.setFontHeightInPoints(fuenteSize.shortValue());
         fuente.setBold(isBold);
+
+        if(colorFuente.isPresent()){
+            log.info("Se aplicara el color {}", colorFuente.get());
+            fuente.setColor(new XSSFColor(Utilidades.convierteComponentesRGB(colorFuente.get()), null));
+        }
 
 
         XSSFCellStyle temp = libro.createCellStyle();
