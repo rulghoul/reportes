@@ -243,7 +243,7 @@ public class BnkEstadofinanciero implements Serializable {
 
         resultado.add(new Celda(this.ventaautosnuevosmenudeo.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.ventaautosnuevosflotilla.intValue(), "normalDerecha", 1));
-        resultado.add(new Celda(this.ventamercanciasvariasotros.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventamercanciasvariasotros.intValue(), "normalDerechaBottom", 1));
 
         //Ventas
         resultado.add(new Celda(this.ventatotalautosnuevos.intValue(), "normalDerecha", 1));
@@ -259,7 +259,7 @@ public class BnkEstadofinanciero implements Serializable {
         resultado.add(new Celda(this.utilidadbrutaautosnuevosmenudeo.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.utilidadbrutaautosnuevosflotilla.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.utilidadbrutabonosplanta.intValue(), "normalDerecha", 1));
-        resultado.add(new Celda(this.utilidadbrutatransferenciasbonosincentivosfinancieras.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutatransferenciasbonosincentivosfinancieras.intValue(), "normalDerechaBottom", 1));
         resultado.add(new Celda(this.utilidadbrutatotalautosnuevos.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.utilidadbrutaautosusados.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.utilidadbrutacontratosservicionuevosusados.intValue(), "normalDerecha", 1));
