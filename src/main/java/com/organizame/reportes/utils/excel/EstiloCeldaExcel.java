@@ -26,6 +26,7 @@ import java.util.Optional;
 @Getter
 public class EstiloCeldaExcel {
 
+
     public enum TipoDato {
         TEXTO,
         ENTERO,
@@ -37,7 +38,8 @@ public class EstiloCeldaExcel {
 
     private String fuenteNombre;
     private Integer fuenteSize;
-    private String borderType;
+    private BorderStyle borderType;
+    private final Optional<String> borderPosition;
     private String formatoDecimales;
 
     private final String nombre;
@@ -59,7 +61,13 @@ public class EstiloCeldaExcel {
         Environment env = SpringContext.getContext().getEnvironment();
         this.fuenteNombre = env.getProperty("excel.font.name");
         this.fuenteSize = env.getProperty("excel.font.size", Integer.class);
-        this.borderType = env.getProperty("excel.border.type");
+        try {
+            this.borderType = BorderStyle.valueOf(env.getProperty("excel.border.type").toUpperCase().trim());
+        } catch (IllegalArgumentException e) {
+            log.warn("Nombre de estilo de borde desconocido: '{}'. Usando valor por defecto: {}", borderType, BorderStyle.MEDIUM);
+            this.borderType = BorderStyle.MEDIUM;
+        }
+        this.borderPosition = Optional.empty();
         this.formatoDecimales = "0.00%";
         this.nombre = color.getNombre();
         this.normal = creaEstilo(libro, color, false, TipoDato.TEXTO);
@@ -75,12 +83,14 @@ public class EstiloCeldaExcel {
 
     public EstiloCeldaExcel(ColorExcel color, XSSFWorkbook libro, Integer fontSize,
                             Optional<HorizontalAlignment> horizontal, Optional<VerticalAlignment> verticalAlignment,
-                            Optional<Short> rotacion, String borderType,String formatoDecimal, boolean isBold,
+                            Optional<Short> rotacion, BorderStyle borderType, Optional<String> borderPosition,
+                            String formatoDecimal, boolean isBold,
                             Optional<String> colorFuente) {
         Environment env = SpringContext.getContext().getEnvironment();
         this.fuenteNombre = env.getProperty("excel.font.name");
         this.fuenteSize = fontSize;
         this.borderType = borderType;
+        this.borderPosition = borderPosition;
         this.formatoDecimales = formatoDecimal;
         this.nombre = color.getNombre();
         this.normal = this.creaEstilo(libro, color, false, TipoDato.TEXTO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente);
@@ -98,15 +108,9 @@ public class EstiloCeldaExcel {
     }
 
     private XSSFCellStyle creaEstilo(XSSFWorkbook libro, ColorExcel color, boolean odd, TipoDato tipo
-    ,Optional<HorizontalAlignment> horizontal, Optional<VerticalAlignment> verticalAlignment, Optional<Short> rotacion
+    ,Optional<HorizontalAlignment> horizontal, Optional<VerticalAlignment> verticalAlignment
+            , Optional<Short> rotacion
     ,String formatoDecimal, Boolean isBold, Optional<String> colorFuente){
-        BorderStyle borde;
-        try {
-            borde = BorderStyle.valueOf(borderType.toUpperCase().trim());
-        } catch (IllegalArgumentException e) {
-            log.warn("Nombre de estilo de borde desconocido: '{}'. Usando valor por defecto: {}", borderType, BorderStyle.MEDIUM);
-            borde = BorderStyle.MEDIUM;
-        }
 
         var fuente = libro.createFont();
         fuente.setFontName(fuenteNombre);
@@ -130,10 +134,14 @@ public class EstiloCeldaExcel {
         if(rotacion.isPresent()) {
             temp.setRotation(rotacion.get());
         }
-        temp.setBorderTop(borde);
-        temp.setBorderBottom(borde);
-        temp.setBorderLeft(borde);
-        temp.setBorderRight(borde);
+        if(this.borderPosition.isEmpty()) {
+            temp.setBorderTop(this.borderType);
+            temp.setBorderBottom(this.borderType);
+            temp.setBorderLeft(this.borderType);
+            temp.setBorderRight(this.borderType);
+        }else{
+            this.ajustaBordes(temp);
+        }
         temp.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         //Cambia el color
         if(odd){
@@ -158,6 +166,20 @@ public class EstiloCeldaExcel {
         }
         temp.setFont(fuente);
         return temp;
+    }
+
+    private void ajustaBordes(XSSFCellStyle temp) {
+        if(this.borderPosition.get().isBlank()){
+            return;
+        }
+        for (char c : this.borderPosition.get().toLowerCase().toCharArray()) {
+            switch (c) {
+                case 't' -> temp.setBorderTop(this.borderType);
+                case 'b' -> temp.setBorderBottom(this.borderType);
+                case 'l' -> temp.setBorderLeft(this.borderType);
+                case 'r' -> temp.setBorderRight(this.borderType);
+            }
+        }
     }
 
 

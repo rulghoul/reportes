@@ -130,7 +130,7 @@ public class ReporteFinaciero {
         //Ajustar el estilo de la variacion
 
         //Se ajustan los ancos de columnas
-        var anchos = List.of(2,10,75,35,35,35,2,40,40,35);
+        var anchos = List.of(2,10,85,40,40,35,2,45,45,35);
         for(var i = 0; anchos.size() > i; i++ ){
             hoja.setColumnWidth(i, anchos.get(i)*150);
         }
@@ -179,8 +179,8 @@ public class ReporteFinaciero {
         columnaC.add(new Celda("Mecánica ", "normalIzquierda", 1));
         columnaC.add(new Celda("H&P", "normalIzquierda", 1));
         columnaC.add(new Celda("Refacciones", "normalIzquierda", 1));
-        columnaC.add(new Celda("Ventas totales", "Estandar", 1));
-        columnaC.add(new Celda("Venta totales AUTOS NUEVOS en UNIDADES", "Estandar", 1));
+        columnaC.add(new Celda("Ventas totales", "normalIzquierdaBold", 1));
+        columnaC.add(new Celda("Venta totales AUTOS NUEVOS en UNIDADES", "normalDerechaBold", 1));
         columnaC.add(new Celda("Precio promedio x unidad (MEZCLA)", "normalDerecha", 1));
 
         columnaC.add(new Celda("Autos nuevos MENUDEO", "normalDerecha", 1));
@@ -193,7 +193,7 @@ public class ReporteFinaciero {
         columnaC.add(new Celda("Mecánica ", "normalIzquierda", 1));
         columnaC.add(new Celda("H&P", "normalIzquierda", 1));
         columnaC.add(new Celda("Refacciones", "normalIzquierda", 1));
-        columnaC.add(new Celda("Utilidad Bruta Total ", "Estandar", 1));
+        columnaC.add(new Celda("Utilidad Bruta Total ", "normalDerechaBoldBottom", 1));
 
         columnaC.add(new Celda("Variables Nuevos", "normalIzquierda", 1));
         columnaC.add(new Celda("Variables Usados", "normalIzquierda", 1));
@@ -203,33 +203,33 @@ public class ReporteFinaciero {
         columnaC.add(new Celda("De venta de refacciones", "normalIzquierda", 1));
         columnaC.add(new Celda("Fijos", "normalIzquierda", 1));
         columnaC.add(new Celda("Sueldos de propietarios y funcionarios", "normalIzquierda", 1));
-        columnaC.add(new Celda("Gastos totales sin renta o equivalentes", "Estandar", 1));
+        columnaC.add(new Celda("Gastos totales sin renta o equivalentes", "normalDerechaBoldBottom", 1));
 
-        columnaC.add(new Celda("Utilidad de Operación sin rentas ni depreciación ", "Estandar", 1));
+        columnaC.add(new Celda("Utilidad de Operación sin rentas ni depreciación ", "normalIzquierdaBold", 1));
         columnaC.add(new Celda("Bienes Inmuebles - renta y equivalentes", "normalIzquierda", 1));
-        columnaC.add(new Celda("Utilidad de la operación", "Estandar", 1));
+        columnaC.add(new Celda("Utilidad de la operación", "normalIzquierdaBold", 1));
         columnaC.add(new Celda("Otros ingresos y deducciones", "normalIzquierda", 1));
-        columnaC.add(new Celda("Utilidad neta reportada", "Estandar", 1));
+        columnaC.add(new Celda("Utilidad neta reportada", "normalIzquierdaBold", 1));
 
-        columnaC.add(new Celda("", "Rojo", 1));
+        columnaC.add(new Celda("", "normalIzquierda", 1));
 
         columnaC.add(new Celda("Dealer que reportaron utilidad", "azulEncabezado", 1));
-        columnaC.add(new Celda("% de dealers con utilidad ", "Estandar", 1));
-        columnaC.add(new Celda("Utilidad Neta / Ventas Totales (ROS)", "Estandar", 1));
+        columnaC.add(new Celda("% de dealers con utilidad ", "normalDerechaBold", 1));
+        columnaC.add(new Celda("Utilidad Neta / Ventas Totales (ROS)", "normalDerechaBold", 1));
 
-        columnaC.add(new Celda("", "Rojo", 1));
-        columnaC.add(new Celda("", "Rojo", 1));
-        columnaC.add(new Celda("", "Rojo", 1));
+        columnaC.add(new Celda("", "normalIzquierda", 1));
+        columnaC.add(new Celda("", "normalIzquierda", 1));
+        columnaC.add(new Celda("", "normalIzquierda", 1));
 
         columnaC.add(new Celda("EBITDA / Ventas Totales", "normalIzquierda", 1));
         columnaC.add(new Celda("Absorción de Servicio", "normalIzquierda", 1));
         columnaC.add(new Celda("ROI %", "normalIzquierda", 1));
         columnaC.add(new Celda("ROI  Operativo%", "normalIzquierda", 1));
 
-        columnaC.add(new Celda("", "Rojo", 1));
+        columnaC.add(new Celda("", "normalIzquierda", 1));
 
-        columnaC.add(new Celda("Margen Bruto", "Estandar", 1));
-        columnaC.add(new Celda("Plan piso (Utilidad bruta)", "Estandar", 1));
+        columnaC.add(new Celda("Margen Bruto", "negro", 1));
+        columnaC.add(new Celda("Plan piso (Utilidad bruta)", "negro", 1));
 
         columnaC.add(new Celda("Autos Nuevos  MENUDEO", "normalIzquierda", 1));
         columnaC.add(new Celda("Autos Nuevos  Flotillas", "normalIzquierda", 1));
@@ -241,11 +241,11 @@ public class ReporteFinaciero {
         columnaC.add(new Celda("Hojalatería y Pintura", "normalIzquierda", 1));
         columnaC.add(new Celda("Refacciones", "normalIzquierda", 1));
 
-        columnaC.add(new Celda("Total", "Estandar", 1));
+        columnaC.add(new Celda("Total", "negro", 1));
 
-        columnaC.add(new Celda("* NA  =  No Aplica", "Estandar", 1));
-        columnaC.add(new Celda("", "Rojo", 1));
-        columnaC.add(new Celda("No. De meses", "Estandar", 1));
+        columnaC.add(new Celda("* NA  =  No Aplica", "normalIzquierda", 1));
+        columnaC.add(new Celda("", "normalDerecha", 1));
+        columnaC.add(new Celda("No. De meses", "grisOscuro", 1));
 
         posicion.setCol(2);
         posicion.setRow(4);
@@ -268,108 +268,114 @@ public class ReporteFinaciero {
         encabezado.setVerticalAlignment(VerticalAlignment.CENTER);
         excel.setEncabezado(encabezado);
 
-        var fuenteBlanca = excel.getWb().createFont();
-        fuenteBlanca.setColor(new XSSFColor(Utilidades.convierteRGB("FBFBFB"), null));
-        fuenteBlanca.setFontName(encabezado.getFont().getFontName());
-        fuenteBlanca.setFontHeight(encabezado.getFont().getFontHeight());
-        fuenteBlanca.setBold(true);
-
-        var fuenteNegra = excel.getWb().createFont();
-        fuenteNegra.setColor(new XSSFColor(Utilidades.convierteRGB("000000"), null));
-        fuenteNegra.setFontName(encabezado.getFont().getFontName());
-        fuenteNegra.setFontHeight(encabezado.getFont().getFontHeight());
-        fuenteNegra.setBold(false);
-
-        var fuenteNegraBold = excel.getWb().createFont();
-        fuenteNegraBold.setColor(new XSSFColor(Utilidades.convierteRGB("000000"), null));
-        fuenteNegraBold.setFontName(encabezado.getFont().getFontName());
-        fuenteNegraBold.setFontHeight(encabezado.getFont().getFontHeight());
-        fuenteNegraBold.setBold(true);
-
-
-        var fuenteNegraGirada = excel.getWb().createFont();
-        fuenteNegraGirada.setColor(new XSSFColor(Utilidades.convierteRGB("000000"), null));
-        fuenteNegraGirada.setFontName(encabezado.getFont().getFontName());
-        fuenteNegraGirada.setFontHeight(18);
-        fuenteNegraGirada.setBold(true);
-
         excel.agregaColor(new ColorExcel("Black","#000000", "#000000"));
         var BlackRotateColor = new ColorExcel("BlackRotate","#FFFFFF", "#FFFFFF");
-        var BlackRotate = new EstiloCeldaExcel(BlackRotateColor,excel.getWb(),16
-                , Optional.of(HorizontalAlignment.CENTER),Optional.of(VerticalAlignment.CENTER),
-                Optional.of(new Short("90")),"NONE", "0.0%", true, Optional.empty());
+        var BlackRotate = new EstiloCeldaExcel(BlackRotateColor, excel.getWb(),16
+                , Optional.of(HorizontalAlignment.CENTER), Optional.of(VerticalAlignment.CENTER),
+                Optional.of(new Short("90")),BorderStyle.THIN, Optional.of("tb"),
+                "0.0%", true, Optional.empty());
         excel.getEstilos().add(BlackRotate);
         excel.agregaColor(new ColorExcel("tile","#DEEBF7", "#DEEBF7"));
 
-        //Modifica Fuente
 
         var azulColor = new ColorExcel("Azul","#B4C7E7", "#B4C7E7");
-        var azul = new EstiloCeldaExcel(azulColor,excel.getWb(),12
+        var azul = new EstiloCeldaExcel(azulColor, excel.getWb(),12
                 , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),"NONE", "0.0%", false, Optional.empty());
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%",
+                false, Optional.empty());
         excel.getEstilos().add(azul);
 
         var azulEncabezadoColor = new ColorExcel("azulEncabezado","#B4C7E7", "#B4C7E7");
         var azulEncabezado = new EstiloCeldaExcel(azulEncabezadoColor,excel.getWb(),16
                 , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),"NONE", "0.0%", true, Optional.empty());
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%", true, Optional.empty());
         excel.getEstilos().add(azulEncabezado);
 
 
         var separadorColor = new ColorExcel("separador", "#7F9AC7", "#7F9AC7");
         var separador = new EstiloCeldaExcel(separadorColor,excel.getWb(),16
                 , Optional.of(HorizontalAlignment.LEFT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),"NONE", "0.0%", true, Optional.empty());
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%", true, Optional.empty());
         excel.getEstilos().add(separador);
 
         var EncabezadoIzquierdaColor = new ColorExcel("EncabezadoIzquierda", "#002B7F", "#002B7F");
         var EncabezadoIzquierda = new EstiloCeldaExcel(EncabezadoIzquierdaColor,excel.getWb(),16
                 , Optional.of(HorizontalAlignment.LEFT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),"NONE", "0.0%", true, Optional.empty());
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%", true, Optional.empty());
         excel.getEstilos().add(EncabezadoIzquierda);
 
 
         var EncabezadoCentroColor = new ColorExcel("EncabezadoCentro", "#002B7F", "#002B7F");
         var EncabezadoCentro = new EstiloCeldaExcel(EncabezadoCentroColor,excel.getWb(),14
                 , Optional.of(HorizontalAlignment.CENTER),Optional.of(VerticalAlignment.CENTER),
-                Optional.empty(),"NONE", "0.0%", true, Optional.empty());
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%", true, Optional.empty());
         excel.getEstilos().add(EncabezadoCentro);
 
         var grisEncabezadoColor = new ColorExcel("grisEncabezado", "#F2F2F2", "#F2F2F2");
         var grisEncabezado = new EstiloCeldaExcel(grisEncabezadoColor,excel.getWb(),16
                 , Optional.of(HorizontalAlignment.CENTER),Optional.of(VerticalAlignment.CENTER),
-                Optional.empty(),"NONE", "0.0%", true, Optional.empty());
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%", true, Optional.empty());
         excel.getEstilos().add(grisEncabezado);
 
         var normalEncabezadoColor = new ColorExcel("normalEncabezado", "#FFFFFF", "#FFFFFF");
         var normalEncabezado = new EstiloCeldaExcel(normalEncabezadoColor,excel.getWb(),20
                 , Optional.of(HorizontalAlignment.LEFT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),"NONE", "0.0%",false, Optional.empty());
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%",false, Optional.empty());
         excel.getEstilos().add(normalEncabezado);
 
         var normalEncabezadoDerechaColor = new ColorExcel("normalEncabezadoDerecha", "#FFFFFF", "#FFFFFF");
         var normalEncabezadoDerecha = new EstiloCeldaExcel(normalEncabezadoDerechaColor,excel.getWb(),18
                 , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),"NONE", "0.0%",true, Optional.empty());
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%",true, Optional.empty());
         excel.getEstilos().add(normalEncabezadoDerecha);
 
         var normalIzquierdaColor = new ColorExcel("normalIzquierda", "#FFFFFF", "#FFFFFF");
         var normalIzquierda = new EstiloCeldaExcel(normalIzquierdaColor,excel.getWb(),10
                 , Optional.of(HorizontalAlignment.LEFT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),"NONE", "0.0%",false, Optional.empty());
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%",false, Optional.empty());
         excel.getEstilos().add(normalIzquierda);
 
         var normalDerechaColor = new ColorExcel("normalDerecha", "#FFFFFF", "#FFFFFF");
         var normalDerecha = new EstiloCeldaExcel(normalDerechaColor,excel.getWb(),10
                 , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),"NONE", "0.0%",false,Optional.empty());
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%",false,Optional.empty());
         excel.getEstilos().add(normalDerecha);
+
+        var normalIzquierdaBoldColor = new ColorExcel("normalIzquierdaBold", "#FFFFFF", "#FFFFFF");
+        var normalIzquierdaBold = new EstiloCeldaExcel(normalIzquierdaBoldColor,excel.getWb(),10
+                , Optional.of(HorizontalAlignment.LEFT),Optional.of(VerticalAlignment.BOTTOM),
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%",true, Optional.empty());
+        excel.getEstilos().add(normalIzquierdaBold);
+
+        var normalDerechaBoldColor = new ColorExcel("normalDerechaBold", "#FFFFFF", "#FFFFFF");
+        var normalDerechaBold = new EstiloCeldaExcel(normalDerechaBoldColor,excel.getWb(),10
+                , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%",true,Optional.empty());
+        excel.getEstilos().add(normalDerechaBold);
+
+        var normalDerechaBoldBottomColor = new ColorExcel("normalDerechaBoldBottom", "#FFFFFF", "#FFFFFF");
+        var normalDerechaBoldBottom = new EstiloCeldaExcel(normalDerechaBoldBottomColor,excel.getWb(),10
+                , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
+                Optional.empty(),BorderStyle.THIN, Optional.of("b"),"0.0%",true,Optional.empty());
+        excel.getEstilos().add(normalDerechaBoldBottom);
+
+        var negroColor = new ColorExcel("negro", "#FFFFFF", "#FFFFFF");
+        var negro = new EstiloCeldaExcel(negroColor,excel.getWb(),10
+                , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%",false,Optional.empty());
+        excel.getEstilos().add(negro);
+
+        var grisOscuroColor = new ColorExcel("grisOscuro", "#333333", "#333333");
+        var grisOscuro = new EstiloCeldaExcel(grisOscuroColor,excel.getWb(),10
+                , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0.0%",false,Optional.empty());
+        excel.getEstilos().add(grisOscuro);
 
 
         var letraAzulColor = new ColorExcel("letraAzul","#FFFFFF", "#FFFFFF");
         var letraAzul = new EstiloCeldaExcel(letraAzulColor,excel.getWb(),12
                 , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),"NONE", "0%",
+                Optional.empty(),BorderStyle.NONE, Optional.empty(),"0%",
                 true, Optional.of("#0070C0"));
         excel.getEstilos().add(letraAzul);
 

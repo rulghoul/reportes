@@ -240,6 +240,7 @@ public class BnkEstadofinanciero implements Serializable {
         resultado.add(new Celda(mes, "grisEncabezado", 1));
 
         resultado.add(new Celda(this.ventamuestra.intValue(), "EncabezadoCentro", 1));
+
         resultado.add(new Celda(this.ventaautosnuevosmenudeo.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.ventaautosnuevosflotilla.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.ventamercanciasvariasotros.intValue(), "normalDerecha", 1));
@@ -251,9 +252,9 @@ public class BnkEstadofinanciero implements Serializable {
         resultado.add(new Celda(this.ventamecanica.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.ventahojalateriapintura.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.ventarefacciones.intValue(), "normalDerecha", 1));
-        resultado.add(new Celda(this.ventaventastotales.intValue(), "normal", 1));
-        resultado.add(new Celda(this.ventaventatotalesautosnuevosunidades.intValue(), "normal", 1));
-        resultado.add(new Celda(this.ventapreciopromediounidadmezcla.intValue(), "normal", 1));
+        resultado.add(new Celda(this.ventaventastotales.intValue(), "normalDerechaBold", 1));
+        resultado.add(new Celda(this.ventaventatotalesautosnuevosunidades.intValue(), "normalDerechaBold", 1));
+        resultado.add(new Celda(this.ventapreciopromediounidadmezcla.intValue(), "normalDerechaBoldBottom", 1));
 
         resultado.add(new Celda(this.utilidadbrutaautosnuevosmenudeo.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.utilidadbrutaautosnuevosflotilla.intValue(), "normalDerecha", 1));
@@ -265,7 +266,7 @@ public class BnkEstadofinanciero implements Serializable {
         resultado.add(new Celda(this.utilidadbrutamecanica.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.utilidadbrutahojalateriapintura.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.utilidadbrutarefacciones.intValue(), "normalDerecha", 1));
-        resultado.add(new Celda(this.utilidadbrutautilidadbrutatotal.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadbrutautilidadbrutatotal.intValue(), "normalDerechaBoldBottom", 1));
 
 
         //Gastos
@@ -277,20 +278,20 @@ public class BnkEstadofinanciero implements Serializable {
         resultado.add(new Celda(this.gastoventarefacciones.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.gastofijos.intValue(), "normalDerecha", 1));
         resultado.add(new Celda(this.gastosueldospropietariosfuncionarios.intValue(), "normalDerecha", 1));
-        resultado.add(new Celda(this.gastogastostotalessinrentaequivalentes.intValue(), "normal", 1));
+        resultado.add(new Celda(this.gastogastostotalessinrentaequivalentes.intValue(), "normalDerechaBoldBottom", 1));
 
 
-        resultado.add(new Celda(this.utilidadnetautilidadoperacionsinrentassindepreciacion.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadnetautilidadoperacionsinrentassindepreciacion.intValue(), "normalDerechaBold", 1));
         resultado.add(new Celda(this.utilidadnetabienesinmueblesrentaequivalentes.intValue(), "normalDerecha", 1));
-        resultado.add(new Celda(this.utilidadnetautilidadoperacion.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadnetautilidadoperacion.intValue(), "normalDerechaBold", 1));
         resultado.add(new Celda(this.utilidadnetaotrosingresosdeducciones.intValue(), "normalDerecha", 1));
-        resultado.add(new Celda(this.utilidadnetautilidadnetareportada.intValue(), "normal", 1));
+        resultado.add(new Celda(this.utilidadnetautilidadnetareportada.intValue(), "normalDerechaBold", 1));
 
         resultado.add(new Celda("", "normalDerecha", 1));
 
-        resultado.add(new Celda(this.utilidaddealersreportaronutilidad.intValue(), "encabezado", 1));
-        resultado.add(new Celda(this.utilidadporcentajedealersconutilidad, "normal", 1));
-        resultado.add(new Celda(this.utilidadutilidadnetaentreventastotales, "normal", 1));
+        resultado.add(new Celda(this.utilidaddealersreportaronutilidad.intValue(), "azul", 1));
+        resultado.add(new Celda(this.utilidadporcentajedealersconutilidad, "normalDerechaBold", 1));
+        resultado.add(new Celda(this.utilidadutilidadnetaentreventastotales, "normalDerechaBold", 1));
 
         resultado.add(new Celda("", "normalDerecha", 1));
         resultado.add(new Celda("", "normalDerecha", 1));
