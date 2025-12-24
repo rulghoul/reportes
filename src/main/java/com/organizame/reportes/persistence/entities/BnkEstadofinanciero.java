@@ -4,13 +4,17 @@
  */
 package com.organizame.reportes.persistence.entities;
 
+import com.organizame.reportes.utils.excel.dto.Celda;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.List;
 
 /**
  * JPA entity class for "BnkEstadofinanciero"
@@ -23,7 +27,7 @@ import java.util.Objects;
 @ToString
 @RequiredArgsConstructor
 @Entity
-@Table(name="bnk_estadofinanciero", catalog="adistemdb" )
+@Table(name = "bnk_estadofinanciero", catalog = "adistemdb")
 public class BnkEstadofinanciero implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -31,187 +35,186 @@ public class BnkEstadofinanciero implements Serializable {
     //--- ENTITY PRIMARY KEY 
     @Id
     @Lob
-    @Column(name="IDESTADOFINANCIERO", nullable=false)
-    private byte[]     idestadofinanciero ;
+    @Column(name = "IDESTADOFINANCIERO", nullable = false)
+    private byte[] idestadofinanciero;
 
     //--- ENTITY DATA FIELDS 
-    @Column(name="PERIODOANIO", nullable=false)
-    private int        periodoanio ;
+    @Column(name = "PERIODOANIO", nullable = false)
+    private int periodoanio;
 
-    @Column(name="PERIODOMES", nullable=false)
-    private int        periodomes ;
+    @Column(name = "PERIODOMES", nullable = false)
+    private int periodomes;
 
-    @Column(name="VENTAMUESTRA", nullable=false)
-    private BigDecimal ventamuestra ;
+    @Column(name = "VENTAMUESTRA", nullable = false)
+    private BigDecimal ventamuestra;
 
-    @Column(name="VENTAAUTOSNUEVOSMENUDEO", nullable=false)
-    private BigDecimal ventaautosnuevosmenudeo ;
+    @Column(name = "VENTAAUTOSNUEVOSMENUDEO", nullable = false)
+    private BigDecimal ventaautosnuevosmenudeo;
 
-    @Column(name="VENTAAUTOSNUEVOSFLOTILLA", nullable=false)
-    private BigDecimal ventaautosnuevosflotilla ;
+    @Column(name = "VENTAAUTOSNUEVOSFLOTILLA", nullable = false)
+    private BigDecimal ventaautosnuevosflotilla;
 
-    @Column(name="VENTAMERCANCIASVARIASOTROS", nullable=false)
-    private BigDecimal ventamercanciasvariasotros ;
+    @Column(name = "VENTAMERCANCIASVARIASOTROS", nullable = false)
+    private BigDecimal ventamercanciasvariasotros;
 
-    @Column(name="VENTATOTALAUTOSNUEVOS", nullable=false)
-    private BigDecimal ventatotalautosnuevos ;
+    @Column(name = "VENTATOTALAUTOSNUEVOS", nullable = false)
+    private BigDecimal ventatotalautosnuevos;
 
-    @Column(name="VENTAAUTOSUSADOS", nullable=false)
-    private BigDecimal ventaautosusados ;
+    @Column(name = "VENTAAUTOSUSADOS", nullable = false)
+    private BigDecimal ventaautosusados;
 
-    @Column(name="VENTACONTRATOSSERVICIONUEVOSUSADOS", nullable=false)
-    private BigDecimal ventacontratosservicionuevosusados ;
+    @Column(name = "VENTACONTRATOSSERVICIONUEVOSUSADOS", nullable = false)
+    private BigDecimal ventacontratosservicionuevosusados;
 
-    @Column(name="VENTAMECANICA", nullable=false)
-    private BigDecimal ventamecanica ;
+    @Column(name = "VENTAMECANICA", nullable = false)
+    private BigDecimal ventamecanica;
 
-    @Column(name="VENTAHOJALATERIAPINTURA", nullable=false)
-    private BigDecimal ventahojalateriapintura ;
+    @Column(name = "VENTAHOJALATERIAPINTURA", nullable = false)
+    private BigDecimal ventahojalateriapintura;
 
-    @Column(name="VENTAREFACCIONES", nullable=false)
-    private BigDecimal ventarefacciones ;
+    @Column(name = "VENTAREFACCIONES", nullable = false)
+    private BigDecimal ventarefacciones;
 
-    @Column(name="VENTAVENTASTOTALES", nullable=false)
-    private BigDecimal ventaventastotales ;
+    @Column(name = "VENTAVENTASTOTALES", nullable = false)
+    private BigDecimal ventaventastotales;
 
-    @Column(name="VENTAVENTATOTALESAUTOSNUEVOSUNIDADES", nullable=false)
-    private BigDecimal ventaventatotalesautosnuevosunidades ;
+    @Column(name = "VENTAVENTATOTALESAUTOSNUEVOSUNIDADES", nullable = false)
+    private BigDecimal ventaventatotalesautosnuevosunidades;
 
-    @Column(name="VENTAPRECIOPROMEDIOUNIDADMEZCLA", nullable=false)
-    private BigDecimal ventapreciopromediounidadmezcla ;
+    @Column(name = "VENTAPRECIOPROMEDIOUNIDADMEZCLA", nullable = false)
+    private BigDecimal ventapreciopromediounidadmezcla;
 
-    @Column(name="UTILIDADBRUTAAUTOSNUEVOSMENUDEO", nullable=false)
-    private BigDecimal utilidadbrutaautosnuevosmenudeo ;
+    @Column(name = "UTILIDADBRUTAAUTOSNUEVOSMENUDEO", nullable = false)
+    private BigDecimal utilidadbrutaautosnuevosmenudeo;
 
-    @Column(name="UTILIDADBRUTAAUTOSNUEVOSFLOTILLA", nullable=false)
-    private BigDecimal utilidadbrutaautosnuevosflotilla ;
+    @Column(name = "UTILIDADBRUTAAUTOSNUEVOSFLOTILLA", nullable = false)
+    private BigDecimal utilidadbrutaautosnuevosflotilla;
 
-    @Column(name="UTILIDADBRUTABONOSPLANTA", nullable=false)
-    private BigDecimal utilidadbrutabonosplanta ;
+    @Column(name = "UTILIDADBRUTABONOSPLANTA", nullable = false)
+    private BigDecimal utilidadbrutabonosplanta;
 
-    @Column(name="UTILIDADBRUTATRANSFERENCIASBONOSINCENTIVOSFINANCIERAS", nullable=false)
-    private BigDecimal utilidadbrutatransferenciasbonosincentivosfinancieras ;
+    @Column(name = "UTILIDADBRUTATRANSFERENCIASBONOSINCENTIVOSFINANCIERAS", nullable = false)
+    private BigDecimal utilidadbrutatransferenciasbonosincentivosfinancieras;
 
-    @Column(name="UTILIDADBRUTATOTALAUTOSNUEVOS", nullable=false)
-    private BigDecimal utilidadbrutatotalautosnuevos ;
+    @Column(name = "UTILIDADBRUTATOTALAUTOSNUEVOS", nullable = false)
+    private BigDecimal utilidadbrutatotalautosnuevos;
 
-    @Column(name="UTILIDADBRUTAAUTOSUSADOS", nullable=false)
-    private BigDecimal utilidadbrutaautosusados ;
+    @Column(name = "UTILIDADBRUTAAUTOSUSADOS", nullable = false)
+    private BigDecimal utilidadbrutaautosusados;
 
-    @Column(name="UTILIDADBRUTACONTRATOSSERVICIONUEVOSUSADOS", nullable=false)
-    private BigDecimal utilidadbrutacontratosservicionuevosusados ;
+    @Column(name = "UTILIDADBRUTACONTRATOSSERVICIONUEVOSUSADOS", nullable = false)
+    private BigDecimal utilidadbrutacontratosservicionuevosusados;
 
-    @Column(name="UTILIDADBRUTAMECANICA", nullable=false)
-    private BigDecimal utilidadbrutamecanica ;
+    @Column(name = "UTILIDADBRUTAMECANICA", nullable = false)
+    private BigDecimal utilidadbrutamecanica;
 
-    @Column(name="UTILIDADBRUTAHOJALATERIAPINTURA", nullable=false)
-    private BigDecimal utilidadbrutahojalateriapintura ;
+    @Column(name = "UTILIDADBRUTAHOJALATERIAPINTURA", nullable = false)
+    private BigDecimal utilidadbrutahojalateriapintura;
 
-    @Column(name="UTILIDADBRUTAREFACCIONES", nullable=false)
-    private BigDecimal utilidadbrutarefacciones ;
+    @Column(name = "UTILIDADBRUTAREFACCIONES", nullable = false)
+    private BigDecimal utilidadbrutarefacciones;
 
-    @Column(name="UTILIDADBRUTAUTILIDADBRUTATOTAL", nullable=false)
-    private BigDecimal utilidadbrutautilidadbrutatotal ;
+    @Column(name = "UTILIDADBRUTAUTILIDADBRUTATOTAL", nullable = false)
+    private BigDecimal utilidadbrutautilidadbrutatotal;
 
-    @Column(name="GASTOVARIABLESNUEVOS", nullable=false)
-    private BigDecimal gastovariablesnuevos ;
+    @Column(name = "GASTOVARIABLESNUEVOS", nullable = false)
+    private BigDecimal gastovariablesnuevos;
 
-    @Column(name="GASTOVARIABLESUSADOS", nullable=false)
-    private BigDecimal gastovariablesusados ;
+    @Column(name = "GASTOVARIABLESUSADOS", nullable = false)
+    private BigDecimal gastovariablesusados;
 
-    @Column(name="GASTOPLANPISO", nullable=false)
-    private BigDecimal gastoplanpiso ;
+    @Column(name = "GASTOPLANPISO", nullable = false)
+    private BigDecimal gastoplanpiso;
 
-    @Column(name="GASTOVENTAMECANICA", nullable=false)
-    private BigDecimal gastoventamecanica ;
+    @Column(name = "GASTOVENTAMECANICA", nullable = false)
+    private BigDecimal gastoventamecanica;
 
-    @Column(name="GASTOVENTAHOJALATERIAPINTURA", nullable=false)
-    private BigDecimal gastoventahojalateriapintura ;
+    @Column(name = "GASTOVENTAHOJALATERIAPINTURA", nullable = false)
+    private BigDecimal gastoventahojalateriapintura;
 
-    @Column(name="GASTOVENTAREFACCIONES", nullable=false)
-    private BigDecimal gastoventarefacciones ;
+    @Column(name = "GASTOVENTAREFACCIONES", nullable = false)
+    private BigDecimal gastoventarefacciones;
 
-    @Column(name="GASTOFIJOS", nullable=false)
-    private BigDecimal gastofijos ;
+    @Column(name = "GASTOFIJOS", nullable = false)
+    private BigDecimal gastofijos;
 
-    @Column(name="GASTOSUELDOSPROPIETARIOSFUNCIONARIOS", nullable=false)
-    private BigDecimal gastosueldospropietariosfuncionarios ;
+    @Column(name = "GASTOSUELDOSPROPIETARIOSFUNCIONARIOS", nullable = false)
+    private BigDecimal gastosueldospropietariosfuncionarios;
 
-    @Column(name="GASTOGASTOSTOTALESSINRENTAEQUIVALENTES", nullable=false)
-    private BigDecimal gastogastostotalessinrentaequivalentes ;
+    @Column(name = "GASTOGASTOSTOTALESSINRENTAEQUIVALENTES", nullable = false)
+    private BigDecimal gastogastostotalessinrentaequivalentes;
 
-    @Column(name="UTILIDADNETAUTILIDADOPERACIONSINRENTASSINDEPRECIACION", nullable=false)
-    private BigDecimal utilidadnetautilidadoperacionsinrentassindepreciacion ;
+    @Column(name = "UTILIDADNETAUTILIDADOPERACIONSINRENTASSINDEPRECIACION", nullable = false)
+    private BigDecimal utilidadnetautilidadoperacionsinrentassindepreciacion;
 
-    @Column(name="UTILIDADNETABIENESINMUEBLESRENTAEQUIVALENTES", nullable=false)
-    private BigDecimal utilidadnetabienesinmueblesrentaequivalentes ;
+    @Column(name = "UTILIDADNETABIENESINMUEBLESRENTAEQUIVALENTES", nullable = false)
+    private BigDecimal utilidadnetabienesinmueblesrentaequivalentes;
 
-    @Column(name="UTILIDADNETAUTILIDADOPERACION", nullable=false)
-    private BigDecimal utilidadnetautilidadoperacion ;
+    @Column(name = "UTILIDADNETAUTILIDADOPERACION", nullable = false)
+    private BigDecimal utilidadnetautilidadoperacion;
 
-    @Column(name="UTILIDADNETAOTROSINGRESOSDEDUCCIONES", nullable=false)
-    private BigDecimal utilidadnetaotrosingresosdeducciones ;
+    @Column(name = "UTILIDADNETAOTROSINGRESOSDEDUCCIONES", nullable = false)
+    private BigDecimal utilidadnetaotrosingresosdeducciones;
 
-    @Column(name="UTILIDADNETAUTILIDADNETAREPORTADA", nullable=false)
-    private BigDecimal utilidadnetautilidadnetareportada ;
+    @Column(name = "UTILIDADNETAUTILIDADNETAREPORTADA", nullable = false)
+    private BigDecimal utilidadnetautilidadnetareportada;
 
-    @Column(name="UTILIDADDEALERSREPORTARONUTILIDAD", nullable=false)
-    private BigDecimal utilidaddealersreportaronutilidad ;
+    @Column(name = "UTILIDADDEALERSREPORTARONUTILIDAD", nullable = false)
+    private BigDecimal utilidaddealersreportaronutilidad;
 
-    @Column(name="UTILIDADPORCENTAJEDEALERSCONUTILIDAD", nullable=false)
-    private BigDecimal utilidadporcentajedealersconutilidad ;
+    @Column(name = "UTILIDADPORCENTAJEDEALERSCONUTILIDAD", nullable = false)
+    private BigDecimal utilidadporcentajedealersconutilidad;
 
-    @Column(name="UTILIDADUTILIDADNETAENTREVENTASTOTALES", nullable=false)
-    private BigDecimal utilidadutilidadnetaentreventastotales ;
+    @Column(name = "UTILIDADUTILIDADNETAENTREVENTASTOTALES", nullable = false)
+    private BigDecimal utilidadutilidadnetaentreventastotales;
 
-    @Column(name="UTILIDADEBITDAENTREVENTASTOTALES", nullable=false)
-    private BigDecimal utilidadebitdaentreventastotales ;
+    @Column(name = "UTILIDADEBITDAENTREVENTASTOTALES", nullable = false)
+    private BigDecimal utilidadebitdaentreventastotales;
 
-    @Column(name="UTILIDADABSORCIONSERVICIO", nullable=false)
-    private BigDecimal utilidadabsorcionservicio ;
+    @Column(name = "UTILIDADABSORCIONSERVICIO", nullable = false)
+    private BigDecimal utilidadabsorcionservicio;
 
-    @Column(name="UTILIDADROIPORCENTAJE", nullable=false)
-    private BigDecimal utilidadroiporcentaje ;
+    @Column(name = "UTILIDADROIPORCENTAJE", nullable = false)
+    private BigDecimal utilidadroiporcentaje;
 
-    @Column(name="UTILIDADROIOPERATIVOPORCENTAJE", nullable=false)
-    private BigDecimal utilidadroioperativoporcentaje ;
+    @Column(name = "UTILIDADROIOPERATIVOPORCENTAJE", nullable = false)
+    private BigDecimal utilidadroioperativoporcentaje;
 
-    @Column(name="UTILIDADMARGENBRUTO", nullable=false)
-    private BigDecimal utilidadmargenbruto ;
+    @Column(name = "UTILIDADMARGENBRUTO", nullable = false)
+    private BigDecimal utilidadmargenbruto;
 
-    @Column(name="UTILIDADPLANPISOUTILIDADBRUTA", nullable=false)
-    private BigDecimal utilidadplanpisoutilidadbruta ;
+    @Column(name = "UTILIDADPLANPISOUTILIDADBRUTA", nullable = false)
+    private BigDecimal utilidadplanpisoutilidadbruta;
 
-    @Column(name="UTILIDADAUTOSNUEVOSMENUDEO", nullable=false)
-    private BigDecimal utilidadautosnuevosmenudeo ;
+    @Column(name = "UTILIDADAUTOSNUEVOSMENUDEO", nullable = false)
+    private BigDecimal utilidadautosnuevosmenudeo;
 
-    @Column(name="UTILIDADAUTOSNUEVOSFLOTILLAS", nullable=false)
-    private BigDecimal utilidadautosnuevosflotillas ;
+    @Column(name = "UTILIDADAUTOSNUEVOSFLOTILLAS", nullable = false)
+    private BigDecimal utilidadautosnuevosflotillas;
 
-    @Column(name="UTILIDADAUTOSNUEVOSBONOSPLANTA", nullable=false)
-    private BigDecimal utilidadautosnuevosbonosplanta ;
+    @Column(name = "UTILIDADAUTOSNUEVOSBONOSPLANTA", nullable = false)
+    private BigDecimal utilidadautosnuevosbonosplanta;
 
-    @Column(name="UTILIDADAUTOSNUEVOSTOTALSINFLOTILLAS", nullable=false)
-    private BigDecimal utilidadautosnuevostotalsinflotillas ;
+    @Column(name = "UTILIDADAUTOSNUEVOSTOTALSINFLOTILLAS", nullable = false)
+    private BigDecimal utilidadautosnuevostotalsinflotillas;
 
-    @Column(name="UTILIDADAUTOSUSADOS", nullable=false)
-    private BigDecimal utilidadautosusados ;
+    @Column(name = "UTILIDADAUTOSUSADOS", nullable = false)
+    private BigDecimal utilidadautosusados;
 
-    @Column(name="UTILIDADCONTRATOSSERVICIO", nullable=false)
-    private BigDecimal utilidadcontratosservicio ;
+    @Column(name = "UTILIDADCONTRATOSSERVICIO", nullable = false)
+    private BigDecimal utilidadcontratosservicio;
 
-    @Column(name="UTILIDADMECANICA", nullable=false)
-    private BigDecimal utilidadmecanica ;
+    @Column(name = "UTILIDADMECANICA", nullable = false)
+    private BigDecimal utilidadmecanica;
 
-    @Column(name="UTILIDADHOJALATERIAPINTURA", nullable=false)
-    private BigDecimal utilidadhojalateriapintura ;
+    @Column(name = "UTILIDADHOJALATERIAPINTURA", nullable = false)
+    private BigDecimal utilidadhojalateriapintura;
 
-    @Column(name="UTILIDADREFACCIONES", nullable=false)
-    private BigDecimal utilidadrefacciones ;
+    @Column(name = "UTILIDADREFACCIONES", nullable = false)
+    private BigDecimal utilidadrefacciones;
 
-    @Column(name="UTILIDADTOTAL", nullable=false)
-    private BigDecimal utilidadtotal ;
-
+    @Column(name = "UTILIDADTOTAL", nullable = false)
+    private BigDecimal utilidadtotal;
 
 
     @Override
@@ -229,4 +232,427 @@ public class BnkEstadofinanciero implements Serializable {
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
+
+    public List<Celda> toCeldas(String anio, String mes) {
+        List<Celda> resultado = new ArrayList<>();
+
+        resultado.add(new Celda(anio, "grisEncabezado", 1));
+        resultado.add(new Celda(mes, "grisEncabezado", 1));
+
+        resultado.add(new Celda(this.ventamuestra.intValue(), "EncabezadoCentro", 1));
+
+        resultado.add(new Celda(this.ventaautosnuevosmenudeo.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventaautosnuevosflotilla.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventamercanciasvariasotros.intValue(), "normalDerechaBottom", 1));
+
+        //Ventas
+        resultado.add(new Celda(this.ventatotalautosnuevos.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventaautosusados.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventacontratosservicionuevosusados.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventamecanica.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventahojalateriapintura.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventarefacciones.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.ventaventastotales.intValue(), "normalDerechaBold", 1));
+        resultado.add(new Celda(this.ventaventatotalesautosnuevosunidades.intValue(), "normalDerechaBold", 1));
+        resultado.add(new Celda(this.ventapreciopromediounidadmezcla.intValue(), "normalDerechaBoldBottom", 1));
+
+        resultado.add(new Celda(this.utilidadbrutaautosnuevosmenudeo.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutaautosnuevosflotilla.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutabonosplanta.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutatransferenciasbonosincentivosfinancieras.intValue(), "normalDerechaBottom", 1));
+        resultado.add(new Celda(this.utilidadbrutatotalautosnuevos.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutaautosusados.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutacontratosservicionuevosusados.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutamecanica.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutahojalateriapintura.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutarefacciones.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadbrutautilidadbrutatotal.intValue(), "normalDerechaBoldBottom", 1));
+
+
+        //Gastos
+        resultado.add(new Celda(this.gastovariablesnuevos.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.gastovariablesusados.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.gastoplanpiso.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.gastoventamecanica.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.gastoventahojalateriapintura.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.gastoventarefacciones.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.gastofijos.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.gastosueldospropietariosfuncionarios.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.gastogastostotalessinrentaequivalentes.intValue(), "normalDerechaBoldBottom", 1));
+
+
+        resultado.add(new Celda(this.utilidadnetautilidadoperacionsinrentassindepreciacion.intValue(), "normalDerechaBold", 1));
+        resultado.add(new Celda(this.utilidadnetabienesinmueblesrentaequivalentes.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadnetautilidadoperacion.intValue(), "normalDerechaBold", 1));
+        resultado.add(new Celda(this.utilidadnetaotrosingresosdeducciones.intValue(), "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadnetautilidadnetareportada.intValue(), "normalDerechaBold", 1));
+
+        resultado.add(new Celda("", "normalDerecha", 1));
+
+        resultado.add(new Celda(this.utilidaddealersreportaronutilidad.intValue(), "azul", 1));
+        resultado.add(new Celda(this.utilidadporcentajedealersconutilidad, "normalDerechaBold", 1));
+        resultado.add(new Celda(this.utilidadutilidadnetaentreventastotales, "normalDerechaBold", 1));
+
+        resultado.add(new Celda("", "normalDerecha", 1));
+        resultado.add(new Celda("", "normalDerecha", 1));
+        resultado.add(new Celda("", "normalDerecha", 1));
+
+        resultado.add(new Celda(this.utilidadebitdaentreventastotales, "grisDerecha", 1));
+        resultado.add(new Celda(this.utilidadabsorcionservicio, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadroiporcentaje, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadroioperativoporcentaje, "normalDerecha", 1));
+
+        resultado.add(new Celda("", "normalDerecha", 1));
+
+        resultado.add(new Celda(this.utilidadmargenbruto, "letraAzul", 1));
+        resultado.add(new Celda(this.utilidadplanpisoutilidadbruta, "letraAzul", 1));
+        resultado.add(new Celda(this.utilidadautosnuevosmenudeo, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadautosnuevosflotillas, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadautosnuevosbonosplanta, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadautosnuevostotalsinflotillas, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadautosusados, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadcontratosservicio, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadmecanica, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadhojalateriapintura, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadrefacciones, "normalDerecha", 1));
+        resultado.add(new Celda(this.utilidadtotal, "normalDerecha", 1));
+
+
+        resultado.add(new Celda("", "normalDerecha", 1));
+        resultado.add(new Celda("", "normalDerecha", 1));
+
+        resultado.add(new Celda(this.periodomes, "normalDerecha", 1));
+        return resultado;
+    }
+
+
+    private BigDecimal nvl(BigDecimal v) {
+        return Objects.isNull(v) ? BigDecimal.ZERO : v;
+    }
+
+    public BnkEstadofinanciero sumarCon(BnkEstadofinanciero otro) {
+        BnkEstadofinanciero resultado = new BnkEstadofinanciero();
+        var dos = new BigDecimal("2.0");
+
+        // VENTAS
+        resultado.setVentamuestra(nvl(this.ventamuestra).add(nvl(otro.ventamuestra)));
+        resultado.setVentaautosnuevosmenudeo(nvl(this.ventaautosnuevosmenudeo).add(nvl(otro.ventaautosnuevosmenudeo)));
+        resultado.setVentaautosnuevosflotilla(nvl(this.ventaautosnuevosflotilla).add(nvl(otro.ventaautosnuevosflotilla)));
+        resultado.setVentamercanciasvariasotros(nvl(this.ventamercanciasvariasotros).add(nvl(otro.ventamercanciasvariasotros)));
+        resultado.setVentatotalautosnuevos(nvl(this.ventatotalautosnuevos).add(nvl(otro.ventatotalautosnuevos)));
+        resultado.setVentaautosusados(nvl(this.ventaautosusados).add(nvl(otro.ventaautosusados)));
+        resultado.setVentacontratosservicionuevosusados(
+                nvl(this.ventacontratosservicionuevosusados)
+                        .add(nvl(otro.ventacontratosservicionuevosusados)));
+        resultado.setVentamecanica(nvl(this.ventamecanica).add(nvl(otro.ventamecanica)));
+        resultado.setVentahojalateriapintura(nvl(this.ventahojalateriapintura).add(nvl(otro.ventahojalateriapintura)));
+        resultado.setVentarefacciones(nvl(this.ventarefacciones).add(nvl(otro.ventarefacciones)));
+        resultado.setVentaventastotales(nvl(this.ventaventastotales).add(nvl(otro.ventaventastotales)));
+        resultado.setVentaventatotalesautosnuevosunidades(
+                nvl(this.ventaventatotalesautosnuevosunidades)
+                        .add(nvl(otro.ventaventatotalesautosnuevosunidades)));
+        resultado.setVentapreciopromediounidadmezcla(
+                nvl(this.ventapreciopromediounidadmezcla)
+                        .add(nvl(otro.ventapreciopromediounidadmezcla)));
+
+        // UTILIDAD BRUTA
+        resultado.setUtilidadbrutaautosnuevosmenudeo(
+                nvl(this.utilidadbrutaautosnuevosmenudeo)
+                        .add(nvl(otro.utilidadbrutaautosnuevosmenudeo)));
+        resultado.setUtilidadbrutaautosnuevosflotilla(
+                nvl(this.utilidadbrutaautosnuevosflotilla)
+                        .add(nvl(otro.utilidadbrutaautosnuevosflotilla)));
+        resultado.setUtilidadbrutabonosplanta(
+                nvl(this.utilidadbrutabonosplanta)
+                        .add(nvl(otro.utilidadbrutabonosplanta)));
+        resultado.setUtilidadbrutatransferenciasbonosincentivosfinancieras(
+                nvl(this.utilidadbrutatransferenciasbonosincentivosfinancieras)
+                        .add(nvl(otro.utilidadbrutatransferenciasbonosincentivosfinancieras)));
+        resultado.setUtilidadbrutatotalautosnuevos(
+                nvl(this.utilidadbrutatotalautosnuevos)
+                        .add(nvl(otro.utilidadbrutatotalautosnuevos)));
+        resultado.setUtilidadbrutaautosusados(
+                nvl(this.utilidadbrutaautosusados)
+                        .add(nvl(otro.utilidadbrutaautosusados)));
+        resultado.setUtilidadbrutacontratosservicionuevosusados(
+                nvl(this.utilidadbrutacontratosservicionuevosusados)
+                        .add(nvl(otro.utilidadbrutacontratosservicionuevosusados)));
+        resultado.setUtilidadbrutamecanica(
+                nvl(this.utilidadbrutamecanica)
+                        .add(nvl(otro.utilidadbrutamecanica)));
+        resultado.setUtilidadbrutahojalateriapintura(
+                nvl(this.utilidadbrutahojalateriapintura)
+                        .add(nvl(otro.utilidadbrutahojalateriapintura)));
+        resultado.setUtilidadbrutarefacciones(
+                nvl(this.utilidadbrutarefacciones)
+                        .add(nvl(otro.utilidadbrutarefacciones)));
+        resultado.setUtilidadbrutautilidadbrutatotal(
+                nvl(this.utilidadbrutautilidadbrutatotal)
+                        .add(nvl(otro.utilidadbrutautilidadbrutatotal)));
+
+        // GASTOS
+        resultado.setGastovariablesnuevos(
+                nvl(this.gastovariablesnuevos)
+                        .add(nvl(otro.gastovariablesnuevos)));
+        resultado.setGastovariablesusados(
+                nvl(this.gastovariablesusados)
+                        .add(nvl(otro.gastovariablesusados)));
+        resultado.setGastoplanpiso(
+                nvl(this.gastoplanpiso)
+                        .add(nvl(otro.gastoplanpiso)));
+        resultado.setGastoventamecanica(
+                nvl(this.gastoventamecanica)
+                        .add(nvl(otro.gastoventamecanica)));
+        resultado.setGastoventahojalateriapintura(
+                nvl(this.gastoventahojalateriapintura)
+                        .add(nvl(otro.gastoventahojalateriapintura)));
+        resultado.setGastoventarefacciones(
+                nvl(this.gastoventarefacciones)
+                        .add(nvl(otro.gastoventarefacciones)));
+        resultado.setGastofijos(
+                nvl(this.gastofijos)
+                        .add(nvl(otro.gastofijos)));
+        resultado.setGastosueldospropietariosfuncionarios(
+                nvl(this.gastosueldospropietariosfuncionarios)
+                        .add(nvl(otro.gastosueldospropietariosfuncionarios)));
+        resultado.setGastogastostotalessinrentaequivalentes(
+                nvl(this.gastogastostotalessinrentaequivalentes)
+                        .add(nvl(otro.gastogastostotalessinrentaequivalentes)));
+
+        // UTILIDAD NETA
+        resultado.setUtilidadnetautilidadoperacionsinrentassindepreciacion(
+                nvl(this.utilidadnetautilidadoperacionsinrentassindepreciacion)
+                        .add(nvl(otro.utilidadnetautilidadoperacionsinrentassindepreciacion)));
+        resultado.setUtilidadnetabienesinmueblesrentaequivalentes(
+                nvl(this.utilidadnetabienesinmueblesrentaequivalentes)
+                        .add(nvl(otro.utilidadnetabienesinmueblesrentaequivalentes)));
+        resultado.setUtilidadnetautilidadoperacion(
+                nvl(this.utilidadnetautilidadoperacion)
+                        .add(nvl(otro.utilidadnetautilidadoperacion)));
+        resultado.setUtilidadnetaotrosingresosdeducciones(
+                nvl(this.utilidadnetaotrosingresosdeducciones)
+                        .add(nvl(otro.utilidadnetaotrosingresosdeducciones)));
+        resultado.setUtilidadnetautilidadnetareportada(
+                nvl(this.utilidadnetautilidadnetareportada)
+                        .add(nvl(otro.utilidadnetautilidadnetareportada)));
+
+        // INDICADORES
+        resultado.setUtilidaddealersreportaronutilidad(
+                nvl(this.utilidaddealersreportaronutilidad)
+                        .add(nvl(otro.utilidaddealersreportaronutilidad)));
+        resultado.setUtilidadporcentajedealersconutilidad(
+                nvl(this.utilidadporcentajedealersconutilidad)
+                        .add(nvl(otro.utilidadporcentajedealersconutilidad)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadutilidadnetaentreventastotales(
+                nvl(this.utilidadutilidadnetaentreventastotales)
+                        .add(nvl(otro.utilidadutilidadnetaentreventastotales)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadebitdaentreventastotales(
+                nvl(this.utilidadebitdaentreventastotales)
+                        .add(nvl(otro.utilidadebitdaentreventastotales)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadabsorcionservicio(
+                nvl(this.utilidadabsorcionservicio)
+                        .add(nvl(otro.utilidadabsorcionservicio)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadroiporcentaje(
+                nvl(this.utilidadroiporcentaje)
+                        .add(nvl(otro.utilidadroiporcentaje)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadroioperativoporcentaje(
+                nvl(this.utilidadroioperativoporcentaje)
+                        .add(nvl(otro.utilidadroioperativoporcentaje)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadmargenbruto(
+                nvl(this.utilidadmargenbruto)
+                        .add(nvl(otro.utilidadmargenbruto)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadplanpisoutilidadbruta(
+                nvl(this.utilidadplanpisoutilidadbruta)
+                        .add(nvl(otro.utilidadplanpisoutilidadbruta)).divide(dos, MathContext.DECIMAL32));
+
+        // UTILIDAD POR ÁREA
+        resultado.setUtilidadautosnuevosmenudeo(
+                nvl(this.utilidadautosnuevosmenudeo)
+                        .add(nvl(otro.utilidadautosnuevosmenudeo)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadautosnuevosflotillas(
+                nvl(this.utilidadautosnuevosflotillas)
+                        .add(nvl(otro.utilidadautosnuevosflotillas)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadautosnuevosbonosplanta(
+                nvl(this.utilidadautosnuevosbonosplanta)
+                        .add(nvl(otro.utilidadautosnuevosbonosplanta)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadautosnuevostotalsinflotillas(
+                nvl(this.utilidadautosnuevostotalsinflotillas)
+                        .add(nvl(otro.utilidadautosnuevostotalsinflotillas)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadautosusados(
+                nvl(this.utilidadautosusados)
+                        .add(nvl(otro.utilidadautosusados)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadcontratosservicio(
+                nvl(this.utilidadcontratosservicio)
+                        .add(nvl(otro.utilidadcontratosservicio)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadmecanica(
+                nvl(this.utilidadmecanica)
+                        .add(nvl(otro.utilidadmecanica)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadhojalateriapintura(
+                nvl(this.utilidadhojalateriapintura)
+                        .add(nvl(otro.utilidadhojalateriapintura)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadrefacciones(
+                nvl(this.utilidadrefacciones)
+                        .add(nvl(otro.utilidadrefacciones)).divide(dos, MathContext.DECIMAL32));
+        resultado.setUtilidadtotal(
+                nvl(this.utilidadtotal)
+                        .add(nvl(otro.utilidadtotal)).divide(dos, MathContext.DECIMAL32));
+
+        return resultado;
+    }
+
+    private BigDecimal variacion(BigDecimal actual, BigDecimal anterior) {
+        return actual.divide(anterior, MathContext.DECIMAL32).subtract(BigDecimal.ONE);
+    }
+
+    public List<Celda> variacionCon(BnkEstadofinanciero otro) {
+        List<Celda> resultado = new ArrayList<>();
+
+        // VENTAS
+        resultado.add(new Celda(
+                this.variacion(this.ventaautosnuevosmenudeo, otro.ventaautosnuevosmenudeo), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventaautosnuevosflotilla, otro.ventaautosnuevosflotilla), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventamercanciasvariasotros, otro.ventamercanciasvariasotros), "normalDerechaBottom", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventatotalautosnuevos, otro.ventatotalautosnuevos), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventaautosusados, otro.ventaautosusados), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventacontratosservicionuevosusados,
+                        otro.ventacontratosservicionuevosusados), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventamecanica,
+                        otro.ventamecanica)
+                , "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventahojalateriapintura, otro.ventahojalateriapintura),
+                "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventarefacciones, otro.ventarefacciones),
+                "normalDerecha", 1));
+        resultado.add(
+                new Celda(this.variacion(this.ventaventastotales, otro.ventaventastotales),
+                        "normalDerechaBold", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventaventatotalesautosnuevosunidades,
+                        otro.ventaventatotalesautosnuevosunidades),
+                "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.ventapreciopromediounidadmezcla,
+                        otro.ventapreciopromediounidadmezcla),
+                "normalDerechaBottom", 1));
+
+        // UTILIDAD BRUTA
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutaautosnuevosmenudeo,
+                        otro.utilidadbrutaautosnuevosmenudeo),
+                "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutaautosnuevosflotilla,
+                        otro.utilidadbrutaautosnuevosflotilla),
+                "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutabonosplanta,
+                        otro.utilidadbrutabonosplanta),
+                "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutatransferenciasbonosincentivosfinancieras,
+                        otro.utilidadbrutatransferenciasbonosincentivosfinancieras), "normalDerechaBottom", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutatotalautosnuevos,
+                        otro.utilidadbrutatotalautosnuevos), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutaautosusados,
+                        otro.utilidadbrutaautosusados), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutacontratosservicionuevosusados,
+                        otro.utilidadbrutacontratosservicionuevosusados), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutamecanica,
+                        otro.utilidadbrutamecanica), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutahojalateriapintura,
+                        otro.utilidadbrutahojalateriapintura), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutarefacciones,
+                        otro.utilidadbrutarefacciones), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadbrutautilidadbrutatotal,
+                        otro.utilidadbrutautilidadbrutatotal), "normalDerechaBoldBottom", 1));
+
+        // GASTOS
+        resultado.add(new Celda(
+                this.variacion(this.gastovariablesnuevos,
+                        otro.gastovariablesnuevos), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastovariablesusados,
+                        otro.gastovariablesusados), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastoplanpiso,
+                        otro.gastoplanpiso), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastoventamecanica,
+                        otro.gastoventamecanica), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastoventahojalateriapintura,
+                        otro.gastoventahojalateriapintura), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastoventarefacciones,
+                        otro.gastoventarefacciones), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastofijos,
+                        otro.gastofijos), "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastosueldospropietariosfuncionarios,
+                        otro.gastosueldospropietariosfuncionarios)
+                , "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.gastogastostotalessinrentaequivalentes,
+                        otro.gastogastostotalessinrentaequivalentes)
+                , "normalDerechaBoldBottom", 1));
+
+        // UTILIDAD NETA
+        resultado.add(new Celda(
+                this.variacion(this.utilidadnetautilidadoperacionsinrentassindepreciacion,
+                        otro.utilidadnetautilidadoperacionsinrentassindepreciacion)
+                , "normalDerechaBold", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadnetabienesinmueblesrentaequivalentes,
+                        otro.utilidadnetabienesinmueblesrentaequivalentes)
+                , "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadnetautilidadoperacion,
+                        otro.utilidadnetautilidadoperacion)
+                , "normalDerechaBold", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadnetaotrosingresosdeducciones,
+                        otro.utilidadnetaotrosingresosdeducciones)
+                , "normalDerecha", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadnetautilidadnetareportada,
+                        otro.utilidadnetautilidadnetareportada),
+                "normalDerechaBold", 1));
+
+        resultado.add(new Celda("", "normalDerecha", 1));
+
+        // INDICADORES
+        resultado.add(new Celda(
+                this.variacion(this.utilidaddealersreportaronutilidad
+                        , otro.utilidaddealersreportaronutilidad),
+                "Azul", 1));
+        resultado.add(new Celda(
+                this.variacion(this.utilidadporcentajedealersconutilidad,
+                        nvl(otro.utilidadporcentajedealersconutilidad)),
+                "normalDerecha", 1));
+        resultado.add(new Celda(
+                nvl(this.utilidadutilidadnetaentreventastotales)
+                        .subtract(nvl(otro.utilidadutilidadnetaentreventastotales)),
+                "normalDerecha", 1));
+
+
+        return resultado;
+    }
+
+
 }

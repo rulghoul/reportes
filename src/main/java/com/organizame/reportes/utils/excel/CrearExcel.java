@@ -182,6 +182,12 @@ public class CrearExcel {
         return filaDatos.getPosicion();
     }
 
+    public Posicion creaColumna(XSSFSheet hoja, ColumnaFila filaDatos, EstiloCeldaExcel estiloRojo){
+        var filasColumnas = new FilasColumnas(wb, hoja, this.estilos, this.estilos.get(0), estiloRojo );
+        filasColumnas.DibujaColumna(filaDatos);
+        return filaDatos.getPosicion();
+    }
+
 
     public ByteArrayInputStream guardaExcel() throws IOException {
         var out = new ByteArrayOutputStream();
