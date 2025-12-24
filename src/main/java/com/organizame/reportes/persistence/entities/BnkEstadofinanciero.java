@@ -513,7 +513,7 @@ public class BnkEstadofinanciero implements Serializable {
         resultado.add(new Celda(
                 this.variacion(this.ventaautosnuevosflotilla, otro.ventaautosnuevosflotilla), "normalDerecha", 1));
         resultado.add(new Celda(
-                this.variacion(this.ventamercanciasvariasotros, otro.ventamercanciasvariasotros), "normalDerecha", 1));
+                this.variacion(this.ventamercanciasvariasotros, otro.ventamercanciasvariasotros), "normalDerechaBottom", 1));
         resultado.add(new Celda(
                 this.variacion(this.ventatotalautosnuevos, otro.ventatotalautosnuevos), "normalDerecha", 1));
         resultado.add(new Celda(
@@ -541,13 +541,13 @@ public class BnkEstadofinanciero implements Serializable {
         resultado.add(new Celda(
                 this.variacion(this.ventapreciopromediounidadmezcla,
                         otro.ventapreciopromediounidadmezcla),
-                "normalDerecha", 1));
+                "normalDerechaBottom", 1));
 
         // UTILIDAD BRUTA
         resultado.add(new Celda(
                 this.variacion(this.utilidadbrutaautosnuevosmenudeo,
                         otro.utilidadbrutaautosnuevosmenudeo),
-                "normal", 1));
+                "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadbrutaautosnuevosflotilla,
                         otro.utilidadbrutaautosnuevosflotilla),
@@ -558,7 +558,7 @@ public class BnkEstadofinanciero implements Serializable {
                 "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadbrutatransferenciasbonosincentivosfinancieras,
-                        otro.utilidadbrutatransferenciasbonosincentivosfinancieras), "normalDerecha", 1));
+                        otro.utilidadbrutatransferenciasbonosincentivosfinancieras), "normalDerechaBottom", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadbrutatotalautosnuevos,
                         otro.utilidadbrutatotalautosnuevos), "normalDerecha", 1));
@@ -579,7 +579,7 @@ public class BnkEstadofinanciero implements Serializable {
                         otro.utilidadbrutarefacciones), "normalDerecha", 1));
         resultado.add(new Celda(
                 this.variacion(this.utilidadbrutautilidadbrutatotal,
-                        otro.utilidadbrutautilidadbrutatotal), "normalDerechaBold", 1));
+                        otro.utilidadbrutautilidadbrutatotal), "normalDerechaBoldBottom", 1));
 
         // GASTOS
         resultado.add(new Celda(
@@ -610,7 +610,7 @@ public class BnkEstadofinanciero implements Serializable {
         resultado.add(new Celda(
                 this.variacion(this.gastogastostotalessinrentaequivalentes,
                         otro.gastogastostotalessinrentaequivalentes)
-                , "normalDerechaBold", 1));
+                , "normalDerechaBoldBottom", 1));
 
         // UTILIDAD NETA
         resultado.add(new Celda(

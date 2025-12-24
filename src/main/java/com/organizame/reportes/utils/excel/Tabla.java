@@ -179,7 +179,7 @@ public class Tabla {
     }
 
     private void trasnforma(Cell cell, Object celda, boolean ispar, EstiloCeldaExcel estilo) {
-        Utilidades.trasnforma(this.wb, cell, celda, ispar, estilo, this.rojo);
+        Utilidades.trasnforma(this.wb, cell, celda, ispar, estilo);
     }
 
 }

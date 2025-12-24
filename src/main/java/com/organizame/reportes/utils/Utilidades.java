@@ -23,14 +23,14 @@ public class Utilidades {
             .compile("(?i)\\#*(?<r>[0-9a-f]{2})(?<g>[0-9a-f]{2})(?<b>[0-9a-f]{2})");
 
 
-    public static void trasnforma(XSSFWorkbook wb,Cell cell, Object valor, boolean par, EstiloCeldaExcel estilo, EstiloCeldaExcel rojo) {
+    public static void trasnforma(XSSFWorkbook wb,Cell cell, Object valor, boolean par, EstiloCeldaExcel estilo) {
         try {
             switch (valor) {
                 case String s -> cell.setCellValue(s);
                 case Double d -> {
                     cell.setCellValue(d);
                     if(Utilidades.evaluaNumero(d) == -1){
-                        cell.setCellStyle(par ? rojo.getOddPorciento() : rojo.getNormalPorciento());
+                        cell.setCellStyle(par ? estilo.getOddPorcientoRojo() : estilo.getNormalPorcientoRojo());
                     }else {
                         cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
                     }
@@ -42,14 +42,14 @@ public class Utilidades {
                 case BigDecimal bd -> {
                     cell.setCellValue(bd.doubleValue());
                     if(Utilidades.evaluaNumero(bd.doubleValue()) == -1){
-                        cell.setCellStyle(par ? rojo.getOddPorciento() : rojo.getNormalPorciento());
+                        cell.setCellStyle(par ? estilo.getOddPorcientoRojo() : estilo.getNormalPorcientoRojo());
                     }else {
                         cell.setCellStyle(par ? estilo.getOddPorciento() : estilo.getNormalPorciento());
                     }
                 }
                 case Integer i -> {
                     if(Utilidades.evaluaNumero(i) == -1){
-                        cell.setCellStyle(par ? rojo.getOdd() : rojo.getNormal());
+                        cell.setCellStyle(par ? estilo.getOddEnteroRojo() : estilo.getNormalEnteroRojo());
                     }else {
                         cell.setCellStyle(par ? estilo.getOddEntero() : estilo.getNormalEntero());
                     }
