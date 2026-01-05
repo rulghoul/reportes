@@ -21,19 +21,18 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/reporte/excel")
-public class ReporteExcelController {
+public class ReporteOrigenController {
 
     private final ReporteExcelService serviceLibro;
 
     private final DateTimeFormatter fechaFormat = DateTimeFormatter.ISO_DATE;
-    private ReporteExcelController(ReporteExcelService serviceLibro){
+    private ReporteOrigenController(ReporteExcelService serviceLibro){
         this.serviceLibro = serviceLibro;
     }
 

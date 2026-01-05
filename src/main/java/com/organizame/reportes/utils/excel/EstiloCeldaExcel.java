@@ -140,7 +140,6 @@ public class EstiloCeldaExcel {
         fuente.setBold(isBold);
 
         if(colorFuente.isPresent()){
-            log.info("Se aplicara el color {}", colorFuente.get());
             fuente.setColor(new XSSFColor(Utilidades.convierteComponentesRGB(colorFuente.get()), null));
         }
 

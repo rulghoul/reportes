@@ -113,9 +113,9 @@ public class ReportePresentacionController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
     @GetMapping("/pdf")
     @ResponseBody
-    public ResponseEntity<?>  getReportePDF(@RequestParam String origen,@RequestParam String mesfinal, @RequestParam Integer mesReporte ){
+    public ResponseEntity<?>  getReportePDF(@RequestParam String origen,@RequestParam String mesFinal, @RequestParam Integer mesReporte ){
         try {
-            LocalDate fecha = LocalDate.from(fechaFormat.parse(mesfinal));
+            LocalDate fecha = LocalDate.from(fechaFormat.parse(mesFinal));
             RequestOrigen request = new RequestOrigen(origen, fecha, mesReporte);
             return reportePDF(request);
         }catch (Exception e){
