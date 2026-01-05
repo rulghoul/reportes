@@ -1,11 +1,15 @@
 package com.organizame.reportes.dto.request;
 
 import jakarta.validation.constraints.*;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class RequestOrigen {
 
     @NotBlank(message = "El origen no puede estar vacío")

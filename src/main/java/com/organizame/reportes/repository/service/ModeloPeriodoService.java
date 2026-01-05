@@ -88,7 +88,7 @@ public class ModeloPeriodoService {
                                             .filter(marc -> marc.getVhcMarca().equals(dato.getVhcmodelo().getVhcmarca()))
                                             .findFirst().isPresent()
                             )
-                            .peek(grup -> log.info("La marca {} es parte del grupo {}", dato.getVhcmodelo().getVhcmarca().getNombre(), grup.getNombre()))
+                            //.peek(grup -> log.info("La marca {} es parte del grupo {}", dato.getVhcmodelo().getVhcmarca().getNombre(), grup.getNombre()))
                             .findFirst();
                     String nombre = grupo.isPresent()
                             ? grupo.get().getNombre()
