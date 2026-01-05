@@ -10,7 +10,9 @@ import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.awt.*;
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -22,6 +24,13 @@ public class Utilidades {
     private static final Pattern rgb = Pattern
             .compile("(?i)\\#*(?<r>[0-9a-f]{2})(?<g>[0-9a-f]{2})(?<b>[0-9a-f]{2})");
 
+    public static final String convertToBase64(ByteArrayInputStream inputStream) throws java.io.IOException {
+        // Lee todos los bytes del ByteArrayInputStream
+        byte[] bytes = inputStream.readAllBytes();
+
+        // Codifica los bytes a Base64
+        return Base64.getEncoder().encodeToString(bytes);
+    }
 
     public static void trasnforma(XSSFWorkbook wb,Cell cell, Object valor, boolean par, EstiloCeldaExcel estilo) {
         try {
@@ -97,7 +106,6 @@ public class Utilidades {
         try{
             Matcher match = rgb.matcher(valor);
             while (match.find()) {
-                log.info("match groups r {} g {} b {}", match.group("r"), match.group("g"), match.group("b"));
                 var alpha = (byte) Integer.parseInt("FF", 16);
                 var r = (byte) Integer.parseInt(match.group("r"), 16);
                 var g = (byte) Integer.parseInt(match.group("g"), 16);
