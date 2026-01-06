@@ -5,7 +5,9 @@ import com.organizame.reportes.dto.VentasPorMes;
 import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.persistence.entities.VhcGrupo;
 import com.organizame.reportes.persistence.entities.VhcMarca;
+import com.organizame.reportes.persistence.entities.VhcPeriodo;
 import com.organizame.reportes.repository.service.GruposService;
+import com.organizame.reportes.repository.service.PeriodoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,14 +37,14 @@ import java.util.stream.Collectors;
 @RequestMapping("/test")
 public class TestController {
 
-    private final GruposService service;
+    private final PeriodoService service;
 
     @Autowired
-    public TestController(GruposService service) {
+    public TestController(PeriodoService service) {
         this.service = service;
     }
 
-    @Operation(summary = "Prueba grupo")
+    @Operation(summary = "Prueba periodo")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Gráfica generada", content = {
                     @Content(mediaType = "image/png")}),
@@ -50,18 +52,24 @@ public class TestController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})
     })
     @GetMapping("/test")
-    public ResponseEntity<Map<String, List<String>>> reporteExcel() {
+    public ResponseEntity<?> reporteExcel() {
 
-        var grupos = service.findAll();
-        var nomGrupos = grupos.stream()
-                .collect(Collectors.toMap(
-                        VhcGrupo::getNombre,
-                        p -> p.getVhcgrupomarcaList().stream()
-                                .map(marca -> marca.getVhcMarca().getNombre())
-                                .toList()  // o .collect(Collectors.toList()) si usas Java <16
-                ));
+        try {
+            var resultado = service.getRegistrosMes(2024, 10);
+            var agrupados = service.groupByMarca(resultado);
+            var consolidados = agrupados.entrySet()
+                            .stream()
+                                    .collect(Collectors.toMap(
+                                            Map.Entry::getKey,
+                                            e -> service.consolidaModelo(e.getValue())
+                                    ));
 
-        return ResponseEntity.ok(nomGrupos);
+
+
+            return ResponseEntity.ok(consolidados);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body("Fallo por: " + e.getMessage());
+        }
     }
 
 }

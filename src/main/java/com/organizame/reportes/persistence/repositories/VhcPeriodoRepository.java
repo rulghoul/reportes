@@ -8,6 +8,8 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.organizame.reportes.persistence.entities.VhcPeriodo;
 
+import java.util.List;
+
 /**
  * Spring Data JPA repository for entity "VhcPeriodo" <br> 
  * 
@@ -24,6 +26,8 @@ import com.organizame.reportes.persistence.entities.VhcPeriodo;
  *
  */
 public interface VhcPeriodoRepository extends PagingAndSortingRepository<VhcPeriodo, byte[]> {
+
+    List<VhcPeriodo> findByPeriodoanioAndPeriodomes(int periodoanio, int periodomes);
 
 	// Insert specific finders here 
 
