@@ -22,21 +22,6 @@ public class Margen {
     private Integer menudeoFlotilla;
     private Integer inventarioCierre;
 
-    public FilaTabla toFila(String estilo){
-        List<Object> resultado = new ArrayList<>();
-        resultado.add(this.modelo);
-        resultado.add("");
-        if (Objects.isNull(inventarioAnterior) || inventarioAnterior.equals(0)){
-            resultado.add("-");
-        }else{
-            resultado.add(inventarioAnterior);
-        }
-        resultado.add(inventarioActual);
-        resultado.add("");
-        resultado.add(inventarioCierre);
-        return new FilaTabla(estilo, resultado);
-    }
-
     public List<Celda> toCeldas(String estilo){
         List<Celda> celdas = new ArrayList<>();
         celdas.add(new Celda(this.modelo, estilo, 1));
@@ -50,6 +35,7 @@ public class Margen {
         celdas.add(new Celda("", "Limpio", 1));
         var cierre = inventarioCierre.equals(0) ? "" : inventarioCierre;
         celdas.add(new Celda(cierre, estilo, 1));
+        celdas.add(new Celda(menudeoFlotilla, "Limpio", 1));
         return celdas;
     }
 
