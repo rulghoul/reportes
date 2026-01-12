@@ -6,6 +6,8 @@ package com.organizame.reportes.persistence.entities;
 
 import java.io.Serializable;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * JPA entity class for "VhcModeloperiodo"
@@ -15,6 +17,8 @@ import jakarta.persistence.*;
  */
 @Entity
 @Table(name="vhc_modeloperiodo", catalog="adistemdb" )
+@Getter
+@Setter
 public class VhcModeloperiodo implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -48,6 +52,9 @@ public class VhcModeloperiodo implements Serializable {
     @Column(name="INVENTARIONIVEL", nullable=false)
     private int        inventarionivel ;
 
+    @Column(name="INVENTARIO", nullable=false)
+    private int        inventario ;
+
     //--- LINKS ( RELATIONSHIPS )
     @ManyToOne
     @JoinColumn(name="IDMODELO", referencedColumnName="IDMODELO", insertable=false, updatable=false)
@@ -59,66 +66,7 @@ public class VhcModeloperiodo implements Serializable {
     public VhcModeloperiodo() {
 		super();
     }
-    
-    public void setIdmodeloperiodo( byte[] idmodeloperiodo ) {
-        this.idmodeloperiodo = idmodeloperiodo ;
-    }
-    public byte[] getIdmodeloperiodo() {
-        return this.idmodeloperiodo;
-    }
 
-    public void setIdmodelo( byte[] idmodelo ) {
-        this.idmodelo = idmodelo ;
-    }
-    public byte[] getIdmodelo() {
-        return this.idmodelo;
-    }
-
-    public void setPeriodoanio( int periodoanio ) {
-        this.periodoanio = periodoanio ;
-    }
-    public int getPeriodoanio() {
-        return this.periodoanio;
-    }
-
-    public void setPeriodomes( int periodomes ) {
-        this.periodomes = periodomes ;
-    }
-    public int getPeriodomes() {
-        return this.periodomes;
-    }
-
-    public void setMenudeoflotillanormal( int menudeoflotillanormal ) {
-        this.menudeoflotillanormal = menudeoflotillanormal ;
-    }
-    public int getMenudeoflotillanormal() {
-        return this.menudeoflotillanormal;
-    }
-
-    public void setFlotillaespecial( int flotillaespecial ) {
-        this.flotillaespecial = flotillaespecial ;
-    }
-    public int getFlotillaespecial() {
-        return this.flotillaespecial;
-    }
-
-    public void setInventariocambio( int inventariocambio ) {
-        this.inventariocambio = inventariocambio ;
-    }
-    public int getInventariocambio() {
-        return this.inventariocambio;
-    }
-
-    public void setInventarionivel( int inventarionivel ) {
-        this.inventarionivel = inventarionivel ;
-    }
-    public int getInventarionivel() {
-        return this.inventarionivel;
-    }
-
-    public VhcModelo getVhcmodelo() {
-        return this.vhcmodelo;
-    } 
 
 	@Override
 	public String toString() { 

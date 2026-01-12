@@ -6,8 +6,13 @@ package com.organizame.reportes.persistence.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.Objects;
+
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * JPA entity class for "VhcPeriodo"
@@ -16,6 +21,8 @@ import jakarta.persistence.*;
  *
  */
 @Entity
+@Getter
+@Setter
 @Table(name="vhc_periodo", catalog="adistemdb" )
 public class VhcPeriodo implements Serializable {
 
@@ -119,6 +126,12 @@ public class VhcPeriodo implements Serializable {
     @Column(name="PROMEDIOMES6", nullable=false)
     private BigDecimal promediomes6 ;
 
+    @Column(name="MODELOARCHIVO", length=255)
+    private String     modeloArchivo ;
+
+    @Column(name="MARCAARCHIVO", length=255)
+    private String     marcaArchivo ;
+
     //--- LINKS ( RELATIONSHIPS )
     @ManyToOne
     @JoinColumn(name="IDANIO", referencedColumnName="IDANIO", insertable=false, updatable=false)
@@ -130,227 +143,7 @@ public class VhcPeriodo implements Serializable {
     public VhcPeriodo() {
 		super();
     }
-    
-    public void setIdperiodo( byte[] idperiodo ) {
-        this.idperiodo = idperiodo ;
-    }
-    public byte[] getIdperiodo() {
-        return this.idperiodo;
-    }
 
-    public void setIdanio( byte[] idanio ) {
-        this.idanio = idanio ;
-    }
-    public byte[] getIdanio() {
-        return this.idanio;
-    }
-
-    public void setPeriodoanio( int periodoanio ) {
-        this.periodoanio = periodoanio ;
-    }
-    public int getPeriodoanio() {
-        return this.periodoanio;
-    }
-
-    public void setPeriodomes( int periodomes ) {
-        this.periodomes = periodomes ;
-    }
-    public int getPeriodomes() {
-        return this.periodomes;
-    }
-
-    public void setFechainicio( LocalDateTime fechainicio ) {
-        this.fechainicio = fechainicio ;
-    }
-    public LocalDateTime getFechainicio() {
-        return this.fechainicio;
-    }
-
-    public void setFechafin( LocalDateTime fechafin ) {
-        this.fechafin = fechafin ;
-    }
-    public LocalDateTime getFechafin() {
-        return this.fechafin;
-    }
-
-    public void setSale( int sale ) {
-        this.sale = sale ;
-    }
-    public int getSale() {
-        return this.sale;
-    }
-
-    public void setDealerstock( int dealerstock ) {
-        this.dealerstock = dealerstock ;
-    }
-    public int getDealerstock() {
-        return this.dealerstock;
-    }
-
-    public void setIntransit( int intransit ) {
-        this.intransit = intransit ;
-    }
-    public int getIntransit() {
-        return this.intransit;
-    }
-
-    public void setIncountrystock( int incountrystock ) {
-        this.incountrystock = incountrystock ;
-    }
-    public int getIncountrystock() {
-        return this.incountrystock;
-    }
-
-    public void setPreciolista( BigDecimal preciolista ) {
-        this.preciolista = preciolista ;
-    }
-    public BigDecimal getPreciolista() {
-        return this.preciolista;
-    }
-
-    public void setContadodescuento( BigDecimal contadodescuento ) {
-        this.contadodescuento = contadodescuento ;
-    }
-    public BigDecimal getContadodescuento() {
-        return this.contadodescuento;
-    }
-
-    public void setContadoparticipaciondistribuidores( BigDecimal contadoparticipaciondistribuidores ) {
-        this.contadoparticipaciondistribuidores = contadoparticipaciondistribuidores ;
-    }
-    public BigDecimal getContadoparticipaciondistribuidores() {
-        return this.contadoparticipaciondistribuidores;
-    }
-
-    public void setContadototaldescuentos( BigDecimal contadototaldescuentos ) {
-        this.contadototaldescuentos = contadototaldescuentos ;
-    }
-    public BigDecimal getContadototaldescuentos() {
-        return this.contadototaldescuentos;
-    }
-
-    public void setContadoprecio( BigDecimal contadoprecio ) {
-        this.contadoprecio = contadoprecio ;
-    }
-    public BigDecimal getContadoprecio() {
-        return this.contadoprecio;
-    }
-
-    public void setContadosegurogratis( String contadosegurogratis ) {
-        this.contadosegurogratis = contadosegurogratis ;
-    }
-    public String getContadosegurogratis() {
-        return this.contadosegurogratis;
-    }
-
-    public void setFinanciamientodescuentopromocional( BigDecimal financiamientodescuentopromocional ) {
-        this.financiamientodescuentopromocional = financiamientodescuentopromocional ;
-    }
-    public BigDecimal getFinanciamientodescuentopromocional() {
-        return this.financiamientodescuentopromocional;
-    }
-
-    public void setFinanciamientoparticipaciondistribuidores( BigDecimal financiamientoparticipaciondistribuidores ) {
-        this.financiamientoparticipaciondistribuidores = financiamientoparticipaciondistribuidores ;
-    }
-    public BigDecimal getFinanciamientoparticipaciondistribuidores() {
-        return this.financiamientoparticipaciondistribuidores;
-    }
-
-    public void setFinanciamientototaldescuentos( BigDecimal financiamientototaldescuentos ) {
-        this.financiamientototaldescuentos = financiamientototaldescuentos ;
-    }
-    public BigDecimal getFinanciamientototaldescuentos() {
-        return this.financiamientototaldescuentos;
-    }
-
-    public void setFinanciamientopreciopromocional( BigDecimal financiamientopreciopromocional ) {
-        this.financiamientopreciopromocional = financiamientopreciopromocional ;
-    }
-    public BigDecimal getFinanciamientopreciopromocional() {
-        return this.financiamientopreciopromocional;
-    }
-
-    public void setFinanciamientotasadesde( String financiamientotasadesde ) {
-        this.financiamientotasadesde = financiamientotasadesde ;
-    }
-    public String getFinanciamientotasadesde() {
-        return this.financiamientotasadesde;
-    }
-
-    public void setFinanciamientosegurogratis( String financiamientosegurogratis ) {
-        this.financiamientosegurogratis = financiamientosegurogratis ;
-    }
-    public String getFinanciamientosegurogratis() {
-        return this.financiamientosegurogratis;
-    }
-
-    public void setFinanciamientoalternodescuentopromocional( BigDecimal financiamientoalternodescuentopromocional ) {
-        this.financiamientoalternodescuentopromocional = financiamientoalternodescuentopromocional ;
-    }
-    public BigDecimal getFinanciamientoalternodescuentopromocional() {
-        return this.financiamientoalternodescuentopromocional;
-    }
-
-    public void setFinanciamientoalternoparticipaciondistribuidores( BigDecimal financiamientoalternoparticipaciondistribuidores ) {
-        this.financiamientoalternoparticipaciondistribuidores = financiamientoalternoparticipaciondistribuidores ;
-    }
-    public BigDecimal getFinanciamientoalternoparticipaciondistribuidores() {
-        return this.financiamientoalternoparticipaciondistribuidores;
-    }
-
-    public void setFinanciamientoalternototaldescuentos( BigDecimal financiamientoalternototaldescuentos ) {
-        this.financiamientoalternototaldescuentos = financiamientoalternototaldescuentos ;
-    }
-    public BigDecimal getFinanciamientoalternototaldescuentos() {
-        return this.financiamientoalternototaldescuentos;
-    }
-
-    public void setFinanciamientoalternopreciopromocional( BigDecimal financiamientoalternopreciopromocional ) {
-        this.financiamientoalternopreciopromocional = financiamientoalternopreciopromocional ;
-    }
-    public BigDecimal getFinanciamientoalternopreciopromocional() {
-        return this.financiamientoalternopreciopromocional;
-    }
-
-    public void setFinanciamientoalternotasadesde( String financiamientoalternotasadesde ) {
-        this.financiamientoalternotasadesde = financiamientoalternotasadesde ;
-    }
-    public String getFinanciamientoalternotasadesde() {
-        return this.financiamientoalternotasadesde;
-    }
-
-    public void setFinanciamientoalternosegurogratis( String financiamientoalternosegurogratis ) {
-        this.financiamientoalternosegurogratis = financiamientoalternosegurogratis ;
-    }
-    public String getFinanciamientoalternosegurogratis() {
-        return this.financiamientoalternosegurogratis;
-    }
-
-    public void setMesessinintereses( String mesessinintereses ) {
-        this.mesessinintereses = mesessinintereses ;
-    }
-    public String getMesessinintereses() {
-        return this.mesessinintereses;
-    }
-
-    public void setTotalmes12( BigDecimal totalmes12 ) {
-        this.totalmes12 = totalmes12 ;
-    }
-    public BigDecimal getTotalmes12() {
-        return this.totalmes12;
-    }
-
-    public void setPromediomes6( BigDecimal promediomes6 ) {
-        this.promediomes6 = promediomes6 ;
-    }
-    public BigDecimal getPromediomes6() {
-        return this.promediomes6;
-    }
-
-    public VhcAnio getVhcanio() {
-        return this.vhcanio;
-    } 
 
 	@Override
 	public String toString() { 
@@ -359,37 +152,52 @@ public class VhcPeriodo implements Serializable {
 		sb.append("VhcPeriodo[");
 		// attribute 'idperiodo' (type byte[]) not usable in toString() 
 		// attribute 'idanio' (type byte[]) not usable in toString() 
-		sb.append("periodoanio=").append(periodoanio);
-		sb.append(separator).append("periodomes=").append(periodomes);
-		sb.append(separator).append("fechainicio=").append(fechainicio);
-		sb.append(separator).append("fechafin=").append(fechafin);
+		sb.append("totalmes12=").append(intransit);
+		sb.append(separator).append("promediomes6=").append(incountrystock);
 		sb.append(separator).append("sale=").append(sale);
 		sb.append(separator).append("dealerstock=").append(dealerstock);
-		sb.append(separator).append("intransit=").append(intransit);
-		sb.append(separator).append("incountrystock=").append(incountrystock);
-		sb.append(separator).append("preciolista=").append(preciolista);
-		sb.append(separator).append("contadodescuento=").append(contadodescuento);
-		sb.append(separator).append("contadoparticipaciondistribuidores=").append(contadoparticipaciondistribuidores);
-		sb.append(separator).append("contadototaldescuentos=").append(contadototaldescuentos);
-		sb.append(separator).append("contadoprecio=").append(contadoprecio);
-		sb.append(separator).append("contadosegurogratis=").append(contadosegurogratis);
-		sb.append(separator).append("financiamientodescuentopromocional=").append(financiamientodescuentopromocional);
-		sb.append(separator).append("financiamientoparticipaciondistribuidores=").append(financiamientoparticipaciondistribuidores);
-		sb.append(separator).append("financiamientototaldescuentos=").append(financiamientototaldescuentos);
-		sb.append(separator).append("financiamientopreciopromocional=").append(financiamientopreciopromocional);
-		sb.append(separator).append("financiamientotasadesde=").append(financiamientotasadesde);
-		sb.append(separator).append("financiamientosegurogratis=").append(financiamientosegurogratis);
-		sb.append(separator).append("financiamientoalternodescuentopromocional=").append(financiamientoalternodescuentopromocional);
-		sb.append(separator).append("financiamientoalternoparticipaciondistribuidores=").append(financiamientoalternoparticipaciondistribuidores);
-		sb.append(separator).append("financiamientoalternototaldescuentos=").append(financiamientoalternototaldescuentos);
-		sb.append(separator).append("financiamientoalternopreciopromocional=").append(financiamientoalternopreciopromocional);
-		sb.append(separator).append("financiamientoalternotasadesde=").append(financiamientoalternotasadesde);
-		sb.append(separator).append("financiamientoalternosegurogratis=").append(financiamientoalternosegurogratis);
-		sb.append(separator).append("mesessinintereses=").append(mesessinintereses);
-		sb.append(separator).append("totalmes12=").append(totalmes12);
-		sb.append(separator).append("promediomes6=").append(promediomes6);
+        sb.append(separator).append("marca=").append(marcaArchivo);
+        sb.append(separator).append("modelo=").append(modeloArchivo);
 		sb.append("]");
 		return sb.toString();
 	}
+
+    public VhcPeriodo sumarCon(VhcPeriodo otro) {
+        var acumulado = new VhcPeriodo();
+        //Valores originales
+        acumulado.setPeriodoanio(otro.getPeriodoanio());
+        acumulado.setPeriodomes(otro.getPeriodomes());
+        acumulado.setMarcaArchivo(otro.getMarcaArchivo());
+        acumulado.setModeloArchivo(otro.getModeloArchivo());
+        acumulado.setMesessinintereses(otro.getMesessinintereses());
+
+        // Sumar valores int
+        acumulado.setSale(this.sale + otro.getSale());
+        acumulado.setDealerstock(this.dealerstock + otro.getDealerstock());
+        acumulado.setIntransit(this.intransit + otro.getIntransit());
+        acumulado.setIncountrystock(this.incountrystock + otro.getIncountrystock());
+
+        // Sumar BigDecimal
+
+        var tot12 = Objects.isNull(this.totalmes12) ? new BigDecimal(0) :  this.totalmes12;
+        acumulado.setTotalmes12(tot12.add(otro.getTotalmes12()).divide(new BigDecimal(2)));
+        //acumulado.setPreciolista(this.getPreciolista().add(otro.getPreciolista()));
+        //acumulado.setContadodescuento(this.getContadodescuento().add(otro.getContadodescuento()));
+        //acumulado.setContadoparticipaciondistribuidores(
+        //        this.getContadoparticipaciondistribuidores().add(otro.getContadoparticipaciondistribuidores())
+        //);
+        //acumulado.setContadototaldescuentos(
+        //        this.getContadototaldescuentos().add(otro.getContadototaldescuentos())
+        //);
+        //acumulado.setContadoprecio(this.getContadoprecio().add(otro.getContadoprecio()));
+
+        // Sumar otros BigDecimal financieros
+        //acumulado.setFinanciamientodescuentopromocional(
+        //        this.getFinanciamientodescuentopromocional().add(otro.getFinanciamientodescuentopromocional())
+        //);
+
+
+        return acumulado;
+    }
 
 }
