@@ -9,6 +9,7 @@ import com.organizame.reportes.utils.excel.EstiloCeldaExcel;
 import com.organizame.reportes.utils.excel.dto.Celda;
 import com.organizame.reportes.utils.excel.dto.ColumnaFila;
 import com.organizame.reportes.utils.excel.dto.Posicion;
+import jakarta.validation.OverridesAttribute;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -125,9 +126,14 @@ public class ReporteInventarioService {
                     tabla.add(marca.getValue().stream().reduce(Margen::sumarConMarca).get().toCeldas("Gris"));
 
                 });
+
         for(int i = 0; i < tabla.size(); i++){
             excel.creaFila(hoja, new ColumnaFila(new Posicion(0,5+i), tabla.get(i)));
         }
+
+        var stellantis = consolidado.stream().reduce(Margen::sumarConMarca).get();
+        stellantis.setModelo("Stellantis");
+        excel.creaFila( hoja, new ColumnaFila(new Posicion(0, tabla.size()+6), stellantis.toCeldas("Gris")));
     }
 
 
