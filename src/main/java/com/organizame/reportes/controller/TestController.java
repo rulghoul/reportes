@@ -29,6 +29,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,18 +56,15 @@ public class TestController {
     public ResponseEntity<?> reporteExcel() {
 
         try {
-            var resultado = service.getRegistrosMes(2024, 10);
-            var agrupados = service.groupByMarca(resultado);
-            var consolidados = agrupados.entrySet()
-                            .stream()
-                                    .collect(Collectors.toMap(
-                                            Map.Entry::getKey,
-                                            e -> service.consolidaModelo(e.getValue())
-                                    ));
 
+            var fechaIni = LocalDate.of( 2025,2, 1);
+            var fechAnt = fechaIni.minusMonths(1);
+            log.info("Fecha Actual {} mes anterior {}", fechaIni, fechAnt);
+            var resultado = service.getRegistrosMes(2024, 9);
+            var anterior = service.getRegistrosMes(2024, 8);
+            var agrupado = service.getMargenes(resultado, anterior);
 
-
-            return ResponseEntity.ok(consolidados);
+            return ResponseEntity.ok(service.groupByMarca(agrupado));
         }catch (Exception e){
             return ResponseEntity.badRequest().body("Fallo por: " + e.getMessage());
         }

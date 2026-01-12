@@ -6,7 +6,10 @@ package com.organizame.reportes.persistence.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.Objects;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -162,6 +165,8 @@ public class VhcPeriodo implements Serializable {
     public VhcPeriodo sumarCon(VhcPeriodo otro) {
         var acumulado = new VhcPeriodo();
         //Valores originales
+        acumulado.setPeriodoanio(otro.getPeriodoanio());
+        acumulado.setPeriodomes(otro.getPeriodomes());
         acumulado.setMarcaArchivo(otro.getMarcaArchivo());
         acumulado.setModeloArchivo(otro.getModeloArchivo());
         acumulado.setMesessinintereses(otro.getMesessinintereses());
@@ -173,6 +178,9 @@ public class VhcPeriodo implements Serializable {
         acumulado.setIncountrystock(this.incountrystock + otro.getIncountrystock());
 
         // Sumar BigDecimal
+
+        var tot12 = Objects.isNull(this.totalmes12) ? new BigDecimal(0) :  this.totalmes12;
+        acumulado.setTotalmes12(tot12.add(otro.getTotalmes12()).divide(new BigDecimal(2)));
         //acumulado.setPreciolista(this.getPreciolista().add(otro.getPreciolista()));
         //acumulado.setContadodescuento(this.getContadodescuento().add(otro.getContadodescuento()));
         //acumulado.setContadoparticipaciondistribuidores(

@@ -34,9 +34,6 @@ import java.util.*;
 @Service
 public class ReporteFinaciero {
 
-
-    private final DateTimeFormatter fechaSmall;
-
     private final EstadoFinancieroService service;
 
     private String nombreArchivo;
@@ -44,7 +41,6 @@ public class ReporteFinaciero {
     @Autowired
     public ReporteFinaciero(EstadoFinancieroService service) {
         this.service = service;
-        this.fechaSmall = DateTimeFormatter.ofPattern("MMMuu");
     }
 
     public ByteArrayInputStream CrearExcelFinanciero(RequestRanking request) throws IOException {
@@ -79,8 +75,6 @@ public class ReporteFinaciero {
         CrearExcel excel = new CrearExcel();
 
         this.modifiStyle(excel);
-
-
 
 
         this.estadofinanciero(resultadoActual, resultadoAnterior, excel, request, fecha, mesCadena);
