@@ -97,7 +97,7 @@ public class EstiloCeldaExcel {
                             Optional<HorizontalAlignment> horizontal, Optional<VerticalAlignment> verticalAlignment,
                             Optional<Short> rotacion, BorderStyle borderType, Optional<String> borderPosition,
                             String formatoDecimal, boolean isBold,
-                            Optional<String> colorFuente, Optional<String> colorNegativos) {
+                            Optional<String> colorFuente, Optional<String> colorNegativos, boolean isWarpText) {
         Environment env = SpringContext.getContext().getEnvironment();
         this.fuenteNombre = env.getProperty("excel.font.name");
         this.fuenteSize = fontSize;
@@ -105,19 +105,19 @@ public class EstiloCeldaExcel {
         this.borderPosition = borderPosition;
         this.formatoDecimales = formatoDecimal;
         this.nombre = color.getNombre();
-        this.normal = this.creaEstilo(libro, color, false, TipoDato.TEXTO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente );
-        this.normalDate = this.creaEstilo(libro, color, false, TipoDato.FECHA, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente );
-        this.oddDate = this.creaEstilo(libro, color, true, TipoDato.FECHA, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente );
+        this.normal = this.creaEstilo(libro, color, false, TipoDato.TEXTO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente, isWarpText);
+        this.normalDate = this.creaEstilo(libro, color, false, TipoDato.FECHA, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente, isWarpText);
+        this.oddDate = this.creaEstilo(libro, color, true, TipoDato.FECHA, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente, isWarpText);
 
-        this.normalEntero = this.creaEstilo(libro, color, false, TipoDato.ENTERO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente );
-        this.oddEntero = this.creaEstilo(libro, color, true, TipoDato.ENTERO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente );
-        this.normalEnteroRojo = this.creaEstilo(libro, color, false, TipoDato.ENTERO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold,  colorNegativos);
-        this.oddEnteroRojo = this.creaEstilo(libro, color, true, TipoDato.ENTERO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold,  colorNegativos);
+        this.normalEntero = this.creaEstilo(libro, color, false, TipoDato.ENTERO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente, isWarpText);
+        this.oddEntero = this.creaEstilo(libro, color, true, TipoDato.ENTERO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente, isWarpText);
+        this.normalEnteroRojo = this.creaEstilo(libro, color, false, TipoDato.ENTERO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold,  colorNegativos, isWarpText);
+        this.oddEnteroRojo = this.creaEstilo(libro, color, true, TipoDato.ENTERO, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold,  colorNegativos, isWarpText);
 
-        this.normalPorciento = this.creaEstilo(libro, color, false, TipoDato.PORCENTAJE, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente );
-        this.oddPorciento = this.creaEstilo(libro, color, true, TipoDato.PORCENTAJE, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente );
-        this.normalPorcientoRojo = this.creaEstilo(libro, color, false, TipoDato.PORCENTAJE, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold,  colorNegativos);
-        this.oddPorcientoRojo = this.creaEstilo(libro, color, true, TipoDato.PORCENTAJE, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold,  colorNegativos);
+        this.normalPorciento = this.creaEstilo(libro, color, false, TipoDato.PORCENTAJE, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente, isWarpText);
+        this.oddPorciento = this.creaEstilo(libro, color, true, TipoDato.PORCENTAJE, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold, colorFuente, isWarpText);
+        this.normalPorcientoRojo = this.creaEstilo(libro, color, false, TipoDato.PORCENTAJE, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold,  colorNegativos, isWarpText);
+        this.oddPorcientoRojo = this.creaEstilo(libro, color, true, TipoDato.PORCENTAJE, horizontal, verticalAlignment, rotacion, formatoDecimal, isBold,  colorNegativos, isWarpText);
 
 
     }
@@ -125,14 +125,14 @@ public class EstiloCeldaExcel {
     private XSSFCellStyle creaEstilo(XSSFWorkbook libro, ColorExcel color,  boolean odd, TipoDato tipo, boolean resaltado){
         Optional<String> fuente = resaltado ?  Optional.of("#FF0000") : Optional.empty();
         return this.creaEstilo(libro, color, odd, tipo, Optional.empty(), Optional.empty(), Optional.empty(),
-                this.formatoDecimales, false,  fuente);
+                this.formatoDecimales, false,  fuente, false);
     }
 
     private XSSFCellStyle creaEstilo(XSSFWorkbook libro, ColorExcel color, boolean odd, TipoDato tipo
     ,Optional<HorizontalAlignment> horizontal, Optional<VerticalAlignment> verticalAlignment
             , Optional<Short> rotacion
     ,String formatoDecimal, Boolean isBold
-            , Optional<String> colorFuente){
+            , Optional<String> colorFuente, boolean isWarpText){
 
         var fuente = libro.createFont();
         fuente.setFontName(fuenteNombre);
@@ -186,6 +186,9 @@ public class EstiloCeldaExcel {
             }
         }
         temp.setFont(fuente);
+        if(isWarpText){
+            temp.setWrapText(isWarpText);
+        }
         return temp;
     }
 

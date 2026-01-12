@@ -48,7 +48,8 @@ public class Margen {
         }
         celdas.add(new Celda(inventarioActual, estilo, 1));
         celdas.add(new Celda("", "Limpio", 1));
-        celdas.add(new Celda(inventarioCierre, estilo, 1));
+        var cierre = inventarioCierre.equals(0) ? "" : inventarioCierre;
+        celdas.add(new Celda(cierre, estilo, 1));
         return celdas;
     }
 

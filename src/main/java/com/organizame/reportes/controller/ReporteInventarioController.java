@@ -2,7 +2,7 @@ package com.organizame.reportes.controller;
 
 import com.organizame.reportes.dto.request.RequestRanking;
 import com.organizame.reportes.exceptions.SinDatos;
-import com.organizame.reportes.service.ReporteMargenesService;
+import com.organizame.reportes.service.ReporteInventarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,10 +27,10 @@ import java.util.Map;
 @RequestMapping("/reporte/inventario")
 public class ReporteInventarioController {
 
-    private ReporteMargenesService service;
+    private ReporteInventarioService service;
 
     @Autowired
-    public ReporteInventarioController(ReporteMargenesService service){
+    public ReporteInventarioController(ReporteInventarioService service){
         this.service = service;
     }
 
