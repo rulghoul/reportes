@@ -1,0 +1,27 @@
+services:
+  reportes:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: reportes-api
+    ports:
+      - "8080:8080"
+    environment:
+      - SWAGGER_ON=${SWAGGER_ON}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - SPRING_DATASOURCE_USER=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - EXCEL_FONT_NAME=${EXCEL_FONT_NAME}
+      - EXCEL_FONT_SIZE=${EXCEL_FONT_SIZE}
+      - EXCEL_BORDER_TYPE=${EXCEL_BORDER_TYPE}
+      - EXCEL_INIT_COL=${EXCEL_INIT_COL}
+      - EXCEL_INIT_ROW=${EXCEL_INIT_ROW}
+    restart: unless-stopped
+    networks:
+      - mariaadistem_default #Cambiar por la red de maria database
+
+networks:
+  mariaadistem_default:  #Cambiar por la red de maria database
+    external: true
+    name: mariaadistem_default  #Cambiar por la red de maria database
