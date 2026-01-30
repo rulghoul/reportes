@@ -2,6 +2,7 @@ package com.organizame.reportes.repository.service;
 
 import com.organizame.reportes.persistence.entities.BnkEstadofinanciero;
 import com.organizame.reportes.repository.BnkEstadofinancieroRepository;
+import com.organizame.reportes.utils.Constantes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,8 @@ public class EstadoFinancieroService {
     @Autowired
     public EstadoFinancieroService(BnkEstadofinancieroRepository repository){
         this.repository = repository;
-        this.toIntegerFormater = DateTimeFormatter.ofPattern("yyyyMM");
-        this.mesAnioFormatter = DateTimeFormatter.ofPattern("MMM-yyyy");
+        this.toIntegerFormater = DateTimeFormatter.ofPattern("yyyyMM", Constantes.LOCALE_MX);
+        this.mesAnioFormatter = DateTimeFormatter.ofPattern("MMM-yyyy", Constantes.LOCALE_MX);
     }
 
     public List<BnkEstadofinanciero> findEstadoFechas(LocalDate inicio, LocalDate fin){

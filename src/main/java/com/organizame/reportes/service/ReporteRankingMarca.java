@@ -9,6 +9,7 @@ import com.organizame.reportes.persistence.entities.VhcGrupo;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.repository.service.GruposService;
 import com.organizame.reportes.repository.service.ModeloPeriodoService;
+import com.organizame.reportes.utils.Constantes;
 import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.ColorExcel;
 import com.organizame.reportes.utils.excel.CrearExcel;
@@ -48,7 +49,7 @@ public class ReporteRankingMarca {
     public ReporteRankingMarca(ModeloPeriodoService service, GruposService gruposService) {
         this.service = service;
         this.grupoService = gruposService;
-        this.fechaSmall = DateTimeFormatter.ofPattern("MMMuu");
+        this.fechaSmall = DateTimeFormatter.ofPattern("MMMuu", Constantes.LOCALE_MX);
     }
 
     public ByteArrayInputStream CrearExcelRanking(RequestRanking request) throws IOException {

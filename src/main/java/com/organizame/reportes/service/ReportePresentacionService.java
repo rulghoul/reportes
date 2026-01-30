@@ -9,6 +9,7 @@ import com.organizame.reportes.exceptions.GraficaException;
 import com.organizame.reportes.exceptions.SinDatos;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.repository.service.ModeloPeriodoService;
+import com.organizame.reportes.utils.Constantes;
 import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
 import com.organizame.reportes.utils.graficas.Images;
@@ -50,6 +51,8 @@ public class ReportePresentacionService {
 
     private  final DateTimeFormatter fechaSmall;
 
+    private  final DateTimeFormatter fechaArchivo;
+
     private  final ModeloPeriodoService service;
 
     private  final ResourceLoader resourceLoader;
@@ -69,7 +72,8 @@ public class ReportePresentacionService {
         this.graficas = graficas;
         this.resourceLoader = resourceLoader;
         this.images = images;
-        this.fechaSmall = DateTimeFormatter.ofPattern("MMMM 'del' yyyy");
+        this.fechaSmall = DateTimeFormatter.ofPattern("MMMM 'del' yyyy", Constantes.LOCALE_MX);
+        this.fechaArchivo = DateTimeFormatter.ofPattern("LLLL yyyy", Constantes.LOCALE_MX);
         this.formatoDecimal = new DecimalFormat("#.#");
         this.formatoSpanish = new DecimalFormat("#,##0.00");
         this.formatSinDecimales = new DecimalFormat("#,##0");
@@ -90,7 +94,7 @@ public class ReportePresentacionService {
             throw new SinDatos("No se encontraron datos para el origen " +
                     request.getOrigen() + " en " + request.getMesReporte() + " meses antes de " + request.getMesFinal() );
         }
-        this.nombreArchivo = "Ventas origen_" + request.getOrigen() + " " + request.getMesFinal().format(DateTimeFormatter.ofPattern("LLLL yyyy"));
+        this.nombreArchivo = "Ventas origen_" + request.getOrigen() + " " + request.getMesFinal().format(fechaArchivo);
 
         //Datos resumidos
         Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);

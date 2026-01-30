@@ -24,4 +24,9 @@ ARG TARGET_DIR=target
 WORKDIR /opt/app
 EXPOSE 8080
 COPY --from=build /app/target/*.jar /opt/app/service.jar
-ENTRYPOINT ["java","-jar","/opt/app/service.jar"]
+ENTRYPOINT ["java", \
+  "-Duser.language=es", \
+  "-Duser.country=MX", \
+  "-Duser.region=MX", \
+  "-Dfile.encoding=UTF-8", \
+  "-jar","/opt/app/service.jar"]

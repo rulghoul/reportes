@@ -9,6 +9,7 @@ import com.organizame.reportes.dto.request.RequestOrigen;
 import com.organizame.reportes.exceptions.SinDatos;
 import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.repository.service.ModeloPeriodoService;
+import com.organizame.reportes.utils.Constantes;
 import com.organizame.reportes.utils.excel.CrearExcel;
 import com.organizame.reportes.utils.excel.dto.Posicion;
 import com.organizame.reportes.utils.excel.dto.PosicionGrafica;
@@ -27,6 +28,7 @@ public class ReporteExcelService {
 
 
     private final DateTimeFormatter fechaSmall;
+    private final DateTimeFormatter fechaArchivo;
 
     private final ModeloPeriodoService service;
 
@@ -38,7 +40,8 @@ public class ReporteExcelService {
     public ReporteExcelService(ModeloPeriodoService service, Graficas graficas){
         this.service = service;
         this.graficas = graficas;
-        this.fechaSmall = DateTimeFormatter.ofPattern("MMMuu");
+        this.fechaSmall = DateTimeFormatter.ofPattern("MMMuu", Constantes.LOCALE_MX);
+        this.fechaArchivo =DateTimeFormatter.ofPattern("LLLL yyyy", Constantes.LOCALE_MX);
     }
 
     public ByteArrayInputStream CrearExcelOrigen(RequestOrigen request) throws IOException {
@@ -48,7 +51,7 @@ public class ReporteExcelService {
             throw new SinDatos("No se encontraron datos para el origen " +
                     request.getOrigen() + " en " + request.getMesReporte() + " meses antes de " + request.getMesFinal() );
         }
-        this.nombreArchivo = "Ventas origen_" + request.getOrigen() + " " + request.getMesFinal().format(DateTimeFormatter.ofPattern("LLLL yyyy"));
+        this.nombreArchivo = "Ventas origen_" + request.getOrigen() + " " + request.getMesFinal().format(fechaArchivo);
         //Datos resumidos
         Set<DaoResumenPeriodo> filtrado = service.ResumeData(resultado);
 
