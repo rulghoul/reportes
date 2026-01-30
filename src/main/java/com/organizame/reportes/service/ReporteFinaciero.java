@@ -1,10 +1,8 @@
 package com.organizame.reportes.service;
 
 import com.organizame.reportes.dto.request.RequestRanking;
-import com.organizame.reportes.exceptions.SinDatos;
 import com.organizame.reportes.persistence.entities.BnkEstadofinanciero;
 import com.organizame.reportes.repository.service.EstadoFinancieroService;
-import com.organizame.reportes.utils.Utilidades;
 import com.organizame.reportes.utils.excel.ColorExcel;
 import com.organizame.reportes.utils.excel.CrearExcel;
 import com.organizame.reportes.utils.excel.EstiloCeldaExcel;
@@ -15,10 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
 

@@ -17,6 +17,9 @@ services:
       - EXCEL_BORDER_TYPE=${EXCEL_BORDER_TYPE}
       - EXCEL_INIT_COL=${EXCEL_INIT_COL}
       - EXCEL_INIT_ROW=${EXCEL_INIT_ROW}
+      - LANG=es_MX.UTF-8
+      - LC_ALL=es_MX.UTF-8
+      - TZ=America/Mexico_City
     restart: unless-stopped
     networks:
       - mariaadistem_default #Cambiar por la red de maria database

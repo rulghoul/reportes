@@ -16,6 +16,7 @@ import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
 import com.organizame.reportes.persistence.repositories.VhcGrupoRepository;
 import com.organizame.reportes.persistence.repositories.VhcMarcaperiodoRepository;
 import com.organizame.reportes.repository.VhcModeloperiodoindustriaRepository2;
+import com.organizame.reportes.utils.Constantes;
 import com.organizame.reportes.utils.Utilidades;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,8 +55,8 @@ public class ModeloPeriodoService {
         this.repository = repository;
         this.marcaRepository = marcaRepository;
         this.grupoRepository = grupoRepository;
-        this.toIntegerFormater = DateTimeFormatter.ofPattern("yyyyMM");
-        this.mesAnioFormatter = DateTimeFormatter.ofPattern("MMM-yyyy");
+        this.toIntegerFormater = DateTimeFormatter.ofPattern("yyyyMM", Constantes.LOCALE_MX);
+        this.mesAnioFormatter = DateTimeFormatter.ofPattern("MMM-yyyy", Constantes.LOCALE_MX);
     }
 
     public List<String> recuperaOrigenes(){
