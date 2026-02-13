@@ -170,17 +170,17 @@ public class MargenUtilidad {
         result.add(new Celda(distribuidorTotal, "normal", 1)); // B
         result.add(new Celda(distribuidorGastosSubtotal, "normal", 1)); // C
         result.add(new Celda(daacuota, "normal", 1)); // D
-        result.add(new Celda(e, "normal", 1)); // E
+        result.add(new Celda(e, "porcentaje", 1)); // E
         result.add(new Celda(precioLista, "normal", 1)); // F
-        result.add(new Celda(g, "normal", 1)); // G
-        result.add(new Celda(h, "normal", 1)); // H
+        result.add(new Celda(g, "moneda", 1)); // G
+        result.add(new Celda(h, "porcentaje", 1)); // H
         result.add(new Celda(financiamientoPrecioPromocional, "normal", 1)); // I
-        result.add(new Celda(ax, "normal", 1)); // J
-        result.add(new Celda(ay, "normal", 1)); // K
+        result.add(new Celda(ax, "moneda", 1)); // J
+        result.add(new Celda(ay, "porcentaje", 1)); // K
         result.add(new Celda(ofertaPrincipalReembolso, "normal", 1)); // L
         result.add(new Celda(contadoPrecio, "normal", 1)); // M
-        result.add(new Celda(cp, "normal", 1)); // N
-        result.add(new Celda(cq, "normal", 1)); // O
+        result.add(new Celda(cp, "moneda", 1)); // N
+        result.add(new Celda(cq, "porcentaje", 1)); // O
         result.add(new Celda(contadoReembolso, "normal", 1)); // P
         result.add(new Celda("", "normal", 1)); // Q (Espacio)
         result.add(new Celda(r, "normal", 1)); // R
@@ -191,11 +191,11 @@ public class MargenUtilidad {
         result.add(new Celda("", "normal", 1)); // W (CALCULO ISAN - pendiente implementación)
         result.add(new Celda(sumatoriaDistribuidorGastos, "normal", 1)); // X
         result.add(new Celda(distribuidorGastosSubtotal, "normal", 1)); // Y
-        result.add(new Celda(z, "normal", 1)); // Z
-        result.add(new Celda(aa, "normal", 1)); // AA
+        result.add(new Celda(z, "moneda", 1)); // Z
+        result.add(new Celda(aa, "porcentaje", 1)); // AA
         result.add(new Celda(precioLista, "normal", 1)); // AB //Calcular
-        result.add(new Celda(ac, "normal", 1)); // AC
-        result.add(new Celda(ad, "normal", 1)); // AD
+        result.add(new Celda(ac, "moneda", 1)); // AC
+        result.add(new Celda(ad, "porcentaje", 1)); // AD
         result.add(new Celda(ae, "normal", 1)); // AE
         result.add(new Celda(af, "normal", 1)); // AF
         result.add(new Celda(financiamientoPrecioPromocional, "normal", 1)); // AG
@@ -212,15 +212,15 @@ public class MargenUtilidad {
         result.add(new Celda(ar, "normal", 1)); // AR
         result.add(new Celda(distribuidorGastosSubtotal, "normal", 1)); // AS
         result.add(new Celda(ar, "normal", 1)); // AT
-        result.add(new Celda(au, "normal", 1)); // AU
-        result.add(new Celda(av, "normal", 1)); // AV
+        result.add(new Celda(au, "moneda", 1)); // AU
+        result.add(new Celda(av, "porcentaje", 1)); // AV
         result.add(new Celda(financiamientoPrecioPromocional, "normal", 1)); // AW
-        result.add(new Celda(ax, "normal", 1)); // AX
-        result.add(new Celda(ay, "normal", 1)); // AY
+        result.add(new Celda(ax, "moneda", 1)); // AX
+        result.add(new Celda(ay, "porcentaje", 1)); // AY
         result.add(new Celda(az, "normal", 1)); // AZ
         result.add(new Celda(null, "normal", 1)); // BA (null según especificación)
-        result.add(new Celda(bb, "normal", 1)); // BB
-        result.add(new Celda(bc, "normal", 1)); // BC
+        result.add(new Celda(bb, "porcentaje", 1)); // BB
+        result.add(new Celda(bc, "moneda", 1)); // BC
         result.add(new Celda(bd, "normal", 1)); // BD
         result.add(new Celda(be, "normal", 1)); // BE
         result.add(new Celda(cuotaTraslado, "normal", 1)); // BF clave
@@ -256,11 +256,11 @@ public class MargenUtilidad {
         result.add(new Celda(cj, "normal", 1)); // CJ
         result.add(new Celda(distribuidorGastosSubtotal, "normal", 1)); // CK
         result.add(new Celda(cj, "normal", 1)); // CL
-        result.add(new Celda(cm, "normal", 1)); // CM
-        result.add(new Celda(cn, "normal", 1)); // CN
+        result.add(new Celda(cm, "moneda", 1)); // CM
+        result.add(new Celda(cn, "porcentaje", 1)); // CN
         result.add(new Celda(contadoPrecio, "normal", 1)); // CO
-        result.add(new Celda(cp, "normal", 1)); // CP
-        result.add(new Celda(cq, "normal", 1)); // CQ
+        result.add(new Celda(cp, "moneda", 1)); // CP
+        result.add(new Celda(cq, "porcentaje", 1)); // CQ
         result.add(new Celda(ch, "normal", 1)); // CR
         result.add(new Celda(null, "normal", 1)); // Último campo (null según especificación)
 
