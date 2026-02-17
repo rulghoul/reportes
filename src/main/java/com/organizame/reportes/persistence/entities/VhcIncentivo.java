@@ -4,7 +4,6 @@
  */
 package com.organizame.reportes.persistence.entities;
 
-import com.organizame.reportes.entities.VhcAnio;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -140,7 +139,7 @@ public class VhcIncentivo implements Serializable {
     //--- ENTITY LINKS ( RELATIONSHIP )
     @ManyToOne
     @JoinColumn(name="IDANIO", referencedColumnName="IDANIO", insertable=false, updatable=false)
-    private com.organizame.reportes.entities.VhcAnio vhcanio ;
+    private VhcAnio vhcanio ;
 
 
 

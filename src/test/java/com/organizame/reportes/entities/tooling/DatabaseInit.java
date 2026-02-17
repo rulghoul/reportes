@@ -4,7 +4,7 @@
  */
 package com.organizame.reportes.entities.tooling;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import com.organizame.reportes.entities.LogCargaJpaTest;
 import com.organizame.reportes.entities.VhcAnioJpaTest;

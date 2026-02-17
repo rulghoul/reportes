@@ -54,5 +54,4 @@ public class VhcBoletinpreciogasto implements Serializable {
     @JoinColumn(name="IDBOLETINPRECIO", referencedColumnName="IDBOLETINPRECIO", insertable=false, updatable=false)
     private VhcBoletinprecio vhcboletinprecio ;
 
-
 }

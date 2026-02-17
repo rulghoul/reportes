@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * JPA entity class for "VhcModelo"
@@ -17,6 +18,7 @@ import lombok.Data;
  */
 @Data
 @Entity
+@ToString
 @Table(name="vhc_modelo", catalog="adistemdb" )
 public class VhcModelo implements Serializable {
 
@@ -56,16 +58,6 @@ public class VhcModelo implements Serializable {
     @OneToMany(mappedBy="vhcmodelo")
     private List<VhcVersion> vhcversionList ;
 
-	@Override
-	public String toString() { 
-		String separator = "|";
-		StringBuilder sb = new StringBuilder();
-		sb.append("VhcModelo[");
-		// attribute 'idmodelo' (type byte[]) not usable in toString() 
-		sb.append("nombre=").append(nombre);
-		// attribute 'idmarca' (type byte[]) not usable in toString() 
-		sb.append("]");
-		return sb.toString();
-	}
+
 
 }

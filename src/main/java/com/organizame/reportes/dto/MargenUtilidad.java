@@ -2,6 +2,7 @@ package com.organizame.reportes.dto;
 
 import com.organizame.reportes.persistence.entities.*;
 import com.organizame.reportes.utils.Constantes;
+
 import com.organizame.reportes.utils.excel.dto.Celda;
 import lombok.*;
 
@@ -35,41 +36,61 @@ public class MargenUtilidad {
     private BigDecimal contadoDescuento;
 
     public MargenUtilidad(VhcBoletinprecio boletinprecio,
-                          VhcBoletinpreciogasto boletinpreciogasto,
-                          VhcDaacuota daacuotaEntity,
-                          VhcIncentivo incentivo,
-                          VhcReembolso reembolso) {
+                          List<VhcBoletinpreciogasto> boletinpreciogasto,
+                          Optional<VhcDaacuota> daacuotaEntity,
+                          Optional<VhcIncentivo> incentivo,
+                          Optional<VhcReembolso> reembolso) {
 
         // VhcBoletinprecio
-        this.versionArchivo = boletinprecio != null ? boletinprecio.getVersionarchivo() : null; //
+
+        this.versionArchivo = boletinprecio != null ? boletinprecio.getVhcanio().getVhcversion().getNombre() : null; //
         this.distribuidorTotal = boletinprecio != null ? boletinprecio.getDistribuidortotal() : null; //
         this.distribuidorGastosSubtotal = boletinprecio != null ? boletinprecio.getDistribuidorgastosubtotal() : null; //
         this.distribuidorIva = boletinprecio != null ? boletinprecio.getDistribuidoriva() : null; //
 
         // VhcDaacuota
-        this.daacuota = daacuotaEntity != null ? daacuotaEntity.getDaacuota() : null; //
+        if(daacuotaEntity.isPresent()) {
+            this.daacuota = daacuotaEntity != null ? daacuotaEntity.get().getDaacuota() : null; //
+        }else{
+            this.daacuota = null;
+        }
 
         // VhcIncentivo
-        this.financiamientoPrecioPromocional = incentivo != null ? incentivo.getFinanciamientoalternopreciopromocional() : null;
-        this.contadoPrecio = incentivo != null ? incentivo.getPreciolista() : null;
+        this.financiamientoPrecioPromocional = incentivo != null ? incentivo.get().getFinanciamientoalternopreciopromocional() : null;
+        this.contadoPrecio = incentivo != null ? incentivo.get().getPreciolista() : null;
 
         // VhcReembolso
-        this.precioLista = reembolso != null ? reembolso.getPreciolista() : null;
-        this.ofertaPrincipalReembolso = reembolso != null ? reembolso.getOfertaprincipalreembolso() : null;
-        this.contadoReembolso = reembolso != null ? reembolso.getContadoreembolso() : null;
-        this.contadoDescuento = reembolso != null ? reembolso.getContadodescuento() : null;
+        this.precioLista = reembolso != null ? reembolso.get().getPreciolista() : null;
+        this.ofertaPrincipalReembolso = reembolso != null ? reembolso.get().getOfertaprincipalreembolso() : null;
+        this.contadoReembolso = reembolso != null ? reembolso.get().getContadoreembolso() : null;
+        this.contadoDescuento = reembolso != null ? reembolso.get().getContadodescuento() : null;
 
         // VhcBoletinpreciogasto - Sumatoria y valores específicos
 
-            this.sumatoriaDistribuidorGastos = null;
-            this.cuotaTraslado = null;
-            this.programaPrimeroCliente = null;
-            this.seguroTraslado = null;
+            this.sumatoriaDistribuidorGastos = boletinpreciogasto.stream()
+                    .map( precio -> new BigDecimal(precio.getPublico()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            this.cuotaTraslado = boletinpreciogasto.stream()
+                    .filter(precio -> precio.getNombre().contains("Traslado"))
+                    .map( precio -> new BigDecimal(precio.getPublico()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            this.programaPrimeroCliente = boletinpreciogasto.stream()
+                    .filter(precio -> precio.getNombre().equals("Programa Primero el Cliente")
+                    || precio.getNombre().equals("Inspección Final"))
+                    .map( precio -> new BigDecimal(precio.getDistribuidor()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            this.seguroTraslado = boletinpreciogasto.stream()
+                    .filter(precio -> precio.getNombre().equals("Seguro de Traslado"))
+                    .map( precio -> new BigDecimal(precio.getPublico()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
     }
 
     // Método para convertir a lista de objetos con manejo de nulos y cálculos
-    public List<Celda> toList() {
+    public List<Celda> toCeldaList() {
         List<Celda> result = new ArrayList<>();
 
         // Cálculos intermedios con manejo de nulos
@@ -79,6 +100,37 @@ public class MargenUtilidad {
 
         BigDecimal g = !Objects.isNull(distribuidorGastosSubtotal) && !Objects.isNull(distribuidorTotal)  && !Objects.isNull(daacuota)
                 ? distribuidorGastosSubtotal.subtract(distribuidorTotal).add(daacuota) : null;
+
+        BigDecimal ao = !Objects.isNull(distribuidorTotal) && !Objects.isNull(daacuota)
+                ? distribuidorTotal.subtract(daacuota)  : null;
+
+        BigDecimal ap = !Objects.isNull(contadoReembolso) ? contadoReembolso.negate() : null;
+
+        BigDecimal aq = safeDivide(ap, Constantes.IVA);
+
+        BigDecimal ar = (ao != null && aq != null) ? ao.add(aq)  : null;
+
+        BigDecimal au = !Objects.isNull(distribuidorGastosSubtotal) && !Objects.isNull(ar)
+                ? distribuidorGastosSubtotal.subtract(ar) : null;
+
+        BigDecimal ax = au;
+        BigDecimal ay = safeDivide(ax, distribuidorGastosSubtotal);
+
+        BigDecimal cg = !Objects.isNull(distribuidorTotal) && !Objects.isNull(daacuota)
+                ? distribuidorTotal.subtract(daacuota)  : null;
+
+        BigDecimal ch = !Objects.isNull(contadoReembolso)
+                ? contadoReembolso.negate() : null;
+
+        BigDecimal ci = safeDivide(ch, Constantes.IVA);
+        BigDecimal cj = !Objects.isNull(cg) && !Objects.isNull(ci)
+                ? cg.add(ci) : null;
+
+        BigDecimal cm = !Objects.isNull(distribuidorGastosSubtotal) && !Objects.isNull(cj)
+                ? distribuidorGastosSubtotal.subtract(cj) : null;
+
+        BigDecimal cn = safeDivide(cm, distribuidorGastosSubtotal);
+        BigDecimal cp = cm;
 
         BigDecimal h = safeDivide(g, distribuidorGastosSubtotal);
 
@@ -99,19 +151,7 @@ public class MargenUtilidad {
 
         BigDecimal ah = safeDivide(financiamientoPrecioPromocional, Constantes.IVA);
 
-        BigDecimal ao = !Objects.isNull(distribuidorTotal) && !Objects.isNull(daacuota)
-                ? distribuidorTotal.subtract(daacuota)  : null;
-
-        BigDecimal ap = !Objects.isNull(contadoReembolso) ? contadoReembolso.negate() : null;
-        BigDecimal aq = safeDivide(ap, Constantes.IVA);
-        BigDecimal ar = (ao != null && aq != null) ? ao.add(aq)  : null;
-
-        BigDecimal au = !Objects.isNull(distribuidorGastosSubtotal) && !Objects.isNull(ar)
-                ? distribuidorGastosSubtotal.subtract(ar) : null;
-
         BigDecimal av = safeDivide(au, distribuidorGastosSubtotal);
-        BigDecimal ax = au;
-        BigDecimal ay = safeDivide(ax, distribuidorGastosSubtotal);
         BigDecimal az = !Objects.isNull(ap) ? ap.negate() : null;
 
         BigDecimal bb = !Objects.isNull(h) && !Objects.isNull(ay) ?
@@ -135,7 +175,7 @@ public class MargenUtilidad {
         BigDecimal bo = !Objects.isNull(sumatoriaDistribuidorGastos) && !Objects.isNull(bi)
                 ? sumatoriaDistribuidorGastos.subtract(bi)  : null;
 
-        BigDecimal bq = !Objects.isNull(financiamientoPrecioPromocional != null && financiamientoPrecioPromocional != null)
+        BigDecimal bq = !Objects.isNull(financiamientoPrecioPromocional)&& !Objects.isNull(financiamientoPrecioPromocional)
                 ? financiamientoPrecioPromocional.subtract(financiamientoPrecioPromocional) : null; // Siempre 0
 
         BigDecimal bs = !Objects.isNull(distribuidorGastosSubtotal) && !Objects.isNull(distribuidorTotal)
@@ -149,20 +189,8 @@ public class MargenUtilidad {
         BigDecimal ca = !Objects.isNull(bz)
                 ? bz.multiply(new BigDecimal("0.16"))  : null;
 
-        BigDecimal cg = !Objects.isNull(distribuidorTotal) && !Objects.isNull(daacuota)
-                ? distribuidorTotal.subtract(daacuota)  : null;
 
-        BigDecimal ch = !Objects.isNull(contadoReembolso)
-                ? contadoReembolso.negate() : null;
-        BigDecimal ci = safeDivide(ch, Constantes.IVA);
-        BigDecimal cj = !Objects.isNull(cg) && !Objects.isNull(ci)
-                ? cg.add(ci) : null;
 
-        BigDecimal cm = !Objects.isNull(distribuidorGastosSubtotal) && !Objects.isNull(cj)
-                ? distribuidorGastosSubtotal.subtract(cj) : null;
-
-        BigDecimal cn = safeDivide(cm, distribuidorGastosSubtotal);
-        BigDecimal cp = cm;
         BigDecimal cq = safeDivide(cp, distribuidorGastosSubtotal);
 
         // Construir lista en orden A → CR (78 elementos)

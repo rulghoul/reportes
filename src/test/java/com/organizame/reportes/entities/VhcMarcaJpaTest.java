@@ -7,6 +7,7 @@ package com.organizame.reportes.entities;
 import static junit.framework.TestCase.assertNotNull;
 
 import com.organizame.reportes.entities.tooling.JpaTest;
+import com.organizame.reportes.persistence.entities.VhcMarca;
 import org.junit.Test;
 
 public class VhcMarcaJpaTest extends JpaTest {
