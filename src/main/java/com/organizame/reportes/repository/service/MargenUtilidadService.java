@@ -9,6 +9,7 @@ import com.organizame.reportes.persistence.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -48,6 +49,8 @@ public class MargenUtilidadService {
 
         return boletines.stream()
                 .map(boletin -> {
+                    boletin.setDistribuidorisan(BigDecimal.TEN);
+                    boletinprecioRepository.save(boletin);
                     var gastos = boletinesGastos.stream()
                             .filter(gasto -> gasto.getVhcboletinprecio().equals(boletin))
                             .toList();
