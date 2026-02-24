@@ -44,7 +44,7 @@ public class MargenUtilidad {
         // VhcBoletinprecio
 
         this.versionArchivo = boletinprecio != null ? boletinprecio.getVhcanio().getVhcversion().getNombre() : null; //
-        this.distribuidorTotal = boletinprecio != null ? boletinprecio.getDistribuidortotal() : null; //
+        this.distribuidorTotal = boletinprecio != null ? boletinprecio.getPublicounidadbasica() : null; //
         this.distribuidorGastosSubtotal = boletinprecio != null ? boletinprecio.getDistribuidorgastosubtotal() : null; //
         this.distribuidorIva = boletinprecio != null ? boletinprecio.getDistribuidoriva() : null; //
 
@@ -69,7 +69,6 @@ public class MargenUtilidad {
             this.contadoReembolso = reembolso.get().getContadoreembolso();
             this.contadoDescuento = reembolso.get().getContadodescuento();
         } else {
-
             this.precioLista = null;
             this.ofertaPrincipalReembolso = null;
             this.contadoReembolso = null;
@@ -106,7 +105,7 @@ public class MargenUtilidad {
 
         // Cálculos intermedios con manejo de nulos
         BigDecimal e = !Objects.isNull(distribuidorTotal) && !Objects.isNull(daacuota)
-                ? BigDecimal.ONE.subtract(this.safeDivide(distribuidorTotal.subtract(daacuota), distribuidorGastosSubtotal))
+                ? BigDecimal.ONE.subtract((this.safeDivide(distribuidorTotal.subtract(daacuota), distribuidorGastosSubtotal)))
                 : null;
 
         BigDecimal g = !Objects.isNull(distribuidorGastosSubtotal) && !Objects.isNull(distribuidorTotal) && !Objects.isNull(daacuota)

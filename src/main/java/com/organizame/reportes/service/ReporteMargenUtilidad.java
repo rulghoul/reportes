@@ -76,7 +76,7 @@ public class ReporteMargenUtilidad {
         var normalColor = new ColorExcel("normal", "#FFFFFF", "#FFFFFF");
         var normal = new EstiloCeldaExcel(normalColor,excel.getWb(),10
                 , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),BorderStyle.THIN, Optional.empty(),"#,##0.00",false,Optional.empty(), Optional.of("#FF0000"), false);
+                Optional.empty(),BorderStyle.THIN, Optional.empty(),"#,##0",false,Optional.empty(), Optional.of("#FF0000"), false);
         excel.getEstilos().add(normal);
 
 
@@ -89,7 +89,7 @@ public class ReporteMargenUtilidad {
         var monedaColor = new ColorExcel("moneda", "#FFFFFF", "#FFFFFF");
         var moneda = new EstiloCeldaExcel(monedaColor,excel.getWb(),10
                 , Optional.of(HorizontalAlignment.RIGHT),Optional.of(VerticalAlignment.BOTTOM),
-                Optional.empty(),BorderStyle.THIN, Optional.empty(),"#,##0.00",false,Optional.empty(), Optional.of("#FF0000"), false);
+                Optional.empty(),BorderStyle.THIN, Optional.empty(),"#,##0",false,Optional.empty(), Optional.of("#FF0000"), false);
         excel.getEstilos().add(moneda);
 
     }
