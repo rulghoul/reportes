@@ -130,7 +130,8 @@ public class MargenUtilidad {
         BigDecimal ao = !Objects.isNull(distribuidorTotal) && !Objects.isNull(daacuota)
                 ? distribuidorTotal.subtract(daacuota) : null;
 
-        BigDecimal ap = !Objects.isNull(contadoReembolso) ? contadoReembolso.negate() : null;
+        BigDecimal ap = !Objects.isNull(contadoReembolso)
+                ? contadoReembolso : null;
 
         BigDecimal aq = safeDivide(ap, Constantes.IVA);
 
