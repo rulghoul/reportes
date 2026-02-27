@@ -292,12 +292,12 @@ public class ReporteRankingMarca {
         List<FilaTabla> filas = new ArrayList<>();
         filas.add(portHeader);
         var count = new AtomicInteger(1);
-        var random = new Random(123456);
+
         var maximo = acumuladosporGrupo.size() < 15 ? acumuladosporGrupo.size() : 15;
         filas.addAll(acumuladosporGrupo.subList(0,maximo).stream()
                 .map(acumulado -> {
                     var rank = count.getAndIncrement();
-                    var agencia = random.nextInt(80, 150);
+                    var agencia = acumulado.getVolumen();
                     return this.getFilaTabla(acumulado, agencia, rank, request.getMes());
                 }
         ).toList());
@@ -350,16 +350,16 @@ public class ReporteRankingMarca {
         var porcentajeDiferencia = acumuladoActual.getVolumen().doubleValue()/acumuladoAnterior.getVolumen().doubleValue() * Utilidades.evaluaNumero(diferenciaVolumen);
         var diferencia = Utilidades.evaluaNumero(diferenciaVolumen);
         return new FilaTabla(estilo, List.of(
-                rankingActual , acumuladoActual.getFabricante(),
-                agenciasActual, acumuladoActual.getVolumen(),
-                Double.valueOf(acumuladoActual.getVolumen().doubleValue() / numMeses.doubleValue() / agenciasActual.doubleValue()).intValue(),
-                Double.valueOf(acumuladoActual.getVolumen().doubleValue() / agenciasActual.doubleValue()).intValue(),
+                0 , acumuladoActual.getFabricante(),
+                0, 0,
+                0,
+                0,
                 diferencia,
                 "",
-                agenciasAnterior, acumuladoAnterior.getVolumen(),
-                Double.valueOf(acumuladoAnterior.getVolumen().doubleValue() / numMeses.doubleValue() / agenciasAnterior.doubleValue()).intValue(),
-                Double.valueOf(acumuladoAnterior.getVolumen().doubleValue() / agenciasAnterior.doubleValue()).intValue(),
-                rankingAnterior,
+                agenciasAnterior, 0,
+                0,
+                0,
+                0,
                 "",
                 diferenciaVolumen,
                 porcentajeDiferencia
