@@ -50,7 +50,7 @@ public class ISANService {
         // Llamar este método después de actualizar parámetros/tarifas en BD
     }
 
-    public CalculoISAN calculaISAN(BigDecimal monto, Integer anio){
+    public  CalculoISAN calculaISAN(BigDecimal monto, Integer anio){
         var parametros = findAllParametros().stream()
                 .filter(par ->
                         anio.equals(par.getFechaInicio().getYear())

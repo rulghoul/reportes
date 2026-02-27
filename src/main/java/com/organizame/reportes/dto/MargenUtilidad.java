@@ -6,22 +6,25 @@ import com.organizame.reportes.utils.Constantes;
 
 import com.organizame.reportes.utils.excel.dto.Celda;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Stream;
 
+@Slf4j
 @Setter
 @Getter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Component
 public class MargenUtilidad {
-    @Autowired
-    private ISANService isanService;
 
+    private ISANService isanService;
     // Campos fuente (valores directos de las entidades)
     private String versionArchivo;
     private Integer anio;
@@ -46,15 +49,16 @@ public class MargenUtilidad {
                           List<VhcBoletinpreciogasto> boletinpreciogasto,
                           Optional<VhcDaacuota> daacuotaEntity,
                           Optional<VhcIncentivo> incentivo,
-                          Optional<VhcReembolso> reembolso) {
-
+                          Optional<VhcReembolso> reembolso,
+                          ISANService isanService) {
+        this.isanService = isanService;
         // VhcBoletinprecio
 
         this.versionArchivo = boletinprecio != null ? boletinprecio.getVhcanio().getVhcversion().getNombre() : null; //
         this.anio = boletinprecio != null  && !boletinprecio.getAniomyarchivo().isBlank()
                 ? Integer.parseInt(boletinprecio.getAniomyarchivo()) : 0; //
-        this.distribuidorTotal = boletinprecio != null ? boletinprecio.getDistribuidortotal() : null; //
-        this.distribuidorGastosSubtotal = boletinprecio != null ? boletinprecio.getDistribuidorgastosubtotal() : null; //
+        this.distribuidorTotal = boletinprecio != null ? boletinprecio.getDistribuidorcontenidosubtotal() : null; //
+        this.distribuidorGastosSubtotal = boletinprecio != null ? boletinprecio.getPublicocontenidosubtotal() : null; //
         this.distribuidorIva = boletinprecio != null ? boletinprecio.getDistribuidoriva() : null; //
         this.distribuidorIsan = boletinprecio != null ? boletinprecio.getDistribuidorisan() : null; //
 
@@ -236,7 +240,7 @@ public class MargenUtilidad {
         result.add(new Celda(precioLista, "normal", 1)); // T
         result.add(new Celda(u, "normal", 1)); // U
         result.add(new Celda(distribuidorIva, "normal", 1)); // V
-        result.add(new Celda(distribuidorIsan, "normal", 1)); // W (CALCULO ISAN - pendiente implementación)
+        result.add(new Celda(this.getISAN(distribuidorGastosSubtotal), "normal", 1)); // W (CALCULO ISAN - pendiente implementación)
         result.add(new Celda(sumatoriaDistribuidorGastos, "normal", 1)); // X
         result.add(new Celda(distribuidorGastosSubtotal, "normal", 1)); // Y
         result.add(new Celda(z, "moneda", 1)); // Z
@@ -249,7 +253,7 @@ public class MargenUtilidad {
         result.add(new Celda(financiamientoPrecioPromocional, "normal", 1)); // AG
         result.add(new Celda(ah, "normal", 1)); // AH
         result.add(new Celda(distribuidorIva, "normal", 1)); // AI
-        result.add(new Celda(distribuidorIsan, "normal", 1)); // AJ (CALCULO ISAN - pendiente implementación)
+        result.add(new Celda(this.getISAN(distribuidorGastosSubtotal), "normal", 1)); // AJ (CALCULO ISAN - pendiente implementación)
         result.add(new Celda(sumatoriaDistribuidorGastos, "normal", 1)); // AK Calcular
         result.add(new Celda(distribuidorGastosSubtotal, "normal", 1)); // AL //Sin valor en ell campo
         result.add(new Celda(distribuidorTotal, "normal", 1)); // AM
@@ -293,7 +297,7 @@ public class MargenUtilidad {
         result.add(new Celda(contadoPrecio, "normal", 1)); // BY
         result.add(new Celda(bz, "normal", 1)); // BZ
         result.add(new Celda(ca, "normal", 1)); // CA
-        result.add(new Celda(distribuidorIsan, "normal", 1)); // CB (CALCULO ISAN - pendiente implementación)
+        result.add(new Celda(this.getISAN(distribuidorGastosSubtotal), "normal", 1)); // CB (CALCULO ISAN - pendiente implementación)
         result.add(new Celda(sumatoriaDistribuidorGastos, "normal", 1)); // CC //calcular
         result.add(new Celda(distribuidorGastosSubtotal, "normal", 1)); // CD
         result.add(new Celda(distribuidorTotal, "normal", 1)); // CE
@@ -322,11 +326,15 @@ public class MargenUtilidad {
     }
 
     private BigDecimal getISAN(BigDecimal precio){
+        if(Objects.isNull(precio)){
+            return null;
+        }
         var isan = isanService.calculaISAN(precio, this.anio);
+        log.info("{} iSAN {}", precio, isan);
         if(isan.getIsanCincuenta().equals(BigDecimal.ZERO)){
-            return isan.getIsan();
+            return isan.getIsan().equals(BigDecimal.ZERO) ? null: isan.getIsan();
         }else{
-            return isan.getIsanCincuenta();
+            return isan.getIsanCincuenta().equals(BigDecimal.ZERO) ? null : isan.getIsanCincuenta();
         }
     }
 }

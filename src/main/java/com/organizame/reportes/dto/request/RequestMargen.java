@@ -13,9 +13,6 @@ import java.time.LocalDate;
 public class RequestMargen {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate inicio;
-
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate fin;
+    private LocalDate fecha;
 
 }

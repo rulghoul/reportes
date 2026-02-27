@@ -12,4 +12,7 @@ public interface VhcBoletinprecioRepository extends JpaRepository<VhcBoletinprec
 
     @Query("select v from VhcBoletinprecio v where v.fechainicio between ?1 and ?2")
     List<VhcBoletinprecio> boletinFromPeriodo(LocalDateTime fechainicioStart, LocalDateTime fechainicioEnd);
+
+    @Query("select v from VhcBoletinprecio v where v.fechainicio <= ?1 and v.aniomyarchivo like ?2")
+    List<VhcBoletinprecio> lastedBoletin(LocalDateTime fechainicioStart, String year);
 }

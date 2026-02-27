@@ -39,7 +39,7 @@ public class ReporteMargenUtilidad {
 
     public ByteArrayInputStream CrearExcelRanking(RequestMargen request) throws IOException {
         //datos brutos todos los origenes por
-        var margenes = margenUtilidadService.getMargenes(request.getInicio(), request.getFin());
+        var margenes = margenUtilidadService.getMargenes(request.getFecha());
         if(margenes.isEmpty()){
             throw new IOException("No se encontraron datos para las fechas solicitadas");
         }
