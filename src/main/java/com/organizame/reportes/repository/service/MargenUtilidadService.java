@@ -1,6 +1,7 @@
 package com.organizame.reportes.repository.service;
 
 import com.organizame.reportes.dto.MargenUtilidad;
+import com.organizame.reportes.dto.MargenUtilidadFactory;
 import com.organizame.reportes.persistence.entities.VhcBoletinpreciogasto;
 import com.organizame.reportes.persistence.entities.VhcDaacuota;
 import com.organizame.reportes.persistence.entities.VhcIncentivo;
@@ -21,20 +22,24 @@ public class MargenUtilidadService {
     private final VhcDaacuotaRepository daacuotaRepository;
     private final VhcIncentivoRepository incentivoRepository;
     private final VhcReembolsoRepository reembolsoRepository;
+    private final MargenUtilidadFactory margenUtilidadFactory;
 
     @Autowired
     public MargenUtilidadService(VhcBoletinprecioRepository boletinprecioRepository, VhcBoletinpreciogastoRepository boletinpreciogastoRepository,
                                  VhcDaacuotaRepository daacuotaRepository, VhcIncentivoRepository incentivoRepository,
-                                 VhcReembolsoRepository reembolsoRepository){
+                                 VhcReembolsoRepository reembolsoRepository, MargenUtilidadFactory margenUtilidadFactory){
         this.boletinprecioRepository = boletinprecioRepository;
         this.boletinpreciogastoRepository = boletinpreciogastoRepository;
         this.daacuotaRepository = daacuotaRepository;
         this.incentivoRepository = incentivoRepository;
         this.reembolsoRepository = reembolsoRepository;
+        this.margenUtilidadFactory = margenUtilidadFactory;
     }
 
-    public List<MargenUtilidad> getMargenes(LocalDate inicio, LocalDate fin){
-        var boletines = boletinprecioRepository.boletinFromPeriodo(inicio.atStartOfDay(), fin.atTime(23,59));
+    public List<MargenUtilidad> getMargenes(LocalDate fecha){
+
+        var boletines = boletinprecioRepository
+                .lastedBoletin(fecha.atStartOfDay(), String.valueOf(fecha.getYear()));
 
         var anios = boletines.stream().map(boletin -> boletin.getVhcanio()).toList();
 
@@ -66,8 +71,9 @@ public class MargenUtilidadService {
                             .findFirst();
 
 
-                    return new MargenUtilidad(boletin, gastos
-                            , cuota, insentivo, rembolso);
+                    return margenUtilidadFactory.crearMargenUtilidad(
+                            boletin, gastos, cuota, insentivo, rembolso
+                    );
                 }).toList();
 
     }

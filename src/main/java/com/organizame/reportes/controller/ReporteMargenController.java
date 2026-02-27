@@ -57,8 +57,8 @@ public class ReporteMargenController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Object.class))})})
     @GetMapping("")
     @ResponseBody
-    public ResponseEntity<?> getReporteRanking(@RequestParam LocalDate inicio, @RequestParam LocalDate fin){
-        var request = new RequestMargen(inicio, fin);
+    public ResponseEntity<?> getReporteRanking(@RequestParam LocalDate fecha){
+        var request = new RequestMargen(fecha);
         return reporteMargen(request);
     }
 

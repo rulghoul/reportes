@@ -1,27 +1,36 @@
 package com.organizame.reportes.dto;
 
 import com.organizame.reportes.persistence.entities.*;
+import com.organizame.reportes.repository.service.ISANService;
 import com.organizame.reportes.utils.Constantes;
 
 import com.organizame.reportes.utils.excel.dto.Celda;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Stream;
 
+@Slf4j
 @Setter
 @Getter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-
+@Component
 public class MargenUtilidad {
+
+    private ISANService isanService;
     // Campos fuente (valores directos de las entidades)
     private String versionArchivo;
+    private Integer anio;
     private BigDecimal distribuidorTotal;
     private BigDecimal distribuidorGastosSubtotal;
+    private BigDecimal distribuidorIsan;
     private BigDecimal daacuota;
     private BigDecimal precioLista;
     private BigDecimal financiamientoPrecioPromocional;
@@ -35,18 +44,23 @@ public class MargenUtilidad {
     private BigDecimal seguroTraslado;
     private BigDecimal contadoDescuento;
 
+
     public MargenUtilidad(VhcBoletinprecio boletinprecio,
                           List<VhcBoletinpreciogasto> boletinpreciogasto,
                           Optional<VhcDaacuota> daacuotaEntity,
                           Optional<VhcIncentivo> incentivo,
-                          Optional<VhcReembolso> reembolso) {
-
+                          Optional<VhcReembolso> reembolso,
+                          ISANService isanService) {
+        this.isanService = isanService;
         // VhcBoletinprecio
 
         this.versionArchivo = boletinprecio != null ? boletinprecio.getVhcanio().getVhcversion().getNombre() : null; //
-        this.distribuidorTotal = boletinprecio != null ? boletinprecio.getPublicounidadbasica() : null; //
-        this.distribuidorGastosSubtotal = boletinprecio != null ? boletinprecio.getDistribuidorgastosubtotal() : null; //
+        this.anio = boletinprecio != null  && !boletinprecio.getAniomyarchivo().isBlank()
+                ? Integer.parseInt(boletinprecio.getAniomyarchivo()) : 0; //
+        this.distribuidorTotal = boletinprecio != null ? boletinprecio.getDistribuidorcontenidosubtotal() : null; //
+        this.distribuidorGastosSubtotal = boletinprecio != null ? boletinprecio.getPublicocontenidosubtotal() : null; //
         this.distribuidorIva = boletinprecio != null ? boletinprecio.getDistribuidoriva() : null; //
+        this.distribuidorIsan = boletinprecio != null ? boletinprecio.getDistribuidorisan() : null; //
 
         // VhcDaacuota
 
@@ -111,10 +125,13 @@ public class MargenUtilidad {
         BigDecimal g = !Objects.isNull(distribuidorGastosSubtotal) && !Objects.isNull(distribuidorTotal) && !Objects.isNull(daacuota)
                 ? distribuidorGastosSubtotal.subtract(distribuidorTotal).add(daacuota) : null;
 
+        BigDecimal h = safeDivide(g, distribuidorGastosSubtotal);
+
         BigDecimal ao = !Objects.isNull(distribuidorTotal) && !Objects.isNull(daacuota)
                 ? distribuidorTotal.subtract(daacuota) : null;
 
-        BigDecimal ap = !Objects.isNull(contadoReembolso) ? contadoReembolso.negate() : null;
+        BigDecimal ap = !Objects.isNull(contadoReembolso)
+                ? contadoReembolso : null;
 
         BigDecimal aq = safeDivide(ap, Constantes.IVA);
 
@@ -142,7 +159,6 @@ public class MargenUtilidad {
         BigDecimal cn = safeDivide(cm, distribuidorGastosSubtotal);
         BigDecimal cp = cm;
 
-        BigDecimal h = safeDivide(g, distribuidorGastosSubtotal);
 
         BigDecimal r = !Objects.isNull(precioLista) && !Objects.isNull(financiamientoPrecioPromocional)
                 ? precioLista.subtract(financiamientoPrecioPromocional) : null;
@@ -225,7 +241,7 @@ public class MargenUtilidad {
         result.add(new Celda(precioLista, "normal", 1)); // T
         result.add(new Celda(u, "normal", 1)); // U
         result.add(new Celda(distribuidorIva, "normal", 1)); // V
-        result.add(new Celda(getISAN(precioLista), "normal", 1)); // W (CALCULO ISAN - pendiente implementación)
+        result.add(new Celda(this.getISAN(distribuidorGastosSubtotal), "normal", 1)); // W (CALCULO ISAN - pendiente implementación)
         result.add(new Celda(sumatoriaDistribuidorGastos, "normal", 1)); // X
         result.add(new Celda(distribuidorGastosSubtotal, "normal", 1)); // Y
         result.add(new Celda(z, "moneda", 1)); // Z
@@ -238,7 +254,7 @@ public class MargenUtilidad {
         result.add(new Celda(financiamientoPrecioPromocional, "normal", 1)); // AG
         result.add(new Celda(ah, "normal", 1)); // AH
         result.add(new Celda(distribuidorIva, "normal", 1)); // AI
-        result.add(new Celda("", "normal", 1)); // AJ (CALCULO ISAN - pendiente implementación)
+        result.add(new Celda(this.getISAN(distribuidorGastosSubtotal), "normal", 1)); // AJ (CALCULO ISAN - pendiente implementación)
         result.add(new Celda(sumatoriaDistribuidorGastos, "normal", 1)); // AK Calcular
         result.add(new Celda(distribuidorGastosSubtotal, "normal", 1)); // AL //Sin valor en ell campo
         result.add(new Celda(distribuidorTotal, "normal", 1)); // AM
@@ -282,7 +298,7 @@ public class MargenUtilidad {
         result.add(new Celda(contadoPrecio, "normal", 1)); // BY
         result.add(new Celda(bz, "normal", 1)); // BZ
         result.add(new Celda(ca, "normal", 1)); // CA
-        result.add(new Celda("", "normal", 1)); // CB (CALCULO ISAN - pendiente implementación)
+        result.add(new Celda(this.getISAN(distribuidorGastosSubtotal), "normal", 1)); // CB (CALCULO ISAN - pendiente implementación)
         result.add(new Celda(sumatoriaDistribuidorGastos, "normal", 1)); // CC //calcular
         result.add(new Celda(distribuidorGastosSubtotal, "normal", 1)); // CD
         result.add(new Celda(distribuidorTotal, "normal", 1)); // CE
@@ -311,6 +327,15 @@ public class MargenUtilidad {
     }
 
     private BigDecimal getISAN(BigDecimal precio){
-        return BigDecimal.ONE;
+        if(Objects.isNull(precio)){
+            return null;
+        }
+        var isan = isanService.calculaISAN(precio, this.anio);
+        log.info("{} iSAN {}", precio, isan);
+        if(isan.getIsanCincuenta().equals(BigDecimal.ZERO)){
+            return isan.getIsan().equals(BigDecimal.ZERO) ? null: isan.getIsan();
+        }else{
+            return isan.getIsanCincuenta().equals(BigDecimal.ZERO) ? null : isan.getIsanCincuenta();
+        }
     }
 }
