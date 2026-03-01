@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
@@ -201,7 +202,7 @@ public class ReporteRankingMarca {
                     var acumuladoAnterior = acumuladosAnterior.stream()
                             .filter(acu -> acu.getFabricante().equalsIgnoreCase(acumulado.getFabricante()))
                             .findFirst();
-                    Integer rankAnterior = acumuladoAnterior.isPresent() ? acumuladosAnterior.indexOf(acumuladoAnterior.get()) +1 : 99;
+                    var rankAnterior = acumuladoAnterior.isPresent() ? acumuladosAnterior.indexOf(acumuladoAnterior.get()) +1 : "NA";
                     var agenciaAnterior = this.getAgenciasPeriodo(acumulado,
                             LocalDate.of(request.getAnio()-1, 1,1),
                             LocalDate.of(request.getAnio()-1, request.getMes(), 1));
@@ -343,27 +344,47 @@ public class ReporteRankingMarca {
         ));
     }
 
-    public FilaTabla getFilaTabla(Acumulado acumuladoActual, Acumulado acumuladoAnterior, Integer agenciasActual,Integer agenciasAnterior, Integer rankingActual, Integer rankingAnterior,  Integer numMeses){
+    public FilaTabla getFilaTabla(Acumulado acumuladoActual, Acumulado acumuladoAnterior, Integer agenciasActual,
+                                  Integer agenciasAnterior, Integer rankingActual, Object rankingAnterior,  Integer numMeses){
+        List<Object> fila = new ArrayList<>();
+        var promedioActualMensual = this.safeDivide(this.safeDivide(acumuladoActual.getVolumen(), numMeses), agenciasActual);
+        var promedioActual = this.safeDivide(acumuladoActual.getVolumen() , agenciasActual);
+        var promedioAnteriorMensual = this.safeDivide(this.safeDivide(acumuladoAnterior.getVolumen(), numMeses ), agenciasAnterior);
+        var promedioAnterior = this.safeDivide(acumuladoAnterior.getVolumen() , agenciasAnterior);
+        var diferenciaVolumen = acumuladoAnterior.getVolumen() - acumuladoActual.getVolumen();
+        var porcentajeDiferencia = this.safeDivide(acumuladoActual.getVolumen(), acumuladoAnterior.getVolumen()) * Utilidades.evaluaNumero(diferenciaVolumen);
+        var diferencia = Utilidades.evaluaNumero(diferenciaVolumen);
+        fila.add(rankingActual);
+        fila.add(acumuladoActual.getFabricante());
+        fila.add(agenciasActual);
+        fila.add(acumuladoActual.getVolumen());
+        fila.add(promedioActualMensual.equals(0d) ? "" : promedioActualMensual.intValue());
+        fila.add(promedioActual.equals(0d) ? "" : promedioActual.intValue());
+        fila.add(diferencia);
+        fila.add("");
+        fila.add(agenciasAnterior);
+        fila.add(acumuladoAnterior.getVolumen());
+        fila.add(promedioAnteriorMensual.equals(0d) ? "" : promedioAnteriorMensual.intValue());
+        fila.add(promedioAnterior.equals(0d) ? "" : promedioAnterior.intValue());
+        fila.add(rankingAnterior);
+        fila.add("");
+        fila.add(diferenciaVolumen);
+        fila.add(porcentajeDiferencia);
         var estilo = acumuladoActual.getFabricante().equalsIgnoreCase("Stellantis") ? "Stellantis" : "Estandar";
         estilo = acumuladoActual.getFabricante().equalsIgnoreCase("TOTAL") ? "TOTAL" : estilo;
-        var diferenciaVolumen = acumuladoAnterior.getVolumen() - acumuladoActual.getVolumen();
-        var porcentajeDiferencia = acumuladoActual.getVolumen().doubleValue()/acumuladoAnterior.getVolumen().doubleValue() * Utilidades.evaluaNumero(diferenciaVolumen);
-        var diferencia = Utilidades.evaluaNumero(diferenciaVolumen);
-        return new FilaTabla(estilo, List.of(
-                0 , acumuladoActual.getFabricante(),
-                0, 0,
-                0,
-                0,
-                diferencia,
-                "",
-                agenciasAnterior, 0,
-                0,
-                0,
-                0,
-                "",
-                diferenciaVolumen,
-                porcentajeDiferencia
-        ));
+        return new FilaTabla(estilo, fila);
+    }
+
+
+
+    private Double safeDivide(Number numerador, Number denominador){
+        if(Objects.isNull(numerador) || Objects.isNull(denominador)
+                || denominador.equals(Double.valueOf("0")) || numerador.equals(Double.valueOf("0"))){
+            return 0d;
+        }
+        Double resultado =   numerador.doubleValue() / denominador.doubleValue();
+        return resultado.isInfinite() || resultado.isNaN()
+                ? 0d : resultado;
     }
 
 

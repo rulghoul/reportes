@@ -596,6 +596,8 @@ public class ModeloPeriodoService {
     public List<VhcMarcaperiodo> findAgenciasMarca(LocalDate fechIni, LocalDate fechFin, VhcMarca marca){
         this.inicio = fechIni;
         this.fechaFinal = fechFin;
+        int desde = Integer.parseInt(fechIni.format(toIntegerFormater));
+        int hasta = Integer.parseInt(fechFin.format(toIntegerFormater));
         return marcaRepository.findTotalUltimosMeses(marca,fechIni.getYear(), fechIni.getMonth().getValue(), fechFin.getMonth().getValue());
     }
 }
