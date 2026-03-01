@@ -3,6 +3,7 @@ package com.organizame.reportes.service;
 import com.organizame.reportes.dto.Margen;
 import com.organizame.reportes.dto.request.RequestRanking;
 import com.organizame.reportes.repository.service.PeriodoService;
+import com.organizame.reportes.utils.Constantes;
 import com.organizame.reportes.utils.excel.ColorExcel;
 import com.organizame.reportes.utils.excel.CrearExcel;
 import com.organizame.reportes.utils.excel.EstiloCeldaExcel;
@@ -120,11 +121,26 @@ public class ReporteInventarioService {
         List<List<Celda>> tabla = new ArrayList<>();
         agrupado.entrySet()
                 .stream()
+                .filter(marca -> !marca.getKey().toLowerCase().contains("alfa"))
+                .forEach( marca -> {
+                    marca.getValue()
+                            .stream()
+                            .forEach(modelo -> tabla.add(modelo.toCeldas("Blanco")));
+                    var marg = marca.getValue().stream().reduce(Margen::sumarConMarca).get();
+                    Constantes.calculaCierre(marg);
+                    tabla.add(marg.toCeldas("Gris"));
+
+                });
+        //Al final alpha
+        agrupado.entrySet()
+                .stream()
+                .filter(marca ->marca.getKey().toLowerCase().contains("alfa"))
                 .forEach( marca -> {
                     marca.getValue()
                             .forEach(modelo -> tabla.add(modelo.toCeldas("Blanco")));
-                    tabla.add(marca.getValue().stream().reduce(Margen::sumarConMarca).get().toCeldas("Gris"));
-
+                    var marg = marca.getValue().stream().reduce(Margen::sumarConMarca).get();
+                    Constantes.calculaCierre(marg);
+                    tabla.add(marg.toCeldas("Gris"));
                 });
 
         for(int i = 0; i < tabla.size(); i++){
@@ -132,9 +148,12 @@ public class ReporteInventarioService {
         }
 
         var stellantis = consolidado.stream().reduce(Margen::sumarConMarca).get();
+        Constantes.calculaCierre(stellantis);
         stellantis.setModelo("Stellantis");
         excel.creaFila( hoja, new ColumnaFila(new Posicion(0, tabla.size()+6), stellantis.toCeldas("Gris")));
     }
+
+
 
 
     private void creaEstilos(CrearExcel excel) {

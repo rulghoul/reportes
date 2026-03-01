@@ -9,10 +9,7 @@ import com.organizame.reportes.dto.auxiliar.Acumulado;
 import com.organizame.reportes.dto.auxiliar.PortadaTotales;
 import com.organizame.reportes.dto.auxiliar.ResumenHelp;
 import com.organizame.reportes.dto.request.RequestOrigen;
-import com.organizame.reportes.persistence.entities.VhcGrupo;
-import com.organizame.reportes.persistence.entities.VhcMarca;
-import com.organizame.reportes.persistence.entities.VhcMarcaperiodo;
-import com.organizame.reportes.persistence.entities.VhcModeloperiodoindustria;
+import com.organizame.reportes.persistence.entities.*;
 import com.organizame.reportes.persistence.repositories.VhcGrupoRepository;
 import com.organizame.reportes.persistence.repositories.VhcMarcaperiodoRepository;
 import com.organizame.reportes.repository.VhcModeloperiodoindustriaRepository2;
@@ -85,17 +82,17 @@ public class ModeloPeriodoService {
                     var grupo = grupos.stream()
                             .filter(grup ->
                                     grup.getVhcgrupomarcaList().stream()
-                                            //.peek(marc -> log.info("Probar marca {} es parte del grupo {}", dato.getVhcmodelo().getVhcmarca().getNombre(), marc.getVhcgrupo().getNombre()))
+                                            .filter(marc -> Objects.nonNull(dato.getVhcmodelo()))
                                             .filter(marc -> marc.getVhcMarca().equals(dato.getVhcmodelo().getVhcmarca()))
                                             .findFirst().isPresent()
                             )
-                            //.peek(grup -> log.info("La marca {} es parte del grupo {}", dato.getVhcmodelo().getVhcmarca().getNombre(), grup.getNombre()))
                             .findFirst();
                     String nombre = grupo.isPresent()
                             ? grupo.get().getNombre()
                             : dato.getFabricantearchivo();
+                    var modelo = Objects.nonNull(dato.getVhcmodelo()) ? dato.getVhcmodelo() : new VhcModelo();
                     return new DaoResumenPeriodo(
-                            dato.getVhcmodelo(),
+                            modelo,
                             dato.getModeloarchivo(),
                             dato.getCantidad(),
                             this.recuperaMesAnioLabel(dato.getPeriodoanio(), dato.getPeriodomes()),

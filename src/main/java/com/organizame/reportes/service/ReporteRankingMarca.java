@@ -293,12 +293,12 @@ public class ReporteRankingMarca {
         List<FilaTabla> filas = new ArrayList<>();
         filas.add(portHeader);
         var count = new AtomicInteger(1);
-        var random = new Random(123456);
+
         var maximo = acumuladosporGrupo.size() < 15 ? acumuladosporGrupo.size() : 15;
         filas.addAll(acumuladosporGrupo.subList(0,maximo).stream()
                 .map(acumulado -> {
                     var rank = count.getAndIncrement();
-                    var agencia = random.nextInt(80, 150);
+                    var agencia = acumulado.getVolumen();
                     return this.getFilaTabla(acumulado, agencia, rank, request.getMes());
                 }
         ).toList());

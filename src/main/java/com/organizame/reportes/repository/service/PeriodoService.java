@@ -43,16 +43,19 @@ public class PeriodoService {
                             .filter( ant -> ant.getVhcmodelo().equals(marg.getVhcmodelo()))
                             .findFirst().orElse(new VhcModeloperiodo());
 
-                    var flotilla = Objects.isNull(marg.getMenudeoflotillanormal()) ? 0
+                    Integer flotilla = Objects.isNull(marg.getMenudeoflotillanormal()) ? 0
                             :marg.getMenudeoflotillanormal();
 
-                    var cierre = flotilla == 0
+                    var resultado = flotilla == 0
                             ? 0
-                            : ((marg.getInventario()/marg.getMenudeoflotillanormal())  * 30);
+                            : (Float.valueOf(marg.getInventario())/Float.valueOf(marg.getMenudeoflotillanormal()));
+
+                    Double cierre = resultado * 30.0;
+
 
                     return new Margen(marg.getVhcmodelo().getVhcmarca().getNombre(),
                             marg.getVhcmodelo().getNombre(), anteri.getInventario(), marg.getInventario(),
-                            marg.getMenudeoflotillanormal(), cierre);
+                            marg.getMenudeoflotillanormal(), cierre.intValue());
                 } ).toList();
 
     }

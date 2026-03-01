@@ -66,10 +66,7 @@ public class Utilidades {
                 }
                 case Boolean b -> cell.setCellValue(b ? "VERDADERO" : "FALSO");
                 case LinkExcel temp -> manejarArrayList(wb, cell, temp);
-                case null, default -> {
-                    System.out.println("No ESTIPULADO: " +
-                            (valor != null ? valor.getClass().getTypeName() : "null"));
-                }
+                case null, default -> cell.setCellValue("");
             }
         } catch (Exception e) {
             log.warn("Fallo al colocar el valor por {}", e.getMessage());

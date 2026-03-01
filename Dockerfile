@@ -1,5 +1,5 @@
 ARG BUILD_IMAGE=maven:3.9.12-eclipse-temurin-21
-ARG RUNTIME_IMAGE=eclipse-temurin:21-jre-alpine
+ARG RUNTIME_IMAGE=eclipse-temurin:21-jre
 #############################################################################################
 ###                Stage where Docker is pulling all maven dependencies                   ###
 #############################################################################################
