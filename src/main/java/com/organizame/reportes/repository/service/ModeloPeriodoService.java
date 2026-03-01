@@ -601,7 +601,6 @@ public class ModeloPeriodoService {
         this.fechaFinal = fechFin;
         int desde = Integer.parseInt(fechIni.format(toIntegerFormater));
         int hasta = Integer.parseInt(fechFin.format(toIntegerFormater));
-        log.info("Desde {} Hasta {} para la marca {}", desde, hasta, marca);
         return marcaRepository.findTotalUltimosMeses(marca,fechIni.getYear(), fechIni.getMonth().getValue(), fechFin.getMonth().getValue());
     }
 }
