@@ -1,0 +1,122 @@
+package com.organizame.reportes.persistence.entities;
+
+import com.organizame.reportes.dto.Response.MargenUtilidadDto;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.UUID;
+
+@Entity
+@Getter
+@Setter
+@Builder
+@Table(name = "vhc_margenutilidad", indexes = {
+        @Index(name = "VHC_MARGENUTILIDAD_IDX_IDANIO", columnList = "IDANIO"),
+        @Index(name = "VHC_MARGENUTILIDAD_IDX_PERIODOS", columnList = "PERIODOANIO, PERIODOMES, PERIODODIA")
+})
+@NoArgsConstructor
+@AllArgsConstructor
+public class VhcMargenUtilidad implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 6358816122783250687L;
+
+    @Id
+    @Column(name = "IDMARGENUTILIDAD", columnDefinition = "BINARY(16)", length = 16)
+    @JdbcTypeCode(SqlTypes.BINARY)
+    private byte[] idMargenUtilidad;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "IDANIO", referencedColumnName = "IDANIO", nullable = false,
+            foreignKey = @ForeignKey(name = "VHC_MARGENUTILIDAD_FK_IDANIO"))
+    private VhcAnio vhcAnio;
+
+    @Column(name = "PERIODOANIO", nullable = false)
+    private Integer periodoAnio;
+
+    @Column(name = "PERIODOMES", nullable = false)
+    private Integer periodoMes;
+
+    @Column(name = "PERIODODIA", nullable = false)
+    private Integer periodoDia;
+
+    @Column(name = "BODYMODELCPOS", nullable = false, length = 100)
+    private String bodyModelCpos;
+
+    @Column(name = "VERSIONARCHIVO", length = 50)
+    private String versionArchivo;
+
+    @Column(name = "PRECIOLISTA", nullable = false, precision = 65, scale = 2)
+    private BigDecimal precioLista;
+
+    @Column(name = "PRECIOCREDITO", nullable = false, precision = 65, scale = 2)
+    private BigDecimal precioCredito;
+
+    @Column(name = "PRECIOCONTADO", nullable = false, precision = 65, scale = 2)
+    private BigDecimal precioContado;
+
+    @Column(name = "PRECIOLISTAUTILIDADSINIMPUESTOMONTO", nullable = false, precision = 65, scale = 2)
+    private BigDecimal precioListaUtilidadSinImpuestoMonto;
+
+    @Column(name = "PRECIOLISTAUTILIDADSINIMPUESTOPORC", nullable = false, precision = 65, scale = 2)
+    private BigDecimal precioListaUtilidadSinImpuestoPorc;
+
+    @Column(name = "PRECIOCREDITOUTILIDADSINIMPUESTOMONTO", nullable = false, precision = 65, scale = 2)
+    private BigDecimal precioCreditoUtilidadSinImpuestoMonto;
+
+    @Column(name = "PRECIOCREDITOUTILIDADSINIMPUESTOPORC", nullable = false, precision = 65, scale = 2)
+    private BigDecimal precioCreditoUtilidadSinImpuestoPorc;
+
+    @Column(name = "PRECIOCONTADOUTILIDADSINIMPUESTOMONTO", nullable = false, precision = 65, scale = 2)
+    private BigDecimal precioContadoUtilidadSinImpuestoMonto;
+
+    @Column(name = "PRECIOCONTADOUTILIDADSINIMPUESTOPORC", nullable = false, precision = 65, scale = 2)
+    private BigDecimal precioContadoUtilidadSinImpuestoPorc;
+
+    @Column(name = "FECHACALCULO", nullable = false)
+    private LocalDate fechaCalculo;
+
+    @PrePersist
+    private void generateId() {
+        if (this.idMargenUtilidad == null) {
+            this.idMargenUtilidad = toBytes(UUID.randomUUID());
+        }
+    }
+
+    private byte[] toBytes(UUID uuid) {
+        byte[] bytes = new byte[16];
+        long mostSigBits = uuid.getMostSignificantBits();
+        long leastSigBits = uuid.getLeastSignificantBits();
+        for (int i = 0; i < 8; i++) {
+            bytes[i] = (byte) (mostSigBits >> (8 * (7 - i)));
+            bytes[8 + i] = (byte) (leastSigBits >> (8 * (7 - i)));
+        }
+        return bytes;
+    }
+
+    public UUID getUuid() {
+        return toUUID(this.idMargenUtilidad);
+    }
+
+    private UUID toUUID(byte[] bytes) {
+        if (bytes == null || bytes.length != 16) return null;
+        long mostSigBits = 0;
+        long leastSigBits = 0;
+        for (int i = 0; i < 8; i++) mostSigBits = (mostSigBits << 8) | (bytes[i] & 0xff);
+        for (int i = 8; i < 16; i++) leastSigBits = (leastSigBits << 8) | (bytes[i] & 0xff);
+        return new UUID(mostSigBits, leastSigBits);
+    }
+
+    public MargenUtilidadDto toDto(){
+        return new MargenUtilidadDto(this.toUUID(vhcAnio.getIdanio()).toString(), periodoAnio, periodoMes, periodoDia, bodyModelCpos,
+                versionArchivo, precioLista, precioCredito, precioContado,
+                precioListaUtilidadSinImpuestoMonto, precioCreditoUtilidadSinImpuestoMonto, precioContadoUtilidadSinImpuestoMonto,
+                precioListaUtilidadSinImpuestoPorc, precioCreditoUtilidadSinImpuestoPorc, precioContadoUtilidadSinImpuestoPorc,LocalDate.now());
+    }
+}
