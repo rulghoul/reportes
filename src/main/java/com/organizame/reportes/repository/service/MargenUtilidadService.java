@@ -4,17 +4,21 @@ import com.organizame.reportes.dto.MargenUtilidad;
 import com.organizame.reportes.dto.MargenUtilidadFactory;
 import com.organizame.reportes.persistence.entities.*;
 import com.organizame.reportes.persistence.repositories.*;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class MargenUtilidadService {
 
@@ -91,7 +95,21 @@ public class MargenUtilidadService {
 
     }
 
-    public void SaveMargenes(List<VhcMargenUtilidad> margenes){
-        margenUtilidadRepository.saveAll(margenes);
+    @Transactional
+    public List<VhcMargenUtilidad> saveMargenes(List<VhcMargenUtilidad> margenes){
+
+        try {
+            var limpios = margenes.stream()
+                    .filter(margen ->
+                            !margenUtilidadRepository
+                                    .existsByVhcAnioAndPeriodoAnioAndPeriodoMesAndPeriodoDia(margen.getVhcAnio(), margen.getPeriodoAnio(), margen.getPeriodoMes(), margen.getPeriodoDia()))
+                    .toList();
+            log.info("Se guardaran {} de los {} encontrados", limpios.size(), margenes.size());
+            margenUtilidadRepository.saveAll(limpios);
+            return limpios;
+        }catch (Exception e){
+            log.info("Fallo la consulta de existentes por: {}", e.getMessage());
+            return new ArrayList<>();
+        }
     }
 }

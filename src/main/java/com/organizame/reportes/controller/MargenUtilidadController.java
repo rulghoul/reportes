@@ -2,6 +2,7 @@ package com.organizame.reportes.controller;
 
 import com.organizame.reportes.dto.request.RequestMargen;
 import com.organizame.reportes.dto.request.RequestRanking;
+import com.organizame.reportes.persistence.entities.VhcMargenUtilidad;
 import com.organizame.reportes.repository.service.MargenUtilidadService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.NotContextException;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -50,7 +52,8 @@ public class MargenUtilidadController {
             if(margenes.isEmpty()){
                 throw new NotContextException();
             }
-            return ResponseEntity.ok(margendto);
+            var salvados = service.saveMargenes(margenes);
+            return ResponseEntity.ok(Map.of("Encontrados", margendto, "Guardados", salvados.size()));
         }catch (NotContextException e){
             return ResponseEntity.noContent().build();
         }catch (Exception e){

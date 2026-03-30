@@ -18,7 +18,7 @@ import java.util.UUID;
 @Builder
 @Table(name = "vhc_margenutilidad", indexes = {
         @Index(name = "VHC_MARGENUTILIDAD_IDX_IDANIO", columnList = "IDANIO"),
-        @Index(name = "VHC_MARGENUTILIDAD_IDX_PERIODOS", columnList = "PERIODOANIO, PERIODOMES, PERIODODIA")
+        @Index(name = "VHC_MARGENUTILIDAD_IDX_PERIODOS", columnList = "IDANIO, PERIODOANIO, PERIODOMES, PERIODODIA")
 })
 @NoArgsConstructor
 @AllArgsConstructor
@@ -53,31 +53,31 @@ public class VhcMargenUtilidad implements Serializable {
     private String versionArchivo;
 
     @Column(name = "PRECIOLISTA", nullable = false, precision = 65, scale = 2)
-    private BigDecimal precioLista;
+    private BigDecimal precioLista = BigDecimal.ZERO;
 
     @Column(name = "PRECIOCREDITO", nullable = false, precision = 65, scale = 2)
-    private BigDecimal precioCredito;
+    private BigDecimal precioCredito = BigDecimal.ZERO;
 
     @Column(name = "PRECIOCONTADO", nullable = false, precision = 65, scale = 2)
-    private BigDecimal precioContado;
+    private BigDecimal precioContado = BigDecimal.ZERO;
 
     @Column(name = "PRECIOLISTAUTILIDADSINIMPUESTOMONTO", nullable = false, precision = 65, scale = 2)
-    private BigDecimal precioListaUtilidadSinImpuestoMonto;
+    private BigDecimal precioListaUtilidadSinImpuestoMonto = BigDecimal.ZERO;
 
     @Column(name = "PRECIOLISTAUTILIDADSINIMPUESTOPORC", nullable = false, precision = 65, scale = 2)
-    private BigDecimal precioListaUtilidadSinImpuestoPorc;
+    private BigDecimal precioListaUtilidadSinImpuestoPorc = BigDecimal.ZERO;
 
     @Column(name = "PRECIOCREDITOUTILIDADSINIMPUESTOMONTO", nullable = false, precision = 65, scale = 2)
-    private BigDecimal precioCreditoUtilidadSinImpuestoMonto;
+    private BigDecimal precioCreditoUtilidadSinImpuestoMonto = BigDecimal.ZERO;
 
     @Column(name = "PRECIOCREDITOUTILIDADSINIMPUESTOPORC", nullable = false, precision = 65, scale = 2)
-    private BigDecimal precioCreditoUtilidadSinImpuestoPorc;
+    private BigDecimal precioCreditoUtilidadSinImpuestoPorc = BigDecimal.ZERO;
 
     @Column(name = "PRECIOCONTADOUTILIDADSINIMPUESTOMONTO", nullable = false, precision = 65, scale = 2)
-    private BigDecimal precioContadoUtilidadSinImpuestoMonto;
+    private BigDecimal precioContadoUtilidadSinImpuestoMonto = BigDecimal.ZERO;
 
     @Column(name = "PRECIOCONTADOUTILIDADSINIMPUESTOPORC", nullable = false, precision = 65, scale = 2)
-    private BigDecimal precioContadoUtilidadSinImpuestoPorc;
+    private BigDecimal precioContadoUtilidadSinImpuestoPorc = BigDecimal.ZERO;
 
     @Column(name = "FECHACALCULO", nullable = false)
     private LocalDate fechaCalculo;
