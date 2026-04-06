@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -96,6 +95,18 @@ public class MargenUtilidadService {
     }
 
     @Transactional
+    public List<VhcMargenUtilidad> getMargenUtilidad(LocalDate fecha){
+        return margenUtilidadRepository
+                .findDistinctByPeriodoAnioAndPeriodoMesAndPeriodoDia(fecha.getYear(), fecha.getMonth().getValue(), fecha.getDayOfMonth());
+    }
+
+    @Transactional
+    public void deleteMargenUtilidad(List<VhcMargenUtilidad> margenes){
+        margenUtilidadRepository.deleteAll(margenes);
+    }
+
+
+    @Transactional
     public List<VhcMargenUtilidad> saveMargenes(List<VhcMargenUtilidad> margenes){
 
         try {
@@ -107,6 +118,52 @@ public class MargenUtilidadService {
             log.info("Se guardaran {} de los {} encontrados", limpios.size(), margenes.size());
             margenUtilidadRepository.saveAll(limpios);
             return limpios;
+        }catch (Exception e){
+            log.info("Fallo la consulta de existentes por: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    @Transactional
+    public List<VhcMargenUtilidad> updateMargenes(List<VhcMargenUtilidad> margenes){
+
+        try {
+            List<VhcMargenUtilidad> existentes = new ArrayList<>();
+            margenes.stream()
+                    .forEach(margen -> {
+                        var actual = margenUtilidadRepository.findByVhcAnioAndPeriodoAnioAndPeriodoMesAndPeriodoDia(margen.getVhcAnio(), margen.getPeriodoAnio(), margen.getPeriodoMes(), margen.getPeriodoDia());
+                        if(actual.isPresent()){
+                            margen.setIdMargenUtilidad(actual.get().getIdMargenUtilidad());
+                            existentes.add(margen);
+                        }
+                    });
+            log.info("Se guardaran {} de los {} encontrados", existentes.size(), margenes.size());
+            margenUtilidadRepository.saveAll(existentes);
+            return existentes;
+        }catch (Exception e){
+            log.info("Fallo la consulta de existentes por: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    @Transactional
+    public List<VhcMargenUtilidad> upsertMargenes(List<VhcMargenUtilidad> margenes){
+
+        try {
+            List<VhcMargenUtilidad> completo = new ArrayList<>();
+                    margenes.stream()
+                    .forEach(margen -> {
+                        var actual = margenUtilidadRepository.findByVhcAnioAndPeriodoAnioAndPeriodoMesAndPeriodoDia(margen.getVhcAnio(), margen.getPeriodoAnio(), margen.getPeriodoMes(), margen.getPeriodoDia());
+                        if(actual.isPresent()){
+                            margen.setIdMargenUtilidad(actual.get().getIdMargenUtilidad());
+                            completo.add(margen);
+                        }else{
+                            completo.add(margen);
+                        }
+                    });
+            log.info("Se actaualizaran {} de los {} encontrados", completo.size(), margenes.size());
+            margenUtilidadRepository.saveAll(completo);
+            return completo;
         }catch (Exception e){
             log.info("Fallo la consulta de existentes por: {}", e.getMessage());
             return new ArrayList<>();

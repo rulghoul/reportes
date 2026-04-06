@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.domain.Persistable;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -22,7 +23,8 @@ import java.util.UUID;
 })
 @NoArgsConstructor
 @AllArgsConstructor
-public class VhcMargenUtilidad implements Serializable {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class VhcMargenUtilidad implements Serializable, Persistable<byte[]> {
 
     @Serial
     private static final long serialVersionUID = 6358816122783250687L;
@@ -30,20 +32,25 @@ public class VhcMargenUtilidad implements Serializable {
     @Id
     @Column(name = "IDMARGENUTILIDAD", columnDefinition = "BINARY(16)", length = 16)
     @JdbcTypeCode(SqlTypes.BINARY)
+    @EqualsAndHashCode.Include
     private byte[] idMargenUtilidad;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "IDANIO", referencedColumnName = "IDANIO", nullable = false,
             foreignKey = @ForeignKey(name = "VHC_MARGENUTILIDAD_FK_IDANIO"))
+    @EqualsAndHashCode.Include
     private VhcAnio vhcAnio;
 
     @Column(name = "PERIODOANIO", nullable = false)
+    @EqualsAndHashCode.Include
     private Integer periodoAnio;
 
     @Column(name = "PERIODOMES", nullable = false)
+    @EqualsAndHashCode.Include
     private Integer periodoMes;
 
     @Column(name = "PERIODODIA", nullable = false)
+    @EqualsAndHashCode.Include
     private Integer periodoDia;
 
     @Column(name = "BODYMODELCPOS", nullable = false, length = 100)
@@ -86,7 +93,29 @@ public class VhcMargenUtilidad implements Serializable {
     private void generateId() {
         if (this.idMargenUtilidad == null) {
             this.idMargenUtilidad = toBytes(UUID.randomUUID());
+        }else{
+            persisted = true;
         }
+    }
+
+    @PostLoad
+    @PostPersist
+    public void markAsPersisted() {
+        this.persisted = true;
+    }
+
+    @Override
+    public byte[] getId() {
+        return idMargenUtilidad;
+    }
+
+    @Transient
+    private boolean persisted = false;
+
+    @Override
+    @Transient // 👈 ¡Crítico! No mapear este método como columna
+    public boolean isNew() {
+        return !persisted;
     }
 
     private byte[] toBytes(UUID uuid) {
