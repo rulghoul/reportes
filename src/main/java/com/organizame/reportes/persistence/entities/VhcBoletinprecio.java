@@ -8,7 +8,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -23,7 +22,6 @@ import java.util.List;
  */
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 @Entity
 @Table(name="vhc_boletinprecio", catalog="adistemdb" )

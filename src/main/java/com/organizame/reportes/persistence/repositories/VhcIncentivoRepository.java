@@ -11,4 +11,6 @@ import java.util.List;
 public interface VhcIncentivoRepository  extends PagingAndSortingRepository<VhcIncentivo, byte[]> {
     @Query("select v from VhcIncentivo v where v.vhcanio in ?1")
     List<VhcIncentivo> getBoletinIncentivo(Collection<VhcAnio> vhcanios);
+
+    List<VhcIncentivo> findByVhcanioInAndPeriodomesLessThanEqualOrderByPeriodomesDesc(Collection<VhcAnio> vhcanios, int periodomes);
 }

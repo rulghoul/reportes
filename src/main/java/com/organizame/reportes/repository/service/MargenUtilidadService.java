@@ -2,18 +2,22 @@ package com.organizame.reportes.repository.service;
 
 import com.organizame.reportes.dto.MargenUtilidad;
 import com.organizame.reportes.dto.MargenUtilidadFactory;
-import com.organizame.reportes.persistence.entities.VhcBoletinpreciogasto;
-import com.organizame.reportes.persistence.entities.VhcDaacuota;
-import com.organizame.reportes.persistence.entities.VhcIncentivo;
-import com.organizame.reportes.persistence.entities.VhcReembolso;
+import com.organizame.reportes.persistence.entities.*;
 import com.organizame.reportes.persistence.repositories.*;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class MargenUtilidadService {
 
@@ -22,37 +26,50 @@ public class MargenUtilidadService {
     private final VhcDaacuotaRepository daacuotaRepository;
     private final VhcIncentivoRepository incentivoRepository;
     private final VhcReembolsoRepository reembolsoRepository;
+    private final VhcMargenUtilidadRepository margenUtilidadRepository;
     private final MargenUtilidadFactory margenUtilidadFactory;
 
     @Autowired
     public MargenUtilidadService(VhcBoletinprecioRepository boletinprecioRepository, VhcBoletinpreciogastoRepository boletinpreciogastoRepository,
                                  VhcDaacuotaRepository daacuotaRepository, VhcIncentivoRepository incentivoRepository,
-                                 VhcReembolsoRepository reembolsoRepository, MargenUtilidadFactory margenUtilidadFactory){
+                                 VhcReembolsoRepository reembolsoRepository, VhcMargenUtilidadRepository margenUtilidadRepository,
+                                 MargenUtilidadFactory margenUtilidadFactory){
         this.boletinprecioRepository = boletinprecioRepository;
         this.boletinpreciogastoRepository = boletinpreciogastoRepository;
         this.daacuotaRepository = daacuotaRepository;
         this.incentivoRepository = incentivoRepository;
         this.reembolsoRepository = reembolsoRepository;
+        this.margenUtilidadRepository = margenUtilidadRepository;
         this.margenUtilidadFactory = margenUtilidadFactory;
     }
 
     public List<MargenUtilidad> getMargenes(LocalDate fecha){
 
         var boletines = boletinprecioRepository
-                .lastedBoletin(fecha.atStartOfDay(), String.valueOf(fecha.getYear()));
+                .lastedBoletin(fecha.atTime(23,59), String.valueOf(fecha.getYear()));
 
-        var anios = boletines.stream().map(boletin -> boletin.getVhcanio()).toList();
+        Map<VhcAnio, VhcBoletinprecio> resultado =
+                boletines.stream()
+                        .collect(Collectors.toMap(
+                                VhcBoletinprecio::getVhcanio,
+                                Function.identity(),
+                                (e1, e2) -> e1.getFechainicio().isAfter(e2.getFechainicio()) ? e1 : e2
+                        ));
 
-        var boletinesGastos = boletinpreciogastoRepository.getGastosBoletin(boletines);
+        List<VhcBoletinprecio> filtrada = new ArrayList<>(resultado.values());
+
+        var anios = new ArrayList<>(resultado.keySet());
+
+        var boletinesGastos = boletinpreciogastoRepository.getGastosBoletin(filtrada);
 
         var cuotaBoletin = daacuotaRepository.getCuotaBoletin(anios);
 
-        var incentivoBoletin = incentivoRepository.getBoletinIncentivo(anios);
+        var incentivoBoletin = incentivoRepository.findByVhcanioInAndPeriodomesLessThanEqualOrderByPeriodomesDesc(anios,fecha.getMonth().getValue());
 
         var rembolsoBoletin = reembolsoRepository.getBoletinRembolso(anios);
 
 
-        return boletines.stream()
+        return filtrada.stream()
                 .map(boletin -> {
                     boletin.setDistribuidorisan(BigDecimal.TEN);
                     boletinprecioRepository.save(boletin);
@@ -70,7 +87,6 @@ public class MargenUtilidadService {
                             .filter( remb -> remb.getVhcanio().equals(boletin.getVhcanio()))
                             .findFirst();
 
-
                     return margenUtilidadFactory.crearMargenUtilidad(
                             boletin, gastos, cuota, insentivo, rembolso
                     );
@@ -78,5 +94,79 @@ public class MargenUtilidadService {
 
     }
 
+    @Transactional
+    public List<VhcMargenUtilidad> getMargenUtilidad(LocalDate fecha){
+        return margenUtilidadRepository
+                .findDistinctByPeriodoAnioAndPeriodoMesAndPeriodoDia(fecha.getYear(), fecha.getMonth().getValue(), fecha.getDayOfMonth());
+    }
 
+    @Transactional
+    public void deleteMargenUtilidad(List<VhcMargenUtilidad> margenes){
+        margenUtilidadRepository.deleteAll(margenes);
+    }
+
+
+    @Transactional
+    public List<VhcMargenUtilidad> saveMargenes(List<VhcMargenUtilidad> margenes){
+
+        try {
+            var limpios = margenes.stream()
+                    .filter(margen ->
+                            !margenUtilidadRepository
+                                    .existsByVhcAnioAndPeriodoAnioAndPeriodoMesAndPeriodoDia(margen.getVhcAnio(), margen.getPeriodoAnio(), margen.getPeriodoMes(), margen.getPeriodoDia()))
+                    .toList();
+            log.info("Se guardaran {} de los {} encontrados", limpios.size(), margenes.size());
+            margenUtilidadRepository.saveAll(limpios);
+            return limpios;
+        }catch (Exception e){
+            log.info("Fallo la consulta de existentes por: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    @Transactional
+    public List<VhcMargenUtilidad> updateMargenes(List<VhcMargenUtilidad> margenes){
+
+        try {
+            List<VhcMargenUtilidad> existentes = new ArrayList<>();
+            margenes.stream()
+                    .forEach(margen -> {
+                        var actual = margenUtilidadRepository.findByVhcAnioAndPeriodoAnioAndPeriodoMesAndPeriodoDia(margen.getVhcAnio(), margen.getPeriodoAnio(), margen.getPeriodoMes(), margen.getPeriodoDia());
+                        if(actual.isPresent()){
+                            margen.setIdMargenUtilidad(actual.get().getIdMargenUtilidad());
+                            existentes.add(margen);
+                        }
+                    });
+            log.info("Se guardaran {} de los {} encontrados", existentes.size(), margenes.size());
+            margenUtilidadRepository.saveAll(existentes);
+            return existentes;
+        }catch (Exception e){
+            log.info("Fallo la consulta de existentes por: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    @Transactional
+    public List<VhcMargenUtilidad> upsertMargenes(List<VhcMargenUtilidad> margenes){
+
+        try {
+            List<VhcMargenUtilidad> completo = new ArrayList<>();
+                    margenes.stream()
+                    .forEach(margen -> {
+                        var actual = margenUtilidadRepository.findByVhcAnioAndPeriodoAnioAndPeriodoMesAndPeriodoDia(margen.getVhcAnio(), margen.getPeriodoAnio(), margen.getPeriodoMes(), margen.getPeriodoDia());
+                        if(actual.isPresent()){
+                            margen.setIdMargenUtilidad(actual.get().getIdMargenUtilidad());
+                            completo.add(margen);
+                        }else{
+                            completo.add(margen);
+                        }
+                    });
+            log.info("Se actaualizaran {} de los {} encontrados", completo.size(), margenes.size());
+            margenUtilidadRepository.saveAll(completo);
+            return completo;
+        }catch (Exception e){
+            log.info("Fallo la consulta de existentes por: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
 }

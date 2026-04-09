@@ -95,7 +95,7 @@ public class ReporteMargenUtilidad {
     }
 
     private final List<Celda> ENCABEZADOS = Arrays.asList(
-            new Celda("Nombre Version (MY)", "Encabezado",1),
+            new Celda("Nombre Version (MY)", "encabezado",1),
             new Celda("PRECIO DIST", "encabezado", 1),
             new Celda("Precio Base", "encabezado", 1),
             new Celda("CUOTA SPDC", "encabezado", 1),

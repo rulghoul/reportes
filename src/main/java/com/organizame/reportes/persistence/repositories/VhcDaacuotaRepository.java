@@ -13,4 +13,7 @@ public interface VhcDaacuotaRepository  extends PagingAndSortingRepository<VhcDa
 
     @Query("select v from VhcDaacuota v where v.vhcanio in ?1")
     List<VhcDaacuota> getCuotaBoletin(Collection<VhcAnio> vhcanios);
+
+    List<VhcDaacuota> findByVhcanioInAndPeriodomesOrderByPeriodomesDesc(Collection<VhcAnio> vhcanios, int periodomes);
+
 }

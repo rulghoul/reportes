@@ -7,11 +7,11 @@ import com.organizame.reportes.utils.Constantes;
 import com.organizame.reportes.utils.excel.dto.Celda;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 public class MargenUtilidad {
 
     private ISANService isanService;
+    private VhcMargenUtilidad margenUtilidad;
     // Campos fuente (valores directos de las entidades)
     private String versionArchivo;
     private Integer anio;
@@ -51,10 +52,9 @@ public class MargenUtilidad {
                           Optional<VhcIncentivo> incentivo,
                           Optional<VhcReembolso> reembolso,
                           ISANService isanService) {
-        this.isanService = isanService;
-        // VhcBoletinprecio
+        this.isanService = isanService;        // VhcBoletinprecio
 
-        this.versionArchivo = boletinprecio != null ? boletinprecio.getVhcanio().getVhcversion().getNombre() : null; //
+        this.versionArchivo = boletinprecio != null ? boletinprecio.getVersionarchivo() : null; //
         this.anio = boletinprecio != null  && !boletinprecio.getAniomyarchivo().isBlank()
                 ? Integer.parseInt(boletinprecio.getAniomyarchivo()) : 0; //
         this.distribuidorTotal = boletinprecio != null ? boletinprecio.getDistribuidorcontenidosubtotal() : null; //
@@ -110,6 +110,8 @@ public class MargenUtilidad {
                 .filter(precio -> precio.getNombre().equals("Seguro de Traslado"))
                 .map(precio -> new BigDecimal(precio.getPublico()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        this.createMargen(boletinprecio);
 
     }
 
@@ -318,6 +320,36 @@ public class MargenUtilidad {
         result.add(new Celda(null, "normal", 1)); //CS Último campo (null según especificación)
 
         return result;
+    }
+
+    private void createMargen(VhcBoletinprecio boletin){
+        var precio = Objects.isNull(precioLista) ? BigDecimal.ZERO : precioLista;
+        var listaMonto = distribuidorTotal.subtract(daacuota).add(precio);
+        var listaPorcentaje = safeDivide(listaMonto, distribuidorGastosSubtotal);
+        var creditoMonto = Objects.isNull(financiamientoPrecioPromocional)? BigDecimal.ZERO
+        : financiamientoPrecioPromocional.subtract(daacuota).add(precio);
+        var creditoPorcentaje = safeDivide(creditoMonto, distribuidorGastosSubtotal);
+        var contadoMonto = Objects.isNull(contadoPrecio) ? BigDecimal.ZERO
+        : contadoPrecio.subtract(daacuota).add(precio);
+        var contadoPorcentaje = safeDivide(contadoMonto, distribuidorGastosSubtotal);
+        this.margenUtilidad = VhcMargenUtilidad.builder()
+                .vhcAnio(boletin.getVhcanio())
+                .periodoAnio(this.anio)
+                .periodoMes(boletin.getFechainicio().getMonth().getValue())
+                .periodoDia(boletin.getFechainicio().getDayOfMonth())
+                .bodyModelCpos(boletin.getBodymodelcpos())
+                .versionArchivo(this.versionArchivo)
+                .precioLista(Objects.isNull(precio) ? BigDecimal.ZERO : precio)
+                .precioCredito(Objects.isNull(this.financiamientoPrecioPromocional) ? BigDecimal.ZERO : this.financiamientoPrecioPromocional)
+                .precioContado(Objects.isNull(this.contadoPrecio) ? BigDecimal.ZERO : this.contadoPrecio)
+                .precioListaUtilidadSinImpuestoMonto(Objects.isNull(listaMonto) ? BigDecimal.ZERO : listaMonto)
+                .precioListaUtilidadSinImpuestoPorc(Objects.isNull(listaPorcentaje) ? BigDecimal.ZERO : listaPorcentaje)
+                .precioCreditoUtilidadSinImpuestoMonto(Objects.isNull(creditoMonto) ? BigDecimal.ZERO : creditoMonto)
+                .precioCreditoUtilidadSinImpuestoPorc(Objects.isNull(creditoPorcentaje) ? BigDecimal.ZERO : creditoPorcentaje)
+                .precioContadoUtilidadSinImpuestoMonto(Objects.isNull(contadoMonto) ? BigDecimal.ZERO : contadoMonto)
+                .precioContadoUtilidadSinImpuestoPorc(Objects.isNull(contadoPorcentaje) ? BigDecimal.ZERO : contadoPorcentaje)
+                .fechaCalculo(LocalDate.now())
+                .build();
     }
 
     private BigDecimal safeDivide(BigDecimal numerador, BigDecimal denominador) {
